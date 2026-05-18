@@ -84,16 +84,26 @@ jobs:
             # Navigate to the deployment folder
             cd ~/otonotif-app || exit 1
             
+            # Detect whether to use 'docker compose' (v2) or 'docker-compose' (v1)
+            # We use sudo as ec2-user may not have permissions for docker.sock
+            if sudo docker compose version >/dev/null 2>&1; then
+                COMPOSE_CMD="sudo docker compose"
+            else
+                COMPOSE_CMD="sudo docker-compose"
+            fi
+            
+            echo "Using compose command: $COMPOSE_CMD"
+            
             # Login to Docker Hub (if registry is private, otherwise optional)
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             
             # Pull the new image built by GitHub Actions
-            docker compose pull
+            $COMPOSE_CMD pull
             
             # Recreate containers with the new image in background mode
-            docker compose up -d
+            $COMPOSE_CMD up -d
             
             # Clean up old unused dangling images to free up server SSD space
-            docker image prune -f
+            sudo docker image prune -f
             
             echo "Deployment Completed Successfully! 🚀"
