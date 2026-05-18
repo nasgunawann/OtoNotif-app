@@ -54,6 +54,10 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      # Step 0: Clone Repositori agar docker-compose.yml tersedia
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       # Step 1: Copy docker-compose.yml to VPS
       - name: Copy docker-compose.yml to VPS
         uses: appleboy/scp-action@v0.1.7
