@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: dockerfile
-    image: otonotif-app:latest
+    image: nasgunawan/otonotif-app:latest
     container_name: otonotif-web
     ports:
       - "3000:3000"
