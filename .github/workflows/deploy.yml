@@ -67,7 +67,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           source: "docker-compose.yml"
-          target: "/var/www/otonotif-app"
+          target: "~/otonotif-app"
 
       # Step 2: Connect via SSH and update container on the server
       - name: Deploy to VPS via SSH
@@ -79,10 +79,10 @@ jobs:
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             # Ensure the deployment folder exists
-            mkdir -p /var/www/otonotif-app
+            mkdir -p ~/otonotif-app
             
             # Navigate to the deployment folder
-            cd /var/www/otonotif-app || exit 1
+            cd ~/otonotif-app || exit 1
             
             # Login to Docker Hub (if registry is private, otherwise optional)
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
