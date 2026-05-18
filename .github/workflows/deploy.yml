@@ -54,7 +54,18 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Connect via SSH and update container on the server
+      # Step 1: Copy docker-compose.yml to VPS
+      - name: Copy docker-compose.yml to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "docker-compose.yml"
+          target: "/var/www/otonotif-app"
+
+      # Step 2: Connect via SSH and update container on the server
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -63,6 +74,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
+            # Ensure the deployment folder exists
+            mkdir -p /var/www/otonotif-app
+            
             # Navigate to the deployment folder
             cd /var/www/otonotif-app || exit 1
             
