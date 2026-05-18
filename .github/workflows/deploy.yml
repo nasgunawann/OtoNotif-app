@@ -6,8 +6,6 @@ on:
       - main
 
 env:
-  # Sets the image name template using your Docker Hub username dynamically
-  # E.g., username/otonotif-app
   DOCKER_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/otonotif-app
 
 jobs:
@@ -61,11 +59,20 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      # Step 0: Clone Repositori agar docker-compose.yml tersedia
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 1: Copy docker-compose.yml to VPS
+      # PERBAIKAN 1: Buat folder di VPS terlebih dahulu sebelum copy file
+      - name: Create deployment folder on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: mkdir -p ~/otonotif-app
+
+      # Step 2: Copy docker-compose.yml aman karena folder sudah ada
       - name: Copy docker-compose.yml to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -76,7 +83,7 @@ jobs:
           source: "docker-compose.yml"
           target: "~/otonotif-app"
 
-      # Step 2: Connect via SSH and update container on the server
+      # Step 3: Connect via SSH, buat file .env, lalu update container
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -85,32 +92,29 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            # Ensure the deployment folder exists
-            mkdir -p ~/otonotif-app
-            
-            # Navigate to the deployment folder
             cd ~/otonotif-app || exit 1
             
-            # Detect whether to use 'docker compose' (v2) or 'docker-compose' (v1)
-            # We use sudo as ec2-user may not have permissions for docker.sock
+            # PERBAIKAN 2: Inject nama image ke file .env agar dibaca oleh docker-compose.yml
+            echo "DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" > .env
+            
+            # Detect docker compose version
             if sudo docker compose version >/dev/null 2>&1; then
                 COMPOSE_CMD="sudo docker compose"
             else
-                COMPOSE_CMD="sudo docker-compose"
+                DOCKER_COMPOSE_BIN=$(which docker-compose 2>/dev/null || echo "/usr/local/bin/docker-compose")
+                COMPOSE_CMD="sudo $DOCKER_COMPOSE_BIN"
             fi
             
             echo "Using compose command: $COMPOSE_CMD"
             
-            # Login to Docker Hub (if registry is private, otherwise optional)
+            # Login to Docker Hub
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             
-            # Pull the new image built by GitHub Actions
+            # Pull dan restart container
             $COMPOSE_CMD pull
-            
-            # Recreate containers with the new image in background mode
             $COMPOSE_CMD up -d
             
-            # Clean up old unused dangling images to free up server SSD space
+            # Clean up old images
             sudo docker image prune -f
             
             echo "Deployment Completed Successfully! 🚀"
