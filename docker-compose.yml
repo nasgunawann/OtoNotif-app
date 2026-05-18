@@ -5,10 +5,17 @@ services:
       dockerfile: dockerfile
     image: nasgunawan/otonotif-app:latest
     container_name: otonotif-web
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       - PORT=3000
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
     restart: always
+    networks:
+      - default
+      - proxy-net
+
+networks:
+  proxy-net:
+    external: true
