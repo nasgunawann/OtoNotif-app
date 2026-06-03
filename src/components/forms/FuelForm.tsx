@@ -75,7 +75,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         <div className="grid grid-cols-2 gap-3">
           <FormField
             control={form.control}
@@ -155,7 +155,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+        <Button type="submit" size="lg" className="w-full h-12 text-base" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
         </Button>
       </form>
