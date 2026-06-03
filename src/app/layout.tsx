@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ResponsiveLayout } from "@/components/layout/ResponsiveLayout";
 
-const dmSans = DM_Sans({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", dmSans.variable)}
+      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
