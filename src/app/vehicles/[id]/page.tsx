@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import {
@@ -18,7 +18,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import Image from "next/image"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
-import Link from "next/link"
+import { FormDialog } from "@/components/forms/FormDialog"
+import { OdometerForm } from "@/components/forms/OdometerForm"
+import { FuelForm } from "@/components/forms/FuelForm"
+import { ServiceForm } from "@/components/forms/ServiceForm"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -30,7 +33,11 @@ export default function VehicleDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
-  const { selectedVehicle, vehicleHealth, fetchVehicle, fetchVehicleHealth, fetchComponents, components, loading } = useVehicleStore()
+  const { selectedVehicle, vehicleHealth, fetchVehicle, fetchVehicleHealth, fetchComponents, loading } = useVehicleStore()
+
+  const [openOdometer, setOpenOdometer] = useState(false)
+  const [openFuel, setOpenFuel] = useState(false)
+  const [openService, setOpenService] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -39,6 +46,13 @@ export default function VehicleDetailPage() {
       fetchComponents(id)
     }
   }, [id, fetchVehicle, fetchVehicleHealth, fetchComponents])
+
+  function refresh() {
+    if (id) {
+      fetchVehicleHealth(id)
+      fetchComponents(id)
+    }
+  }
 
   if (loading && !selectedVehicle) {
     return (
@@ -149,19 +163,62 @@ export default function VehicleDetailPage() {
       </Card>
 
       <div className="grid grid-cols-2 gap-3">
-        <Button className="gap-2 h-12" variant="outline">
-          <IconDroplet className="h-4 w-4 text-blue-500" />
-          Isi Bensin
-        </Button>
-        <Button className="gap-2 h-12" variant="outline">
-          <IconPlus className="h-4 w-4" />
-          Servis Baru
-        </Button>
+        <FormDialog
+          title="Isi Bensin"
+          description={vehicle.name}
+          trigger={
+            <Button className="gap-2 h-12" variant="outline">
+              <IconDroplet className="h-4 w-4 text-blue-500" />
+              Isi Bensin
+            </Button>
+          }
+          open={openFuel}
+          onOpenChange={setOpenFuel}
+        >
+          <FuelForm
+            vehicleId={vehicle.id}
+            vehicleName={vehicle.name}
+            onSuccess={() => { setOpenFuel(false); refresh() }}
+          />
+        </FormDialog>
+
+        <FormDialog
+          title="Tambah Servis"
+          description={vehicle.name}
+          trigger={
+            <Button className="gap-2 h-12" variant="outline">
+              <IconPlus className="h-4 w-4" />
+              Servis Baru
+            </Button>
+          }
+          open={openService}
+          onOpenChange={setOpenService}
+        >
+          <ServiceForm
+            vehicleId={vehicle.id}
+            vehicleName={vehicle.name}
+            onSuccess={() => { setOpenService(false); refresh() }}
+          />
+        </FormDialog>
       </div>
 
-      <Button className="w-full h-12 bg-primary font-bold">
-        Update Odometer Sekarang
-      </Button>
+      <FormDialog
+        title="Update Odometer"
+        description={vehicle.name}
+        trigger={
+          <Button className="w-full h-12 bg-primary font-bold">
+            Update Odometer Sekarang
+          </Button>
+        }
+        open={openOdometer}
+        onOpenChange={setOpenOdometer}
+      >
+        <OdometerForm
+          vehicleId={vehicle.id}
+          vehicleName={vehicle.name}
+          onSuccess={() => { setOpenOdometer(false); refresh() }}
+        />
+      </FormDialog>
     </motion.div>
   )
 }

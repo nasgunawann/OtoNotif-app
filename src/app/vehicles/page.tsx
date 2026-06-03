@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { IconCar, IconMotorbike, IconPlus, IconChevronRight, IconGauge, IconCalendar } from "@tabler/icons-react"
+import { IconCar, IconMotorbike, IconPlus, IconGauge, IconCalendar } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "motion/react"
 import Link from "next/link"
@@ -10,6 +10,8 @@ import Image from "next/image"
 import { getPageTitle } from "@/lib/navigation"
 import { usePathname } from "next/navigation"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { FormDialog } from "@/components/forms/FormDialog"
+import { VehicleForm } from "@/components/forms/VehicleForm"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -21,6 +23,7 @@ export default function VehiclesPage() {
   const pathname = usePathname()
   const title = getPageTitle(pathname)
   const { vehicles, fetchVehicles, loading } = useVehicleStore()
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     fetchVehicles()
@@ -38,9 +41,18 @@ export default function VehiclesPage() {
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
           <p className="text-sm text-muted-foreground">Kelola koleksi kendaraan Anda.</p>
         </div>
-        <Button size="sm" className="hidden md:flex gap-2">
-          <IconPlus className="h-4 w-4" /> Tambah
-        </Button>
+        <FormDialog
+          title="Tambah Kendaraan"
+          trigger={
+            <Button size="sm" className="hidden md:flex gap-2">
+              <IconPlus className="h-4 w-4" /> Tambah
+            </Button>
+          }
+          open={open}
+          onOpenChange={setOpen}
+        >
+          <VehicleForm onSuccess={() => { setOpen(false); fetchVehicles() }} />
+        </FormDialog>
       </div>
 
       {loading && vehicles.length === 0 ? (
@@ -54,9 +66,18 @@ export default function VehiclesPage() {
           <IconCar className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
           <h2 className="text-lg font-bold mb-2">Belum Ada Kendaraan</h2>
           <p className="text-sm text-muted-foreground mb-4">Tambahkan kendaraan pertama Anda.</p>
-          <Button className="gap-2">
-            <IconPlus className="h-4 w-4" /> Tambah Kendaraan
-          </Button>
+          <FormDialog
+            title="Tambah Kendaraan"
+            trigger={
+              <Button className="gap-2">
+                <IconPlus className="h-4 w-4" /> Tambah Kendaraan
+              </Button>
+            }
+            open={open}
+            onOpenChange={setOpen}
+          >
+            <VehicleForm onSuccess={() => { setOpen(false); fetchVehicles() }} />
+          </FormDialog>
         </Card>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:gap-6">
@@ -103,12 +124,21 @@ export default function VehiclesPage() {
             </Link>
           ))}
 
-          <button className="border-2 border-dashed border-muted-foreground/20 rounded-xl flex flex-col items-center justify-center p-6 bg-muted/5 hover:bg-muted/10 transition-colors aspect-square md:aspect-auto">
-            <div className="bg-muted p-2 rounded-full mb-2">
-              <IconPlus className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tambah</span>
-          </button>
+          <FormDialog
+            title="Tambah Kendaraan"
+            trigger={
+              <button className="border-2 border-dashed border-muted-foreground/20 rounded-xl flex flex-col items-center justify-center p-6 bg-muted/5 hover:bg-muted/10 transition-colors aspect-square md:aspect-auto w-full">
+                <div className="bg-muted p-2 rounded-full mb-2">
+                  <IconPlus className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tambah</span>
+              </button>
+            }
+            open={open}
+            onOpenChange={setOpen}
+          >
+            <VehicleForm onSuccess={() => { setOpen(false); fetchVehicles() }} />
+          </FormDialog>
         </div>
       )}
     </motion.div>

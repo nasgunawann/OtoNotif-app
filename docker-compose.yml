@@ -11,10 +11,16 @@ services:
       - PORT=3000
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
+      - DATABASE_URL=file:./data/otonotif.db
+    volumes:
+      - otonotif-data:/app/data
     restart: always
     networks:
       - default
       - proxy-net
+
+volumes:
+  otonotif-data:
 
 networks:
   proxy-net:

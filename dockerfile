@@ -34,6 +34,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Create data directory for SQLite persistence
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache

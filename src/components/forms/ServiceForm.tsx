@@ -1,0 +1,184 @@
+"use client"
+
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { toast } from "sonner"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { api } from "@/lib/services/api"
+import { useState } from "react"
+import type { Component } from "@/lib/types"
+
+const formSchema = z.object({
+  componentId: z.string().optional(),
+  description: z.string().min(1, "Deskripsi harus diisi"),
+  cost: z.coerce.number().optional(),
+  date: z.string().min(1, "Tanggal harus diisi"),
+  odoReading: z.coerce.number().optional(),
+  notes: z.string().optional(),
+})
+
+type FormValues = z.infer<typeof formSchema>
+
+type Props = {
+  vehicleId: string
+  vehicleName: string
+  onSuccess?: () => void
+}
+
+export function ServiceForm({ vehicleId, vehicleName, onSuccess }: Props) {
+  const { createMaintenanceRecord } = useVehicleStore()
+  const [components, setComponents] = useState<Component[]>([])
+
+  useEffect(() => {
+    api.getComponents(vehicleId).then(setComponents).catch(() => {})
+  }, [vehicleId])
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      componentId: "",
+      description: "",
+      cost: undefined as any,
+      date: new Date().toISOString().split("T")[0],
+      odoReading: undefined as any,
+      notes: "",
+    },
+  })
+
+  async function onSubmit(values: FormValues) {
+    try {
+      await createMaintenanceRecord({
+        vehicleId,
+        componentId: values.componentId || null,
+        description: values.description,
+        cost: values.cost || 0,
+        date: values.date,
+        odoReading: values.odoReading || 0,
+        notes: values.notes || "",
+      })
+      toast.success(`Servis ${vehicleName} tersimpan`)
+      onSuccess?.()
+    } catch {
+      toast.error("Gagal menyimpan servis")
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Deskripsi Servis</FormLabel>
+              <FormControl>
+                <Input placeholder="Ganti Oli Mesin" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="componentId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Komponen (opsional)</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih komponen" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {components.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            control={form.control}
+            name="cost"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Biaya (Rp)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="150000" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="odoReading"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Odometer</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="12500" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <FormField
+          control={form.control}
+          name="date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tanggal</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Catatan (opsional)</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Detail tambahan..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
+        </Button>
+      </form>
+    </Form>
+  )
+}
