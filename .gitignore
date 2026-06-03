@@ -50,6 +50,12 @@ next-env.d.ts
 .ai-instructions/
 AGENTS.md
 CLAUDE.md
+opencode.json
+
+# database
+*.db
+*.db-wal
+*.db-shm
 
 # IDE & Editors
 .vscode/
