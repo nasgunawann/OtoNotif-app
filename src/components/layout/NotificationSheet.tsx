@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet"
 import { IconBell, IconTool, IconDroplet, IconAlertCircle, IconCircleCheck } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { api } from "@/lib/services/api"
 
 type Notification = {
@@ -56,7 +57,7 @@ export function NotificationSheet({ children }: { children: React.ReactNode }) {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        <ScrollArea className="flex-1">
           {notifications.length > 0 ? (
             <div className="divide-y">
               {notifications.map((n) => {
@@ -83,13 +84,13 @@ export function NotificationSheet({ children }: { children: React.ReactNode }) {
               })}
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-center p-12">
+            <div className="flex flex-col items-center justify-center text-center p-12">
               <IconCircleCheck className="h-12 w-12 text-muted-foreground/20 mb-4" />
               <p className="text-sm font-medium text-muted-foreground">Tidak ada notifikasi baru</p>
               <p className="text-xs text-muted-foreground/60">Semua kendaraan dalam kondisi aman.</p>
             </div>
           )}
-        </div>
+        </ScrollArea>
 
         <div className="p-4 border-t mt-auto">
           <Button variant="outline" className="w-full text-xs" size="sm">

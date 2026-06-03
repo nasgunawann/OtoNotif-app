@@ -6,6 +6,7 @@ import { NAV_ITEMS } from "@/lib/navigation"
 import { IconBell, IconPlus, IconUserCircle } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { QuickInputDrawer } from "@/components/layout/QuickInputDrawer"
 import { motion } from "motion/react"
 import { NotificationSheet } from "@/components/layout/NotificationSheet"
@@ -65,13 +66,13 @@ export function Sidebar() {
       {/* Bottom Actions */}
       <div className="p-4 border-t space-y-2">
         <NotificationSheet>
-          <button className="flex items-center gap-3 px-3 py-2.5 rounded-md w-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-sm font-medium">
+          <Button variant="ghost" className="flex items-center gap-3 px-3 py-2.5 w-full justify-start text-sm font-medium h-auto">
             <div className="relative">
               <IconBell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
+              <Badge variant="destructive" className="absolute -top-1 -right-1 h-2 w-2 rounded-full p-0" />
             </div>
             <span>Notifikasi</span>
-          </button>
+          </Button>
         </NotificationSheet>
         <Link href="/profile" className={cn("flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium", pathname === "/profile" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
           <motion.div

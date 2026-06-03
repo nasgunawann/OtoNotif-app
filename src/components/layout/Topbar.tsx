@@ -6,20 +6,17 @@ import { IconBell, IconUserCircle, IconChevronLeft } from "@tabler/icons-react"
 import { NotificationSheet } from "@/components/layout/NotificationSheet"
 import { useRouter } from "next/navigation"
 import { getPageTitle } from "@/lib/navigation"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 export function Topbar() {
   const pathname = usePathname()
   const router = useRouter()
 
-  // Map pathname to Title
-  const getTitle = () => {
-    return getPageTitle(pathname)
-  }
+  const getTitle = () => getPageTitle(pathname)
 
   const isHome = pathname === "/"
   const title = getTitle()
-
-  // Define paths that are in the main navigation (no back button needed)
   const navPaths = ["/", "/vehicles", "/maintenance", "/history"]
   const showBackButton = !navPaths.includes(pathname || "")
 
@@ -27,12 +24,9 @@ export function Topbar() {
     <header className="h-14 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-4 flex items-center justify-between sticky top-0 z-40">
       <div className="flex items-center gap-3">
         {showBackButton && (
-          <button
-            onClick={() => router.back()}
-            className="p-1 -ml-1 text-muted-foreground hover:text-foreground"
-          >
+          <Button variant="ghost" size="icon" onClick={() => router.back()} className="-ml-1">
             <IconChevronLeft className="h-6 w-6" />
-          </button>
+          </Button>
         )}
         <div className="font-bold text-lg text-primary flex items-center gap-2">
           {isHome ? "OtoNotif" : title}
@@ -41,10 +35,10 @@ export function Topbar() {
 
       <div className="flex items-center gap-1">
         <NotificationSheet>
-          <button className="text-muted-foreground hover:text-foreground relative p-2">
+          <Button variant="ghost" size="icon" className="relative">
             <IconBell className="h-5 w-5" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500"></span>
-          </button>
+            <Badge variant="destructive" className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full p-0" />
+          </Button>
         </NotificationSheet>
 
         <Link href="/profile" className="text-muted-foreground hover:text-foreground p-2">

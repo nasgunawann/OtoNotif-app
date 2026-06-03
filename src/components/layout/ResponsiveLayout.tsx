@@ -3,6 +3,7 @@
 import { BottomNav } from "@/components/layout/BottomNav"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Topbar } from "@/components/layout/Topbar"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function ResponsiveLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -18,12 +19,12 @@ export function ResponsiveLayout({ children }: { children: React.ReactNode }) {
           <Topbar />
         </div>
 
-        {/* Scrollable Container (Full Width) */}
-        <div className="flex-1 w-full overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20">
+        {/* Scrollable Container */}
+        <ScrollArea className="flex-1 w-full">
           <main className="w-full max-w-5xl mx-auto p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
             {children}
           </main>
-        </div>
+        </ScrollArea>
 
         {/* Mobile Bottom Nav */}
         <div className="md:hidden">

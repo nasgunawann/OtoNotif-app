@@ -12,6 +12,7 @@ import { usePathname } from "next/navigation"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { FormDialog } from "@/components/forms/FormDialog"
 import { VehicleForm } from "@/components/forms/VehicleForm"
+import { Badge } from "@/components/ui/badge"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -97,10 +98,10 @@ export default function VehiclesPage() {
                       {v.type === "motor" ? <IconMotorbike className="h-16 w-16" /> : <IconCar className="h-16 w-16" />}
                     </div>
                   )}
-                  <div className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                    {v.type === "motor" ? <IconMotorbike className="h-2.5 w-2.5" /> : <IconCar className="h-2.5 w-2.5" />}
+                  <Badge variant="secondary" className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider gap-1 shadow-sm">
+                    {v.type === "motor" ? <IconMotorbike className="h-3 w-3" /> : <IconCar className="h-3 w-3" />}
                     {v.type}
-                  </div>
+                  </Badge>
                 </div>
                 <CardContent className="p-3 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
@@ -127,12 +128,12 @@ export default function VehiclesPage() {
           <FormDialog
             title="Tambah Kendaraan"
             trigger={
-              <button className="border-2 border-dashed border-muted-foreground/20 rounded-xl flex flex-col items-center justify-center p-6 bg-muted/5 hover:bg-muted/10 transition-colors aspect-square md:aspect-auto w-full">
-                <div className="bg-muted p-2 rounded-full mb-2">
+              <Button variant="outline" className="border-2 border-dashed border-muted-foreground/20 flex flex-col items-center justify-center p-6 bg-muted/5 hover:bg-muted/10 h-auto w-full aspect-square md:aspect-auto rounded-xl gap-2">
+                <div className="bg-muted p-2 rounded-full">
                   <IconPlus className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tambah</span>
-              </button>
+              </Button>
             }
             open={open}
             onOpenChange={setOpen}
