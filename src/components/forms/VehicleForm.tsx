@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { IconLoader2 } from "@tabler/icons-react"
 import type { Vehicle } from "@/lib/types"
 
 const formSchema = z.object({
@@ -140,8 +141,15 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full h-12 text-base" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Menyimpan..." : (vehicle ? "Simpan Perubahan" : "Tambah Kendaraan")}
+        <Button type="submit" size="lg" className="w-full h-12 text-base gap-2" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? (
+            <>
+              <IconLoader2 className="h-4 w-4 animate-spin" />
+              Menyimpan...
+            </>
+          ) : (
+            vehicle ? "Simpan Perubahan" : "Tambah Kendaraan"
+          )}
         </Button>
       </form>
     </Form>

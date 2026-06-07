@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { IconLoader2 } from "@tabler/icons-react"
 
 const formSchema = z.object({
   reading: z.coerce.number().int().min(1, "Odometer harus diisi"),
@@ -108,8 +109,15 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full h-12 text-base" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
+        <Button type="submit" size="lg" className="w-full h-12 text-base gap-2" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? (
+            <>
+              <IconLoader2 className="h-4 w-4 animate-spin" />
+              Menyimpan...
+            </>
+          ) : (
+            "Simpan"
+          )}
         </Button>
       </form>
     </Form>

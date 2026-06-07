@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { api } from "@/lib/services/api"
+import { IconLoader2 } from "@tabler/icons-react"
 import { useState } from "react"
 import type { Component } from "@/lib/types"
 
@@ -177,8 +178,15 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full h-12 text-base" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
+        <Button type="submit" size="lg" className="w-full h-12 text-base gap-2" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? (
+            <>
+              <IconLoader2 className="h-4 w-4 animate-spin" />
+              Menyimpan...
+            </>
+          ) : (
+            "Simpan"
+          )}
         </Button>
       </form>
     </Form>
