@@ -47,11 +47,11 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      liters: undefined as any,
-      amount: undefined as any,
+      liters: undefined as unknown as number,
+      amount: undefined as unknown as number,
       fuelType: "",
       date: new Date().toISOString().split("T")[0],
-      odoReading: undefined as any,
+      odoReading: undefined,
       notes: "",
     },
   })

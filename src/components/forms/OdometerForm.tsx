@@ -38,7 +38,7 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      reading: undefined as any,
+      reading: undefined as unknown as number,
       date: new Date().toISOString().split("T")[0],
       notes: "",
     },

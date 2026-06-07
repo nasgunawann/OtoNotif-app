@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { IconUserCircle, IconSettings, IconLogout, IconSun, IconEdit } from "@tabler/icons-react"
@@ -23,9 +23,12 @@ export default function ProfilePage() {
   const [open, setOpen] = useState(false)
   const [nameInput, setNameInput] = useState(userName)
 
-  useEffect(() => {
-    setNameInput(userName)
-  }, [userName])
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen)
+    if (newOpen) {
+      setNameInput(userName)
+    }
+  }
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,7 +64,7 @@ export default function ProfilePage() {
           </div>
           <FormDialog
             open={open}
-            onOpenChange={setOpen}
+            onOpenChange={handleOpenChange}
             title="Edit Profil"
             description="Perbarui nama profil Anda di aplikasi OtoNotif."
             trigger={

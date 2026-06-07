@@ -12,16 +12,15 @@ import {
   IconActivity,
   IconCar,
   IconDroplet,
-  IconTool,
   IconGauge,
   IconChevronRight,
-  IconAlertTriangle,
   IconMotorbike,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 import { useVehicleStore } from "@/lib/store/use-vehicle-store";
 import {
@@ -60,7 +59,7 @@ export default function Home() {
     if (primaryVehicle) {
       fetchVehicleHealth(primaryVehicle.id);
     }
-  }, [primaryVehicle?.id, fetchVehicleHealth]);
+  }, [primaryVehicle, fetchVehicleHealth]);
 
   if (loading && !isFetched) {
     return (
@@ -96,12 +95,6 @@ export default function Home() {
   const fuel = vehicleHealth?.fuel || null;
 
   const components = vehicleHealth?.components || [];
-
-  const getStatusColor = (usagePercent: number) => {
-    if (usagePercent > 85) return "bg-red-500";
-    if (usagePercent > 70) return "bg-orange-500";
-    return "bg-green-500";
-  };
 
   const formatCompactCurrency = (value: number) => {
     if (value >= 1_000_000) {
@@ -259,10 +252,11 @@ export default function Home() {
         {/* Ambient Vehicle Photo Background */}
         {primaryVehicle.image ? (
           <div className="absolute right-0 top-0 bottom-0 w-2/3 z-0 pointer-events-none select-none overflow-hidden">
-            <img
+            <Image
               src={primaryVehicle.image}
               alt=""
-              className="h-full w-full object-cover object-right opacity-12 dark:opacity-18 grayscale contrast-125 transition-all duration-500"
+              fill
+              className="object-cover object-right opacity-12 dark:opacity-18 grayscale contrast-125 transition-all duration-500"
             />
             {/* Gradient mask to blend image into the card background */}
             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
@@ -390,7 +384,6 @@ export default function Home() {
                 ({
                   component,
                   currentOdo,
-                  usedKm,
                   remainingKm,
                   usagePercent,
                   status,

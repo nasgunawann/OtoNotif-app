@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/navigation";
@@ -20,14 +21,18 @@ export function Sidebar() {
       {/* Logo Area */}
       <div className="h-16 border-b flex items-center justify-center px-6">
         <Link href="/" className="flex items-center">
-          <img
+          <Image
             src="/logo-light.svg"
             alt="OtoNotif Logo"
+            width={40}
+            height={40}
             className="h-10 w-auto dark:hidden"
           />
-          <img
+          <Image
             src="/logo-dark.svg"
             alt="OtoNotif Logo"
+            width={40}
+            height={40}
             className="h-10 w-auto hidden dark:block"
           />
         </Link>

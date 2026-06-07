@@ -34,7 +34,7 @@ export function runMigrations() {
     sqlite
       .prepare("SELECT hash FROM __drizzle_migrations")
       .all()
-      .map((r: any) => r.hash)
+      .map((r) => (r as { hash: string }).hash)
   );
 
   for (const file of files) {

@@ -18,14 +18,16 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 
+type HistoryItem = (FuelLog & { type: "fuel" }) | (MaintenanceRecord & { type: "maintenance" })
+
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.4, ease: "easeOut" }
 }
 
-function groupByMonth(items: Array<{ date: string } & Record<string, any>>) {
-  const groups: Record<string, any[]> = {}
+function groupByMonth(items: HistoryItem[]) {
+  const groups: Record<string, HistoryItem[]> = {}
   const now = new Date()
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
   const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
@@ -149,7 +151,7 @@ export default function HistoryPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {items.map((item: any) => {
+                    {items.map((item) => {
                       const vehicle = vehicles.find((v) => v.id === item.vehicleId)
                       const vehicleName = vehicle ? vehicle.name : "Kendaraan"
                       return (
@@ -175,7 +177,7 @@ export default function HistoryPage() {
                                   </Badge>
                                 </div>
                                 <p className="font-medium text-sm whitespace-nowrap">
-                                  {item.amount ? `Rp ${item.amount.toLocaleString()}` : item.cost ? `Rp ${item.cost.toLocaleString()}` : ""}
+                                  {item.type === "fuel" ? `Rp ${item.amount.toLocaleString("id-ID")}` : item.cost ? `Rp ${item.cost.toLocaleString("id-ID")}` : ""}
                                 </p>
                               </div>
                               <div className="flex justify-between text-xs text-muted-foreground">

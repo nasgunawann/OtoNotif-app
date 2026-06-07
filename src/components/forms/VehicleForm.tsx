@@ -48,7 +48,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
       name: vehicle?.name || "",
       type: vehicle?.type || "motor",
       engine: vehicle?.engine || "",
-      fuelCapacity: vehicle?.fuelCapacity || undefined as any,
+      fuelCapacity: vehicle?.fuelCapacity || undefined as unknown as number,
     },
   })
 

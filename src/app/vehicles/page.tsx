@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { IconCar, IconMotorbike, IconPlus, IconGauge, IconCalendar } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "motion/react"

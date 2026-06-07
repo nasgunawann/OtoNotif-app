@@ -62,7 +62,7 @@ export async function POST() {
   try {
     await seedData();
     return Response.json({ data: { message: "Seed data created successfully" } });
-  } catch (e) {
+  } catch {
     return Response.json({ error: "Seed failed" }, { status: 500 });
   }
 }

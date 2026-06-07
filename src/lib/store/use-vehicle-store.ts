@@ -2,7 +2,7 @@
 
 import { create } from "zustand"
 import { api } from "@/lib/services/api"
-import type { Vehicle, OdometerReading, FuelLog, Component, MaintenanceRecord, VehicleHealth, ComponentHealth } from "@/lib/types"
+import type { Vehicle, OdometerReading, FuelLog, Component, MaintenanceRecord, VehicleHealth, CreateOdometerInput, CreateFuelLogInput, CreateComponentInput, CreateMaintenanceInput } from "@/lib/types"
 
 interface VehicleStore {
   vehicles: Vehicle[]
@@ -23,17 +23,17 @@ interface VehicleStore {
   updateVehicle: (id: string, data: Partial<Vehicle>) => Promise<void>
 
   fetchOdometerReadings: (vehicleId: string) => Promise<void>
-  createOdometerReading: (data: any) => Promise<void>
+  createOdometerReading: (data: CreateOdometerInput) => Promise<void>
   deleteOdometerReading: (id: string, vehicleId: string) => Promise<void>
 
   fetchFuelLogs: (vehicleId?: string) => Promise<void>
-  createFuelLog: (data: any) => Promise<void>
+  createFuelLog: (data: CreateFuelLogInput) => Promise<void>
 
   fetchComponents: (vehicleId: string) => Promise<void>
-  createComponent: (data: any) => Promise<void>
+  createComponent: (data: CreateComponentInput) => Promise<void>
 
   fetchMaintenanceRecords: (vehicleId?: string) => Promise<void>
-  createMaintenanceRecord: (data: any) => Promise<void>
+  createMaintenanceRecord: (data: CreateMaintenanceInput) => Promise<void>
 
   fetchVehicleHealth: (vehicleId: string) => Promise<void>
   userName: string
@@ -58,8 +58,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const vehicles = await api.getVehicles()
       set({ vehicles, loading: false, error: null })
-    } catch (e: any) {
-      set({ error: e.message, loading: false })
+    } catch (e) {
+      set({ error: (e as Error).message, loading: false })
     }
   },
 
@@ -68,8 +68,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const selectedVehicle = await api.getVehicle(id)
       set({ selectedVehicle, loading: false, error: null })
-    } catch (e: any) {
-      set({ error: e.message, loading: false })
+    } catch (e) {
+      set({ error: (e as Error).message, loading: false })
     }
   },
 
@@ -157,8 +157,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const odometerReadings = await api.getOdometerReadings(vehicleId)
       set({ odometerReadings })
-    } catch (e: any) {
-      set({ error: e.message })
+    } catch (e) {
+      set({ error: (e as Error).message })
     }
   },
 
@@ -235,8 +235,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const fuelLogs = await api.getFuelLogs(vehicleId)
       set({ fuelLogs })
-    } catch (e: any) {
-      set({ error: e.message })
+    } catch (e) {
+      set({ error: (e as Error).message })
     }
   },
 
@@ -260,20 +260,21 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
 
     if (data.odoReading && previousHealth && previousHealth.vehicle.id === data.vehicleId) {
       const currentOdo = previousHealth.latestOdo || 0
-      if (data.odoReading > currentOdo) {
+      const odo = data.odoReading
+      if (odo > currentOdo) {
         set({
           vehicleHealth: {
             ...previousHealth,
-            latestOdo: data.odoReading,
+            latestOdo: odo,
             components: previousHealth.components.map((c) => {
-              const usedKm = data.odoReading - (c.component.lastReplacedOdo ?? 0)
+              const usedKm = odo - (c.component.lastReplacedOdo ?? 0)
               const remainingKm = Math.max(0, c.component.intervalKm - usedKm)
               const usagePercent = Math.min(100, (usedKm / c.component.intervalKm) * 100)
               const status =
                 usagePercent > 85 ? ("danger" as const)
                 : usagePercent > 70 ? ("warning" as const)
                 : ("safe" as const)
-              return { ...c, currentOdo: data.odoReading, usedKm, remainingKm, usagePercent, status }
+              return { ...c, currentOdo: odo, usedKm, remainingKm, usagePercent, status }
             }),
           },
         })
@@ -296,8 +297,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const components = await api.getComponents(vehicleId)
       set({ components })
-    } catch (e: any) {
-      set({ error: e.message })
+    } catch (e) {
+      set({ error: (e as Error).message })
     }
   },
 
@@ -333,8 +334,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const maintenanceRecords = await api.getMaintenanceRecords(vehicleId)
       set({ maintenanceRecords })
-    } catch (e: any) {
-      set({ error: e.message })
+    } catch (e) {
+      set({ error: (e as Error).message })
     }
   },
 
@@ -396,8 +397,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const vehicleHealth = await api.getVehicleHealth(vehicleId)
       set({ vehicleHealth })
-    } catch (e: any) {
-      set({ error: e.message })
+    } catch (e) {
+      set({ error: (e as Error).message })
     }
   },
 

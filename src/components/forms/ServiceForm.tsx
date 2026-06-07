@@ -61,9 +61,9 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
     defaultValues: {
       componentId: defaultComponentId || "",
       description: defaultDescription || "",
-      cost: undefined as any,
+      cost: undefined as unknown as number,
       date: new Date().toISOString().split("T")[0],
-      odoReading: undefined as any,
+      odoReading: undefined,
       notes: "",
     },
   })
@@ -72,7 +72,7 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
     try {
       await createMaintenanceRecord({
         vehicleId,
-        componentId: values.componentId || null,
+        componentId: values.componentId || undefined,
         description: values.description,
         cost: values.cost || 0,
         date: values.date,

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { IconBell, IconUserCircle, IconChevronLeft } from "@tabler/icons-react"
@@ -31,8 +32,8 @@ export function Topbar() {
         <div className="font-bold text-lg text-primary flex items-center gap-2">
           {isHome ? (
             <Link href="/" className="flex items-center">
-              <img src="/logo-light.svg" alt="OtoNotif Logo" className="h-8 w-auto dark:hidden" />
-              <img src="/logo-dark.svg" alt="OtoNotif Logo" className="h-8 w-auto hidden dark:block" />
+              <Image src="/logo-light.svg" alt="OtoNotif Logo" width={32} height={32} className="h-8 w-auto dark:hidden" />
+              <Image src="/logo-dark.svg" alt="OtoNotif Logo" width={32} height={32} className="h-8 w-auto hidden dark:block" />
             </Link>
           ) : (
             title

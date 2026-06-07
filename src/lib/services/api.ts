@@ -19,37 +19,52 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   return json.data as T
 }
 
+import type {
+  Vehicle,
+  OdometerReading,
+  FuelLog,
+  Component,
+  MaintenanceRecord,
+  VehicleHealth,
+  Notification,
+  CreateVehicleInput,
+  CreateOdometerInput,
+  CreateFuelLogInput,
+  CreateComponentInput,
+  CreateMaintenanceInput,
+} from "@/lib/types"
+
 export const api = {
   // Vehicles
-  getVehicles: () => request<any[]>("/api/vehicles"),
-  getVehicle: (id: string) => request<any>(`/api/vehicles/${id}`),
-  createVehicle: (data: any) => request<any>("/api/vehicles", { method: "POST", body: data }),
-  updateVehicle: (id: string, data: any) => request<any>(`/api/vehicles/${id}`, { method: "PATCH", body: data }),
+  getVehicles: () => request<Vehicle[]>("/api/vehicles"),
+  getVehicle: (id: string) => request<Vehicle>(`/api/vehicles/${id}`),
+  createVehicle: (data: CreateVehicleInput) => request<Vehicle>("/api/vehicles", { method: "POST", body: data }),
+  updateVehicle: (id: string, data: Partial<Vehicle>) => request<Vehicle>(`/api/vehicles/${id}`, { method: "PATCH", body: data }),
   deleteVehicle: (id: string) => request<{ id: string }>(`/api/vehicles/${id}`, { method: "DELETE" }),
 
   // Odometer
-  getOdometerReadings: (vehicleId: string) => request<any[]>(`/api/odometer?vehicleId=${vehicleId}`),
-  createOdometerReading: (data: any) => request<any>("/api/odometer", { method: "POST", body: data }),
+  getOdometerReadings: (vehicleId: string) => request<OdometerReading[]>(`/api/odometer?vehicleId=${vehicleId}`),
+  createOdometerReading: (data: CreateOdometerInput) => request<OdometerReading>("/api/odometer", { method: "POST", body: data }),
   deleteOdometerReading: (id: string) => request<{ id: string }>(`/api/odometer/${id}`, { method: "DELETE" }),
 
   // Fuel
-  getFuelLogs: (vehicleId?: string) => request<any[]>(`/api/fuel${vehicleId ? `?vehicleId=${vehicleId}` : ""}`),
-  createFuelLog: (data: any) => request<any>("/api/fuel", { method: "POST", body: data }),
+  getFuelLogs: (vehicleId?: string) => request<FuelLog[]>(`/api/fuel${vehicleId ? `?vehicleId=${vehicleId}` : ""}`),
+  createFuelLog: (data: CreateFuelLogInput) => request<FuelLog>("/api/fuel", { method: "POST", body: data }),
   deleteFuelLog: (id: string) => request<{ id: string }>(`/api/fuel/${id}`, { method: "DELETE" }),
 
   // Components
-  getComponents: (vehicleId: string) => request<any[]>(`/api/components?vehicleId=${vehicleId}`),
-  createComponent: (data: any) => request<any>("/api/components", { method: "POST", body: data }),
+  getComponents: (vehicleId: string) => request<Component[]>(`/api/components?vehicleId=${vehicleId}`),
+  createComponent: (data: CreateComponentInput) => request<Component>("/api/components", { method: "POST", body: data }),
 
   // Maintenance
   getMaintenanceRecords: (vehicleId?: string) =>
-    request<any[]>(`/api/maintenance${vehicleId ? `?vehicleId=${vehicleId}` : ""}`),
-  createMaintenanceRecord: (data: any) => request<any>("/api/maintenance", { method: "POST", body: data }),
+    request<MaintenanceRecord[]>(`/api/maintenance${vehicleId ? `?vehicleId=${vehicleId}` : ""}`),
+  createMaintenanceRecord: (data: CreateMaintenanceInput) => request<MaintenanceRecord>("/api/maintenance", { method: "POST", body: data }),
   deleteMaintenanceRecord: (id: string) => request<{ id: string }>(`/api/maintenance/${id}`, { method: "DELETE" }),
 
   // Health
-  getVehicleHealth: (vehicleId: string) => request<any>(`/api/health?vehicleId=${vehicleId}`),
+  getVehicleHealth: (vehicleId: string) => request<VehicleHealth>(`/api/health?vehicleId=${vehicleId}`),
 
   // Notifications
-  getNotifications: () => request<any[]>("/api/notifications"),
+  getNotifications: () => request<Notification[]>("/api/notifications"),
 }

@@ -33,12 +33,13 @@ import { ServiceForm } from "@/components/forms/ServiceForm";
 import { api } from "@/lib/services/api";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { IconChevronLeft } from "@tabler/icons-react";
+import type { Vehicle } from "@/lib/types";
 
 type Step = "menu" | "odometer" | "fuel" | "service";
 
 function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
   const [step, setStep] = useState<Step>("menu");
-  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
   useEffect(() => {
     api
@@ -47,7 +48,7 @@ function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
       .catch(() => {});
   }, []);
 
-  const primary = vehicles.find((v: any) => v.isPrimary) || vehicles[0];
+  const primary = vehicles.find((v) => v.isPrimary) || vehicles[0];
 
   const formProps = {
     vehicleId: primary?.id || "",

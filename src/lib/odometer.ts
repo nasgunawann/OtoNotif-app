@@ -1,5 +1,6 @@
 import db from "@/db";
 import { odometerReadings, fuelLogs, maintenanceRecords } from "@/db/schema";
+import type { FuelLog } from "@/lib/types";
 import { eq, desc, and, lte, sql } from "drizzle-orm";
 
 export async function getLatestOdometer(vehicleId: string): Promise<{ reading: number; date: string | null }> {
@@ -115,7 +116,7 @@ export async function getFuelStats(
   max: number;
   percent: number;
   avg: string;
-  latestFuelLog: any | null;
+  latestFuelLog: FuelLog | null;
 }> {
   const logs = await db
     .select()
@@ -168,7 +169,7 @@ export async function getFuelStats(
     max,
     percent: Math.round(percent),
     avg: avgConsumption ? `${Math.round(avgConsumption * 10) / 10} km/L` : "—",
-    latestFuelLog: latestLog,
+    latestFuelLog: latestLog as FuelLog,
   };
 }
 

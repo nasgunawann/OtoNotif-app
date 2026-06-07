@@ -1,6 +1,6 @@
 import db from "@/db";
 import { vehicles, odometerReadings, components } from "@/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export async function GET() {
   const allVehicles = await db.select().from(vehicles).all();

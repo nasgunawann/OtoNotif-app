@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { IconAlertCircle, IconCircleCheck, IconTool } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
-import type { VehicleHealth } from "@/lib/types"
+import type { Vehicle, VehicleHealth } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { FormDialog } from "@/components/forms/FormDialog"
@@ -29,22 +29,18 @@ export default function MaintenancePage() {
   const [loading, setLoading] = useState(true)
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>("all")
 
-  async function load() {
-    try {
-      const vehicles = await api.getVehicles()
-      const health = await Promise.all(
-        vehicles.map((v: any) => api.getVehicleHealth(v.id))
-      )
-      setHealthData(health)
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    load()
+    api.getVehicles().then((vehicles) =>
+      Promise.all(
+        vehicles.map((v: Vehicle) => api.getVehicleHealth(v.id))
+      )
+    ).then((health) => {
+      setHealthData(health)
+    }).catch((e) => {
+      console.error(e)
+    }).finally(() => {
+      setLoading(false)
+    })
   }, [])
 
   const allComponents = healthData.flatMap((h) =>
@@ -162,7 +158,19 @@ export default function MaintenancePage() {
                         defaultComponentId={item.component.id}
                         defaultDescription={`Ganti ${item.component.name}`}
                         onSuccess={() => {
-                          load()
+                          setHealthData([])
+                          setLoading(true)
+                          api.getVehicles().then((vehicles) =>
+                            Promise.all(
+                              vehicles.map((v: Vehicle) => api.getVehicleHealth(v.id))
+                            )
+                          ).then((health) => {
+                            setHealthData(health)
+                          }).catch((e) => {
+                            console.error(e)
+                          }).finally(() => {
+                            setLoading(false)
+                          })
                         }}
                       />
                     </FormDialog>
