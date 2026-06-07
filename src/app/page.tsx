@@ -16,6 +16,7 @@ import {
   IconGauge,
   IconChevronRight,
   IconAlertTriangle,
+  IconMotorbike,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -197,9 +198,9 @@ export default function Home() {
       </div>
 
       {/* Top Active Vehicle Selector Card */}
-      <Card className="overflow-hidden border-none bg-linear-to-br from-primary/5 via-background to-background shadow-md ring-1 ring-primary/10">
-        <CardContent className="p-3.5 md:p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <Card className="relative overflow-hidden border-none bg-linear-to-br from-primary/5 via-background to-background shadow-md ring-1 ring-primary/10">
+        <CardContent className="p-3.5 md:p-4 flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-3 relative z-10">
             <div className="bg-primary p-2 md:p-2.5 rounded-xl text-primary-foreground shadow-md shrink-0">
               <IconCar className="h-4 w-4 md:h-5 md:w-5" />
             </div>
@@ -215,7 +216,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0 relative z-10">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -257,6 +258,27 @@ export default function Home() {
             </Link>
           </div>
         </CardContent>
+
+        {/* Ambient Vehicle Photo Background */}
+        {primaryVehicle.image ? (
+          <div className="absolute right-0 top-0 bottom-0 w-2/3 z-0 pointer-events-none select-none overflow-hidden">
+            <img 
+              src={primaryVehicle.image} 
+              alt="" 
+              className="h-full w-full object-cover object-right opacity-12 dark:opacity-18 grayscale contrast-125 transition-all duration-500"
+            />
+            {/* Gradient mask to blend image into the card background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+          </div>
+        ) : (
+          <div className="absolute right-4 bottom-[-20%] text-primary/5 dark:text-primary/10 pointer-events-none select-none z-0">
+            {primaryVehicle.type === "motor" ? (
+              <IconMotorbike className="h-28 w-28" />
+            ) : (
+              <IconCar className="h-28 w-28" />
+            )}
+          </div>
+        )}
       </Card>
 
       {/* 3-Column Metrics Grid (Now 3 columns on both Mobile & Desktop) */}
