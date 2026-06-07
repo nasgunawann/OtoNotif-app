@@ -8,6 +8,7 @@ services:
     expose:
       - "3000"
     environment:
+      - HOSTNAME=0.0.0.0
       - PORT=3000
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
