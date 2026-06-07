@@ -10,6 +10,8 @@ export interface Vehicle {
   isPrimary: boolean
   createdAt: string
   updatedAt: string
+  latestOdo?: number | null
+  latestOdoDate?: string | null
 }
 
 export interface OdometerReading {
@@ -71,6 +73,16 @@ export interface VehicleHealth {
   health: number
   components: ComponentHealth[]
   lastUpdate: string | null
+  fuel?: {
+    current: number
+    max: number
+    percent: number
+    avg: string
+    latestFuelLog: FuelLog | null
+  } | null
+  monthlyCost?: number
+  weeklyOdoDelta?: number
+  latestFuelLog?: FuelLog | null
 }
 
 export type Notification = {

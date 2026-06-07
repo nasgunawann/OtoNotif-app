@@ -1,10 +1,21 @@
 import db from "@/db";
 import { vehicles } from "@/db/schema";
 import { desc } from "drizzle-orm";
+import { getLatestOdometer } from "@/lib/odometer";
 
 export async function GET() {
-  const all = await db.select().from(vehicles).orderBy(desc(vehicles.createdAt));
-  return Response.json({ data: all });
+  const all = await db.select().from(vehicles).orderBy(desc(vehicles.createdAt)).all();
+  const data = await Promise.all(
+    all.map(async (v) => {
+      const latest = await getLatestOdometer(v.id);
+      return {
+        ...v,
+        latestOdo: latest.reading,
+        latestOdoDate: latest.date,
+      };
+    })
+  );
+  return Response.json({ data });
 }
 
 export async function POST(request: Request) {

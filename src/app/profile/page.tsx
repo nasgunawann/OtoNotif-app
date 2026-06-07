@@ -25,13 +25,15 @@ export default function ProfilePage() {
         <p className="text-muted-foreground">Pengaturan akun dan preferensi Anda.</p>
       </div>
 
-      <div className="flex items-center gap-4 p-4 border rounded-lg bg-card">
-        <IconUserCircle className="h-16 w-16 text-muted-foreground" />
-        <div>
-          <h2 className="text-xl font-bold">Nanas Gunung</h2>
-          <CardDescription>nanas@example.com</CardDescription>
-        </div>
-      </div>
+      <Card>
+        <CardContent className="flex items-center gap-4 p-4">
+          <IconUserCircle className="h-16 w-16 text-muted-foreground" />
+          <div>
+            <h2 className="text-xl font-bold">Nanas Gunung</h2>
+            <CardDescription>nanas@example.com</CardDescription>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold mt-6">Preferensi</h3>

@@ -6,6 +6,7 @@ import { IconAlertCircle, IconCircleCheck, IconTool } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
 import type { VehicleHealth } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -67,10 +68,30 @@ export default function MaintenancePage() {
             </Card>
           ) : (
             dueItems.map((item) => (
-              <Card key={`${item.component.id}`} className={`border-${item.status === 'danger' ? 'orange' : 'yellow'}-500/50 bg-${item.status === 'danger' ? 'orange' : 'yellow'}-500/5`}>
+              <Card
+                key={`${item.component.id}`}
+                className={cn(
+                  "border-solid",
+                  item.status === 'danger'
+                    ? "border-orange-500/50 bg-orange-500/5 dark:bg-orange-500/10"
+                    : "border-yellow-500/50 bg-yellow-500/5 dark:bg-yellow-500/10"
+                )}
+              >
                 <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                  <IconAlertCircle className={`h-5 w-5 text-${item.status === 'danger' ? 'orange' : 'yellow'}-500 mr-2`} />
-                  <CardTitle className={`text-base font-bold text-${item.status === 'danger' ? 'orange' : 'yellow'}-700 dark:text-${item.status === 'danger' ? 'orange' : 'yellow'}-400`}>
+                  <IconAlertCircle
+                    className={cn(
+                      "h-5 w-5 mr-2",
+                      item.status === 'danger' ? "text-orange-500" : "text-yellow-500"
+                    )}
+                  />
+                  <CardTitle
+                    className={cn(
+                      "text-base font-bold",
+                      item.status === 'danger'
+                        ? "text-orange-700 dark:text-orange-400"
+                        : "text-yellow-700 dark:text-yellow-400"
+                    )}
+                  >
                     Ganti {item.component.name} - {item.vehicleName}
                   </CardTitle>
                 </CardHeader>

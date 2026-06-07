@@ -30,6 +30,7 @@ export const api = {
   // Odometer
   getOdometerReadings: (vehicleId: string) => request<any[]>(`/api/odometer?vehicleId=${vehicleId}`),
   createOdometerReading: (data: any) => request<any>("/api/odometer", { method: "POST", body: data }),
+  deleteOdometerReading: (id: string) => request<{ id: string }>(`/api/odometer/${id}`, { method: "DELETE" }),
 
   // Fuel
   getFuelLogs: (vehicleId?: string) => request<any[]>(`/api/fuel${vehicleId ? `?vehicleId=${vehicleId}` : ""}`),

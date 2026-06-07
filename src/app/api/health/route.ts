@@ -1,6 +1,7 @@
 import db from "@/db";
-import { vehicles, odometerReadings, components } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { vehicles, components } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { getLatestOdometer, getWeeklyOdometerDelta, getFuelStats, getMonthlyOperatingCost } from "@/lib/odometer";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -20,12 +21,9 @@ export async function GET(request: Request) {
     return Response.json({ error: "Vehicle not found" }, { status: 404 });
   }
 
-  const latestOdo = await db
-    .select()
-    .from(odometerReadings)
-    .where(eq(odometerReadings.vehicleId, vehicleId))
-    .orderBy(desc(odometerReadings.date))
-    .get();
+  const latestOdoData = await getLatestOdometer(vehicleId);
+  const currentOdo = latestOdoData.reading;
+  const lastUpdate = latestOdoData.date;
 
   const comps = await db
     .select()
@@ -33,7 +31,6 @@ export async function GET(request: Request) {
     .where(eq(components.vehicleId, vehicleId))
     .all();
 
-  const currentOdo = latestOdo?.reading ?? 0;
   let totalHealth = 100;
   let componentCount = 0;
 
@@ -53,13 +50,21 @@ export async function GET(request: Request) {
 
   const health = componentCount > 0 ? Math.max(0, Math.round(totalHealth / componentCount)) : 100;
 
+  const fuelStats = await getFuelStats(vehicleId, vehicle.fuelCapacity, currentOdo);
+  const weeklyOdoDelta = await getWeeklyOdometerDelta(vehicleId, currentOdo);
+  const monthlyCost = await getMonthlyOperatingCost(vehicleId);
+
   return Response.json({
     data: {
       vehicle,
-      latestOdo: latestOdo?.reading ?? null,
+      latestOdo: currentOdo || null,
       health,
       components: componentHealth,
-      lastUpdate: latestOdo?.date ?? null,
+      lastUpdate,
+      fuel: fuelStats,
+      monthlyCost,
+      weeklyOdoDelta,
+      latestFuelLog: fuelStats.latestFuelLog,
     },
   });
 }

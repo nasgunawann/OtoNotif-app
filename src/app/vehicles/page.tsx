@@ -57,9 +57,9 @@ export default function VehiclesPage() {
       </div>
 
       {loading && vehicles.length === 0 ? (
-        <div className="grid grid-cols-2 gap-3 md:gap-6">
-          {[1, 2].map((i) => (
-            <div key={i} className="rounded-xl bg-muted animate-pulse aspect-square" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-xl bg-muted animate-pulse h-24 md:h-48 w-full" />
           ))}
         </div>
       ) : vehicles.length === 0 ? (
@@ -81,11 +81,11 @@ export default function VehiclesPage() {
           </FormDialog>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 gap-3 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {vehicles.map((v) => (
             <Link key={v.id} href={`/vehicles/${v.id}`}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-none bg-card/50 flex flex-col h-full">
-                <div className="aspect-video relative bg-muted flex items-center justify-center overflow-hidden">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-none bg-card/50 flex flex-row md:flex-col h-full rounded-xl">
+                <div className="h-24 w-24 md:w-full md:aspect-video relative bg-muted flex items-center justify-center overflow-hidden shrink-0">
                   {v.image ? (
                     <Image
                       src={v.image}
@@ -95,29 +95,33 @@ export default function VehiclesPage() {
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full w-full text-muted-foreground/30">
-                      {v.type === "motor" ? <IconMotorbike className="h-16 w-16" /> : <IconCar className="h-16 w-16" />}
+                      {v.type === "motor" ? <IconMotorbike className="h-10 w-10 md:h-16 md:w-16" /> : <IconCar className="h-10 w-10 md:h-16 md:w-16" />}
                     </div>
                   )}
-                  <Badge variant="secondary" className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider gap-1 shadow-sm">
+                  <Badge variant="secondary" className="absolute top-1 left-1 text-[8px] md:top-2 md:left-2 md:text-[10px] font-bold uppercase tracking-wider gap-1 shadow-sm">
                     {v.type === "motor" ? <IconMotorbike className="h-3 w-3" /> : <IconCar className="h-3 w-3" />}
                     {v.type}
                   </Badge>
                 </div>
-                <CardContent className="p-3 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
+                <CardContent className="p-3 flex-1 flex flex-col justify-between min-w-0">
+                  <div className="flex justify-between items-start mb-1">
                     <div>
-                      <h3 className="text-sm font-bold leading-tight">{v.name}</h3>
+                      <h3 className="text-sm font-bold leading-tight truncate">{v.name}</h3>
                       <p className="text-[9px] text-muted-foreground font-medium">{v.engine} • {v.fuelCapacity}L</p>
                     </div>
                   </div>
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <IconGauge className="h-3 w-3 text-primary shrink-0" />
-                      <p className="text-[10px] font-semibold truncate">—</p>
+                  <div className="grid grid-cols-2 gap-2 mt-2 md:mt-0">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <IconGauge className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <p className="text-[10px] font-semibold truncate">
+                        {v.latestOdo ? `${v.latestOdo.toLocaleString()} km` : "—"}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <IconCalendar className="h-3 w-3 text-orange-500 shrink-0" />
-                      <p className="text-[10px] font-semibold truncate">—</p>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <IconCalendar className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+                      <p className="text-[10px] font-semibold truncate">
+                        {v.latestOdoDate ? v.latestOdoDate : "—"}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -128,11 +132,11 @@ export default function VehiclesPage() {
           <FormDialog
             title="Tambah Kendaraan"
             trigger={
-              <Button variant="outline" className="border-2 border-dashed border-muted-foreground/20 flex flex-col items-center justify-center p-6 bg-muted/5 hover:bg-muted/10 h-auto w-full aspect-square md:aspect-auto rounded-xl gap-2">
+              <Button variant="outline" className="border-2 border-dashed border-muted-foreground/20 flex flex-row md:flex-col items-center justify-center p-6 bg-muted/5 hover:bg-muted/10 h-24 md:h-auto w-full md:aspect-video rounded-xl gap-2">
                 <div className="bg-muted p-2 rounded-full">
                   <IconPlus className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tambah</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tambah Kendaraan</span>
               </Button>
             }
             open={open}

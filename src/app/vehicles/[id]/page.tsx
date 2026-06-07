@@ -13,6 +13,7 @@ import {
   IconActivity,
   IconPlus,
   IconArrowRight,
+  IconTrash,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -22,6 +23,7 @@ import { FormDialog } from "@/components/forms/FormDialog"
 import { OdometerForm } from "@/components/forms/OdometerForm"
 import { FuelForm } from "@/components/forms/FuelForm"
 import { ServiceForm } from "@/components/forms/ServiceForm"
+import { toast } from "sonner"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -33,7 +35,17 @@ export default function VehicleDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
-  const { selectedVehicle, vehicleHealth, fetchVehicle, fetchVehicleHealth, fetchComponents, loading } = useVehicleStore()
+  const {
+    selectedVehicle,
+    vehicleHealth,
+    odometerReadings,
+    fetchVehicle,
+    fetchVehicleHealth,
+    fetchComponents,
+    fetchOdometerReadings,
+    deleteOdometerReading,
+    loading
+  } = useVehicleStore()
 
   const [openOdometer, setOpenOdometer] = useState(false)
   const [openFuel, setOpenFuel] = useState(false)
@@ -44,20 +56,22 @@ export default function VehicleDetailPage() {
       fetchVehicle(id)
       fetchVehicleHealth(id)
       fetchComponents(id)
+      fetchOdometerReadings(id)
     }
-  }, [id, fetchVehicle, fetchVehicleHealth, fetchComponents])
+  }, [id, fetchVehicle, fetchVehicleHealth, fetchComponents, fetchOdometerReadings])
 
   function refresh() {
     if (id) {
       fetchVehicleHealth(id)
       fetchComponents(id)
+      fetchOdometerReadings(id)
     }
   }
 
   if (loading && !selectedVehicle) {
     return (
       <div className="space-y-6 pb-24 md:pb-6 animate-pulse">
-        <div className="aspect-video rounded-2xl bg-muted" />
+        <div className="h-40 md:h-60 rounded-xl bg-muted" />
         <div className="grid grid-cols-2 gap-4">
           <div className="h-24 bg-muted rounded-xl" />
           <div className="h-24 bg-muted rounded-xl" />
@@ -95,7 +109,7 @@ export default function VehicleDetailPage() {
         </Button>
       </div>
 
-      <div className="relative aspect-video rounded-2xl overflow-hidden bg-muted shadow-inner">
+      <div className="relative h-40 md:h-60 w-full rounded-xl overflow-hidden bg-muted shadow-inner">
         {vehicle.image ? (
           <Image
             src={vehicle.image}
@@ -159,6 +173,53 @@ export default function VehicleDetailPage() {
           {(!healthData?.components || healthData.components.length === 0) && (
             <p className="text-sm text-muted-foreground text-center py-4">Belum ada komponen.</p>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="border-none bg-card/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex justify-between items-center">
+            Riwayat Odometer
+          </CardTitle>
+          <CardDescription className="text-xs">Catatan riwayat pembaruan odometer kendaraan.</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-2">
+          <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+            {odometerReadings.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">Belum ada catatan odometer.</p>
+            ) : (
+              odometerReadings.map((odo) => (
+                <div key={odo.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 bg-primary/10 rounded-md">
+                      <IconGauge className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">{odo.reading.toLocaleString("id-ID")} km</p>
+                      <p className="text-[10px] text-muted-foreground">{odo.date} {odo.notes ? `• ${odo.notes}` : ""}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-red-500 rounded-full"
+                    onClick={async () => {
+                      if (confirm("Hapus catatan odometer ini?")) {
+                        try {
+                          await deleteOdometerReading(odo.id, vehicle.id)
+                          toast.success("Catatan odometer berhasil dihapus")
+                        } catch {
+                          toast.error("Gagal menghapus catatan odometer")
+                        }
+                      }
+                    }}
+                  >
+                    <IconTrash className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
 

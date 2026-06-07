@@ -31,7 +31,8 @@ type Props = {
 }
 
 export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
-  const { createOdometerReading } = useVehicleStore()
+  const { createOdometerReading, vehicleHealth } = useVehicleStore()
+  const latestOdo = vehicleHealth?.latestOdo ?? 0
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -43,6 +44,14 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
   })
 
   async function onSubmit(values: FormValues) {
+    if (latestOdo > 0 && values.reading <= latestOdo) {
+      form.setError("reading", {
+        type: "manual",
+        message: `Odometer baru harus lebih besar dari odometer saat ini (${latestOdo.toLocaleString()} km)`,
+      })
+      return
+    }
+
     try {
       await createOdometerReading({
         vehicleId,

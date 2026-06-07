@@ -56,14 +56,7 @@ export default function Home() {
     )
   }
 
-  const fuel = vehicleHealth?.vehicle.fuelCapacity
-    ? {
-        current: 3.2,
-        max: vehicleHealth.vehicle.fuelCapacity,
-        percent: (3.2 / vehicleHealth.vehicle.fuelCapacity) * 100,
-        avg: "45 km/L"
-      }
-    : null
+  const fuel = vehicleHealth?.fuel || null
 
   const components = vehicleHealth?.components || []
 
@@ -112,7 +105,7 @@ export default function Home() {
         </CardHeader>
         <CardContent className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative overflow-hidden bg-muted/30 p-5 rounded-[2rem] border border-white/5 space-y-2">
+            <div className="relative overflow-hidden bg-muted/30 p-5 rounded-xl border border-white/5 space-y-2">
               <div className="flex items-center gap-2 text-primary/80">
                 <IconGauge className="h-4 w-4" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Odometer</span>
@@ -121,11 +114,14 @@ export default function Home() {
                 {vehicleHealth?.latestOdo ? `${vehicleHealth.latestOdo.toLocaleString()} km` : "—"}
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
-                <span className="text-green-600 font-bold">+120 km</span> minggu ini
+                <span className="text-green-600 font-bold">
+                  +{vehicleHealth?.weeklyOdoDelta ? vehicleHealth.weeklyOdoDelta.toLocaleString("id-ID") : "0"} km
+                </span>{" "}
+                minggu ini
               </div>
             </div>
 
-            <div className="relative overflow-hidden bg-blue-500/5 p-5 rounded-[2rem] border border-blue-500/10 space-y-3">
+            <div className="relative overflow-hidden bg-blue-500/5 p-5 rounded-xl border border-blue-500/10 space-y-3">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-blue-500/80">
@@ -166,7 +162,7 @@ export default function Home() {
                 </div>
               )}
               {components.map(({ component, currentOdo, usedKm, remainingKm, usagePercent, status }) => (
-                <div key={component.id} className="group p-4 rounded-2xl bg-card/50 border border-border/50 hover:border-primary/20 transition-all duration-300">
+                <div key={component.id} className="group p-4 rounded-xl bg-card/50 border border-border/50 hover:border-primary/20 transition-all duration-300">
                   <div className="flex justify-between items-end mb-3">
                     <div>
                       <p className="text-sm font-bold tracking-tight">{component.name}</p>
@@ -201,7 +197,11 @@ export default function Home() {
               <CardTitle className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Biaya Operasional</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
-              <div className="text-xl font-bold tracking-tight">Rp 450.000</div>
+              <div className="text-xl font-bold tracking-tight">
+                {vehicleHealth?.monthlyCost !== undefined
+                  ? `Rp ${vehicleHealth.monthlyCost.toLocaleString("id-ID")}`
+                  : "Rp 0"}
+              </div>
               <p className="text-[8px] text-green-500 font-bold uppercase mt-1">Bulan Ini</p>
             </CardContent>
           </Card>
@@ -210,10 +210,24 @@ export default function Home() {
               <CardTitle className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Catatan BBM</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
-              <div className="text-sm font-bold flex items-center gap-2">
-                <IconDroplet className="h-4 w-4 text-blue-500" /> Pertamax
-              </div>
-              <p className="text-[8px] text-muted-foreground font-medium mt-1 italic">Kemarin, 17:45</p>
+              {vehicleHealth?.latestFuelLog ? (
+                <>
+                  <div className="text-sm font-bold flex items-center gap-2 truncate">
+                    <IconDroplet className="h-4 w-4 text-blue-500 shrink-0" />{" "}
+                    {vehicleHealth.latestFuelLog.fuelType} ({vehicleHealth.latestFuelLog.liters}L)
+                  </div>
+                  <p className="text-[8px] text-muted-foreground font-medium mt-1 italic">
+                    {vehicleHealth.latestFuelLog.date}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="text-sm font-bold flex items-center gap-2">
+                    <IconDroplet className="h-4 w-4 text-muted-foreground" /> Belum Ada
+                  </div>
+                  <p className="text-[8px] text-muted-foreground font-medium mt-1 italic">—</p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
