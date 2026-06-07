@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   output: disableStandalone ? undefined : "standalone",
 
   allowedDevOrigins: ["192.168.1.8"],
+
+  serverExternalPackages: ["better-sqlite3"],
 };
 
 console.log(`> Build Output Mode: ${nextConfig.output ?? "standard"}`);
