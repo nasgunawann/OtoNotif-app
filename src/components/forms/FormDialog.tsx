@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button"
 import { useMediaQuery } from "@/hooks/use-media-query"
 
 type FormDialogProps = {
-  trigger: React.ReactNode
+  trigger?: React.ReactNode
   title: string
   description?: string
   children: React.ReactNode
@@ -37,7 +37,7 @@ export function FormDialog({ trigger, title, description, children, open, onOpen
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
@@ -51,7 +51,7 @@ export function FormDialog({ trigger, title, description, children, open, onOpen
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+      {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle>{title}</DrawerTitle>
