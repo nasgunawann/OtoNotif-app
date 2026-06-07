@@ -9,7 +9,7 @@ env:
   DOCKER_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/otonotif-app
 
 jobs:
-  test-and-lint:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -32,13 +32,6 @@ jobs:
       - name: Run Linter
         run: pnpm lint
 
-  build-and-push:
-    needs: test-and-lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -56,7 +49,6 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE_NAME }}:latest
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -64,32 +56,7 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # PERBAIKAN 1: Buat folder di VPS terlebih dahulu sebelum copy file
-      - name: Create deployment folder on VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          script: mkdir -p ~/otonotif-app
-
-      # Step 2: Copy docker-compose.yml aman karena folder sudah ada
-      - name: Copy docker-compose.yml to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          source: "docker-compose.yml"
-          target: "~/otonotif-app"
-
-      # Step 3: Connect via SSH, buat file .env, lalu update container
-      - name: Deploy to VPS via SSH
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -97,29 +64,26 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            cd ~/otonotif-app || exit 1
-            
-            # PERBAIKAN 2: Inject nama image ke file .env agar dibaca oleh docker-compose.yml
-            echo "DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" > .env
-            
-            # Detect docker compose version
-            if sudo docker compose version >/dev/null 2>&1; then
-                COMPOSE_CMD="sudo docker compose"
-            else
-                DOCKER_COMPOSE_BIN=$(which docker-compose 2>/dev/null || echo "/usr/local/bin/docker-compose")
-                COMPOSE_CMD="sudo $DOCKER_COMPOSE_BIN"
-            fi
-            
-            echo "Using compose command: $COMPOSE_CMD"
-            
-            # Login to Docker Hub
+            set -e
+            DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}
+            COMPOSE_DIR=~/otonotif-app
+
+            # Setup
+            mkdir -p "$COMPOSE_DIR"
+            cd "$COMPOSE_DIR"
+
+            # Pull compose file langsung dari GitHub (gak perlu scp)
+            curl -sSO https://raw.githubusercontent.com/nasgunawann/OtoNotif-app/main/docker-compose.yml
+
+            # Inject image tag
+            echo "DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME" > .env
+
+            # Login Docker Hub
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-            
-            # Pull dan restart container
-            $COMPOSE_CMD pull
-            $COMPOSE_CMD up -d
-            
-            # Clean up old images
-            sudo docker image prune -f
-            
-            echo "Deployment Completed Successfully! 🚀"
+
+            # Pull image baru & deploy
+            sudo docker compose pull
+            sudo docker compose up -d --remove-orphans
+
+            # Bersihin image lama
+            sudo docker image prune -af --filter "until=24h"
