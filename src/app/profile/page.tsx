@@ -1,10 +1,16 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { IconUserCircle, IconSettings, IconLogout, IconSun } from "@tabler/icons-react"
+import { IconUserCircle, IconSettings, IconLogout, IconSun, IconEdit } from "@tabler/icons-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { motion } from "motion/react"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { FormDialog } from "@/components/forms/FormDialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -13,6 +19,25 @@ const fadeUp = {
 }
 
 export default function ProfilePage() {
+  const { userName, setUserName } = useVehicleStore()
+  const [open, setOpen] = useState(false)
+  const [nameInput, setNameInput] = useState(userName)
+
+  useEffect(() => {
+    setNameInput(userName)
+  }, [userName])
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!nameInput.trim()) {
+      toast.error("Nama tidak boleh kosong")
+      return
+    }
+    setUserName(nameInput.trim())
+    setOpen(false)
+    toast.success("Nama profil berhasil diperbarui")
+  }
+
   return (
     <motion.div 
       initial="initial"
@@ -26,12 +51,46 @@ export default function ProfilePage() {
       </div>
 
       <Card>
-        <CardContent className="flex items-center gap-4 p-4">
-          <IconUserCircle className="h-16 w-16 text-muted-foreground" />
-          <div>
-            <h2 className="text-xl font-bold">Nanas Gunung</h2>
-            <CardDescription>nanas@example.com</CardDescription>
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-4">
+            <IconUserCircle className="h-16 w-16 text-muted-foreground" />
+            <div>
+              <h2 className="text-xl font-bold">{userName}</h2>
+              <CardDescription>nanas@example.com</CardDescription>
+            </div>
           </div>
+          <FormDialog
+            open={open}
+            onOpenChange={setOpen}
+            title="Edit Profil"
+            description="Perbarui nama profil Anda di aplikasi OtoNotif."
+            trigger={
+              <Button variant="outline" size="sm" className="gap-1 rounded-full">
+                <IconEdit className="h-4 w-4" /> Edit
+              </Button>
+            }
+          >
+            <form onSubmit={handleSave} className="space-y-4 py-4 md:py-0">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nama Lengkap</Label>
+                <Input
+                  id="name"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder="Masukkan nama lengkap"
+                  className="w-full"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+                  Batal
+                </Button>
+                <Button type="submit">
+                  Simpan
+                </Button>
+              </div>
+            </form>
+          </FormDialog>
         </CardContent>
       </Card>
 

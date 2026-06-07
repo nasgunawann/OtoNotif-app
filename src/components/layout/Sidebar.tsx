@@ -18,10 +18,11 @@ export function Sidebar() {
   return (
     <div className="flex flex-col h-full bg-card/50">
       {/* Logo Area */}
-      <div className="h-14 border-b flex items-center px-6">
-        <div className="font-bold text-xl text-primary flex items-center gap-2">
-          OtoNotif
-        </div>
+      <div className="h-16 border-b flex items-center justify-center px-6">
+        <Link href="/" className="flex items-center">
+          <img src="/logo-light.svg" alt="OtoNotif Logo" className="h-10 w-auto dark:hidden" />
+          <img src="/logo-dark.svg" alt="OtoNotif Logo" className="h-10 w-auto hidden dark:block" />
+        </Link>
       </div>
 
       {/* Quick Action */}

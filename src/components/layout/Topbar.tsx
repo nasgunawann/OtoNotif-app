@@ -29,7 +29,14 @@ export function Topbar() {
           </Button>
         )}
         <div className="font-bold text-lg text-primary flex items-center gap-2">
-          {isHome ? "OtoNotif" : title}
+          {isHome ? (
+            <Link href="/" className="flex items-center">
+              <img src="/logo-light.svg" alt="OtoNotif Logo" className="h-8 w-auto dark:hidden" />
+              <img src="/logo-dark.svg" alt="OtoNotif Logo" className="h-8 w-auto hidden dark:block" />
+            </Link>
+          ) : (
+            title
+          )}
         </div>
       </div>
 

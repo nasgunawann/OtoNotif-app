@@ -36,6 +36,9 @@ interface VehicleStore {
   createMaintenanceRecord: (data: any) => Promise<void>
 
   fetchVehicleHealth: (vehicleId: string) => Promise<void>
+  userName: string
+  setUserName: (name: string) => void
+  initializeUserName: () => void
 }
 
 export const useVehicleStore = create<VehicleStore>((set, get) => ({
@@ -48,6 +51,7 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
   maintenanceRecords: [],
   loading: false,
   error: null,
+  userName: "Nanas Gunung",
 
   fetchVehicles: async () => {
     set({ loading: true })
@@ -394,6 +398,22 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
       set({ vehicleHealth })
     } catch (e: any) {
       set({ error: e.message })
+    }
+  },
+
+  setUserName: (name: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("otonotif_user_name", name)
+    }
+    set({ userName: name })
+  },
+
+  initializeUserName: () => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("otonotif_user_name")
+      if (stored) {
+        set({ userName: stored })
+      }
     }
   },
 }))

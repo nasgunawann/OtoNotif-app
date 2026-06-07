@@ -1,11 +1,19 @@
 "use client"
 
+import { useEffect } from "react"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Topbar } from "@/components/layout/Topbar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 
 export function ResponsiveLayout({ children }: { children: React.ReactNode }) {
+  const { initializeUserName } = useVehicleStore()
+
+  useEffect(() => {
+    initializeUserName()
+  }, [initializeUserName])
+
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden text-foreground">
       {/* Desktop Sidebar */}

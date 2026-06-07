@@ -24,7 +24,7 @@ const fadeUp = {
 }
 
 export default function Home() {
-  const { vehicles, vehicleHealth, fetchVehicles, fetchVehicleHealth, setPrimaryVehicle, loading } = useVehicleStore()
+  const { vehicles, vehicleHealth, fetchVehicles, fetchVehicleHealth, setPrimaryVehicle, loading, userName } = useVehicleStore()
 
   useEffect(() => {
     fetchVehicles()
@@ -83,7 +83,7 @@ export default function Home() {
       <div className="hidden md:flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Beranda</h1>
-          <p className="text-muted-foreground">Halo, Nanas! Cek kondisi kendaraan utamamu.</p>
+          <p className="text-muted-foreground">Halo, {userName}! Cek kondisi kendaraan utamamu.</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
