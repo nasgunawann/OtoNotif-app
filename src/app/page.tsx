@@ -259,9 +259,9 @@ export default function Home() {
         {/* Ambient Vehicle Photo Background */}
         {primaryVehicle.image ? (
           <div className="absolute right-0 top-0 bottom-0 w-2/3 z-0 pointer-events-none select-none overflow-hidden">
-            <img 
-              src={primaryVehicle.image} 
-              alt="" 
+            <img
+              src={primaryVehicle.image}
+              alt=""
               className="h-full w-full object-cover object-right opacity-12 dark:opacity-18 grayscale contrast-125 transition-all duration-500"
             />
             {/* Gradient mask to blend image into the card background */}
@@ -281,22 +281,22 @@ export default function Home() {
       {/* 3-Column Metrics Grid (Now 3 columns on both Mobile & Desktop) */}
       <div className="grid grid-cols-3 gap-2 md:gap-4">
         {/* Odometer */}
-        <Card className="bg-amber-500/50 dark:bg-amber-500/10 border border-amber-500/15 dark:border-amber-500/20 overflow-hidden relative group shadow-sm">
+        <Card className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 dark:border-amber-500/20 overflow-hidden relative group shadow-sm">
           <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
             <div className="flex items-center gap-1 md:gap-2 text-amber-700 dark:text-amber-400">
               <IconGauge className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-              <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] truncate">
+              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] truncate">
                 Odometer
               </span>
             </div>
           </CardHeader>
           <CardContent className="p-2 md:p-4 pt-0">
-            <div className="text-xs sm:text-sm md:text-2xl font-extrabold tracking-tight text-amber-950 dark:text-amber-200 truncate">
+            <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-amber-950 dark:text-amber-200 truncate">
               {vehicleHealth?.latestOdo
                 ? `${vehicleHealth.latestOdo.toLocaleString()} km`
                 : "—"}
             </div>
-            <div className="flex items-center gap-1 text-[8px] md:text-[9px] text-amber-800/70 dark:text-amber-400/70 font-semibold mt-0.5 md:mt-1.5">
+            <div className="flex items-center gap-1 text-[9px] md:text-[10px] text-amber-800/70 dark:text-amber-400/70 font-semibold mt-0.5 md:mt-1.5">
               <span className="font-extrabold">
                 +
                 {vehicleHealth?.weeklyOdoDelta
@@ -314,19 +314,19 @@ export default function Home() {
             <div className="flex items-center justify-between gap-1">
               <div className="flex items-center gap-1 md:gap-2 text-blue-700 dark:text-blue-400 min-w-0">
                 <IconDroplet className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-                <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] truncate">
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] truncate">
                   BBM
                 </span>
               </div>
-              <span className="text-[8px] md:text-[9px] font-bold text-blue-800/70 dark:text-blue-400/70 font-mono hidden md:inline">
+              <span className="text-[9px] md:text-[10px] font-bold text-blue-800/70 dark:text-blue-400/70 font-mono hidden md:inline">
                 {fuel?.avg ? `${fuel.avg}` : "—"}
               </span>
             </div>
           </CardHeader>
           <CardContent className="p-2 md:p-4 pt-0 space-y-1 md:space-y-2">
-            <div className="text-xs sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate">
+            <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate">
               {fuel ? `${fuel.current}L` : "—"}{" "}
-              <span className="text-[8px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
+              <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
                 /{fuel?.max}L
               </span>
             </div>
@@ -348,18 +348,18 @@ export default function Home() {
           <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
             <div className="flex items-center gap-1 md:gap-2 text-emerald-700 dark:text-emerald-400">
               <IconActivity className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-              <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] truncate">
+              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] truncate">
                 Biaya
               </span>
             </div>
           </CardHeader>
           <CardContent className="p-2 md:p-4 pt-0">
-            <div className="text-xs sm:text-sm md:text-2xl font-extrabold tracking-tight text-emerald-950 dark:text-emerald-200 truncate">
+            <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-emerald-950 dark:text-emerald-200 truncate">
               {vehicleHealth?.monthlyCost !== undefined
                 ? formatCompactCurrency(vehicleHealth.monthlyCost)
                 : "Rp 0"}
             </div>
-            <p className="text-[8px] text-emerald-700/80 dark:text-emerald-400/80 font-bold uppercase mt-0.5 md:mt-1.5">
+            <p className="text-[9px] md:text-[10px] text-emerald-700/80 dark:text-emerald-400/80 font-bold uppercase mt-0.5 md:mt-1.5">
               Bulan Ini
             </p>
           </CardContent>
@@ -372,7 +372,8 @@ export default function Home() {
         <Card className="border-none bg-card/50 shadow-md lg:col-span-2">
           <CardHeader className="pb-3 md:pb-4">
             <CardTitle className="text-sm md:text-base font-bold tracking-tight flex items-center gap-2">
-              <IconActivity className="h-4 w-4 text-primary" /> Pemantauan Komponen
+              <IconActivity className="h-4 w-4 text-primary" /> Pemantauan
+              Komponen
             </CardTitle>
             <CardDescription className="text-[10px] md:text-xs">
               Kondisi komponen kendaraan berdasarkan jarak tempuh saat ini.
@@ -385,53 +386,83 @@ export default function Home() {
                   Belum ada komponen yang dipantau.
                 </div>
               )}
-              {sortedComponents.map(({ component, currentOdo, usedKm, remainingKm, usagePercent, status }) => (
-                <div
-                  key={component.id}
-                  className={cn(
-                    "group p-3 md:p-4 rounded-xl border transition-all duration-300 relative overflow-hidden",
-                    status === "danger" ? "bg-red-500/5 border-red-500/20 hover:border-red-500/30" :
-                    status === "warning" ? "bg-orange-500/5 border-orange-500/20 hover:border-orange-500/30" :
-                    "bg-background/40 border-border/50 hover:border-primary/20"
-                  )}
-                >
-                  <div className="flex justify-between items-start mb-2 md:mb-3">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs md:text-sm font-bold tracking-tight">{component.name}</p>
-                        {status !== "safe" && (
-                          <span className={cn(
-                            "text-[7px] md:text-[8px] font-extrabold uppercase px-1 md:px-1.5 py-0.5 rounded-md",
-                            status === "danger" ? "bg-red-500 text-red-50 animate-pulse" : "bg-orange-500 text-orange-50"
-                          )}>
-                            {status === "danger" ? "Ganti" : "Cek"}
-                          </span>
-                        )}
+              {sortedComponents.map(
+                ({
+                  component,
+                  currentOdo,
+                  usedKm,
+                  remainingKm,
+                  usagePercent,
+                  status,
+                }) => (
+                  <div
+                    key={component.id}
+                    className={cn(
+                      "group p-3 md:p-4 rounded-xl border transition-all duration-300 relative overflow-hidden",
+                      status === "danger"
+                        ? "bg-red-500/5 border-red-500/20 hover:border-red-500/30"
+                        : status === "warning"
+                          ? "bg-orange-500/5 border-orange-500/20 hover:border-orange-500/30"
+                          : "bg-background/40 border-border/50 hover:border-primary/20",
+                    )}
+                  >
+                    <div className="flex justify-between items-start mb-2 md:mb-3">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs md:text-sm font-bold tracking-tight">
+                            {component.name}
+                          </p>
+                          {status !== "safe" && (
+                            <span
+                              className={cn(
+                                "text-[7px] md:text-[8px] font-extrabold uppercase px-1 md:px-1.5 py-0.5 rounded-md",
+                                status === "danger"
+                                  ? "bg-red-500 text-red-50 animate-pulse"
+                                  : "bg-orange-500 text-orange-50",
+                              )}
+                            >
+                              {status === "danger" ? "Ganti" : "Cek"}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium mt-0.5 md:mt-1">
+                          Sisa{" "}
+                          <span
+                            className={cn(
+                              "font-bold",
+                              status !== "safe"
+                                ? "text-orange-500 font-extrabold"
+                                : "text-foreground",
+                            )}
+                          >
+                            {remainingKm} km
+                          </span>{" "}
+                          lagi
+                        </p>
                       </div>
-                      <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium mt-0.5 md:mt-1">
-                        Sisa <span className={cn("font-bold", status !== "safe" ? "text-orange-500 font-extrabold" : "text-foreground")}>{remainingKm} km</span> lagi
-                      </p>
+                      <div className="text-[9px] md:text-[10px] font-mono font-bold text-muted-foreground bg-muted/60 px-1.5 md:px-2 py-0.5 rounded-md">
+                        {currentOdo} / {component.intervalKm} km
+                      </div>
                     </div>
-                    <div className="text-[9px] md:text-[10px] font-mono font-bold text-muted-foreground bg-muted/60 px-1.5 md:px-2 py-0.5 rounded-md">
-                      {currentOdo} / {component.intervalKm} km
-                    </div>
-                  </div>
 
-                  <div className="h-1 md:h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${usagePercent}%` }}
-                      transition={{ duration: 0.3 }}
-                      className={cn(
-                        "h-full rounded-full transition-all duration-500",
-                        status === "danger" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]" :
-                        status === "warning" ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" :
-                        "bg-green-500"
-                      )}
-                    />
+                    <div className="h-1 md:h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${usagePercent}%` }}
+                        transition={{ duration: 0.3 }}
+                        className={cn(
+                          "h-full rounded-full transition-all duration-500",
+                          status === "danger"
+                            ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                            : status === "warning"
+                              ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]"
+                              : "bg-green-500",
+                        )}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           </CardContent>
         </Card>
@@ -440,7 +471,8 @@ export default function Home() {
         <Card className="bg-card/50 border-none ring-1 ring-border/50 overflow-hidden shadow-sm lg:col-span-1">
           <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
             <CardTitle className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <IconDroplet className="h-3.5 w-3.5 text-blue-500 shrink-0" /> Catatan BBM Terakhir
+              <IconDroplet className="h-3.5 w-3.5 text-blue-500 shrink-0" />{" "}
+              Catatan BBM Terakhir
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 md:p-4 pt-0">
@@ -449,15 +481,21 @@ export default function Home() {
                 <div className="flex items-center justify-between gap-4 border-b pb-3 border-border/40">
                   <div>
                     <div className="text-xs md:text-sm font-bold text-foreground">
-                      {vehicleHealth.latestFuelLog.fuelType} ({vehicleHealth.latestFuelLog.liters}L)
+                      {vehicleHealth.latestFuelLog.fuelType} (
+                      {vehicleHealth.latestFuelLog.liters}L)
                     </div>
                     <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium mt-0.5">
-                      Odo: {vehicleHealth.latestFuelLog.odoReading?.toLocaleString()} km
+                      Odo:{" "}
+                      {vehicleHealth.latestFuelLog.odoReading?.toLocaleString()}{" "}
+                      km
                     </p>
                   </div>
                   <div className="text-right">
                     <div className="text-xs md:text-sm font-extrabold text-foreground">
-                      Rp {vehicleHealth.latestFuelLog.amount.toLocaleString("id-ID")}
+                      Rp{" "}
+                      {vehicleHealth.latestFuelLog.amount.toLocaleString(
+                        "id-ID",
+                      )}
                     </div>
                     <p className="text-[8px] text-muted-foreground font-medium mt-0.5 italic">
                       {vehicleHealth.latestFuelLog.date}
@@ -468,17 +506,27 @@ export default function Home() {
                 <div className="text-[9px] md:text-[10px] text-muted-foreground space-y-1">
                   <div className="flex justify-between">
                     <span>Konsumsi rata-rata:</span>
-                    <span className="font-bold text-foreground">{fuel?.avg || "—"}</span>
+                    <span className="font-bold text-foreground">
+                      {fuel?.avg || "—"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Jarak tempuh minggu ini:</span>
-                    <span className="font-bold text-foreground">+{vehicleHealth?.weeklyOdoDelta ? vehicleHealth.weeklyOdoDelta.toLocaleString("id-ID") : "0"} km</span>
+                    <span className="font-bold text-foreground">
+                      +
+                      {vehicleHealth?.weeklyOdoDelta
+                        ? vehicleHealth.weeklyOdoDelta.toLocaleString("id-ID")
+                        : "0"}{" "}
+                      km
+                    </span>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 py-1">
-                <p className="text-xs text-muted-foreground italic">Belum ada catatan pengisian BBM.</p>
+                <p className="text-xs text-muted-foreground italic">
+                  Belum ada catatan pengisian BBM.
+                </p>
               </div>
             )}
           </CardContent>
