@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OtoNotif
 
-## Getting Started
+Pantau kesehatan kendaraan — catat odometer, BBM, servis, dan jadwal perawatan.
 
-First, run the development server:
+Built with [Next.js 16](https://nextjs.org), [Drizzle ORM](https://orm.drizzle.team), [SQLite](https://sqlite.org), [Docker](https://docker.com).
+
+---
+
+## Fitur
+
+- Dashboard kondisi kendaraan (komponen, BBM, biaya bulanan)
+- Catat pengisian BBM, odometer, riwayat servis
+- Monitoring komponen berdasarkan interval jarak tempuh
+- Notifikasi komponen yang perlu diganti
+- Multi-kendaraan dengan pilih kendaraan utama
+- Tema terang/gelap
+- **Responsive**: mobile-first + sidebar desktop
+
+---
+
+## Development
+
+### Prasyarat
+
+- Node.js 20+
+- pnpm 9+
+
+### Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Generate migration SQL dari schema
+pnpm db:generate
+
+# Push schema ke database SQLite lokal
+pnpm db:push
+
+# Jalankan dev server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Seeding data dummy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+curl -X POST http://localhost:3000/api/seed
+```
 
-## Learn More
+### Lint & Build
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm lint        # ESLint check
+pnpm build       # Production build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Arsitektur
 
-## Deploy on Vercel
+```
+src/
+├── app/              # Next.js App Router (pages + API routes)
+│   ├── api/          # REST API endpoints
+│   ├── history/      # Riwayat BBM & servis
+│   ├── maintenance/  # Jadwal perawatan komponen
+│   ├── profile/      # Profil pengguna
+│   └── vehicles/     # Manajemen kendaraan
+├── components/       # UI components (shadcn/ui)
+│   ├── forms/        # Form untuk odometer, BBM, servis, kendaraan
+│   └── layout/       # Sidebar, Topbar, Drawer, dll
+├── db/               # Database layer
+│   ├── schema.ts     # Drizzle schema definitions
+│   ├── migrations/   # Generated SQL migrations
+│   ├── index.ts      # Database connection (better-sqlite3)
+│   └── migrate.ts    # Migration runner
+├── hooks/            # Custom React hooks
+├── lib/              # Utilities, tipe, store, API client
+│   ├── services/     # API client wrapper
+│   ├── store/        # Zustand state management
+│   └── types.ts      # TypeScript types
+└── instrumentation.ts # Auto-run migrasi saat startup
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+### Docker
+
+```bash
+# Build image
+docker build -t otonotif-app -f dockerfile .
+
+# Jalankan dengan compose
+docker compose up -d
+```
+
+### CI/CD Pipeline
+
+Push ke `main` → GitHub Actions otomatis:
+
+1. **Lint** — `pnpm lint`
+2. **Build & Push** — Build Docker image, push ke Docker Hub (`:latest`)
+3. **Deploy** — SSH ke VPS → `docker compose pull && up -d --force-recreate`
+
+### VPS Requirements
+
+- Docker + Docker Compose
+- Network `proxy-net` (untuk Nginx Proxy Manager)
+- Volume `otonotif-data` untuk persist SQLite
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `file:./otonotif.db` | Path SQLite database |
+| `PORT` | `3000` | Port aplikasi |
+| `HOSTNAME` | `0.0.0.0` | Bind address (Docker) |
+
+---
+
+## Tech Stack
+
+| | |
+|---|---|
+| **Framework** | Next.js 16 (Turbopack, App Router, standalone output) |
+| **Database** | SQLite via better-sqlite3 + Drizzle ORM |
+| **UI** | shadcn/ui, Tailwind CSS, Motion (Framer Motion) |
+| **State** | Zustand |
+| **Forms** | react-hook-form + zod |
+| **Icons** | Tabler Icons |
+| **Infra** | Docker, GitHub Actions, Lightsail VPS |
+
+---
+
+Proyek ini adalah portfolio pribadi. Dibuat oleh [@nasgunawann](https://github.com/nasgunawann).
