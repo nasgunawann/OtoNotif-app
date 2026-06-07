@@ -19,6 +19,7 @@ interface VehicleStore {
   fetchVehicle: (id: string) => Promise<void>
   createVehicle: (data: Partial<Vehicle> & { name: string; type: "motor" | "mobil" }) => Promise<Vehicle>
   deleteVehicle: (id: string) => Promise<void>
+  setPrimaryVehicle: (id: string) => Promise<void>
 
   fetchOdometerReadings: (vehicleId: string) => Promise<void>
   createOdometerReading: (data: any) => Promise<void>
@@ -102,6 +103,24 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
 
     try {
       await api.deleteVehicle(id)
+    } catch (e) {
+      set({ vehicles: previousVehicles })
+      throw e
+    }
+  },
+
+  setPrimaryVehicle: async (id: string) => {
+    const previousVehicles = get().vehicles
+    set({
+      vehicles: previousVehicles.map((v) => ({
+        ...v,
+        isPrimary: v.id === id,
+      })),
+    })
+
+    try {
+      await api.updateVehicle(id, { isPrimary: true })
+      get().fetchVehicleHealth(id)
     } catch (e) {
       set({ vehicles: previousVehicles })
       throw e

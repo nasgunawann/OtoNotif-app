@@ -9,6 +9,13 @@ import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -17,7 +24,7 @@ const fadeUp = {
 }
 
 export default function Home() {
-  const { vehicles, vehicleHealth, fetchVehicles, fetchVehicleHealth, loading } = useVehicleStore()
+  const { vehicles, vehicleHealth, fetchVehicles, fetchVehicleHealth, setPrimaryVehicle, loading } = useVehicleStore()
 
   useEffect(() => {
     fetchVehicles()
@@ -78,7 +85,29 @@ export default function Home() {
           <h1 className="text-3xl font-bold tracking-tight">Beranda</h1>
           <p className="text-muted-foreground">Halo, Nanas! Cek kondisi kendaraan utamamu.</p>
         </div>
-        <Button variant="outline" size="sm">Ganti Kendaraan Utama</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">Ganti Kendaraan Utama</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {vehicles.map((v) => (
+              <DropdownMenuItem
+                key={v.id}
+                onClick={async () => {
+                  try {
+                    await setPrimaryVehicle(v.id)
+                    toast.success(`Kendaraan utama diganti ke ${v.name}`)
+                  } catch {
+                    toast.error("Gagal mengganti kendaraan utama")
+                  }
+                }}
+                disabled={v.id === primaryVehicle.id}
+              >
+                {v.name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <Card className="overflow-hidden border-none bg-linear-to-br from-primary/5 via-background to-background shadow-xl ring-1 ring-primary/10 group">
@@ -96,11 +125,39 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <Link href={`/vehicles/${primaryVehicle.id}`}>
-              <Button variant="secondary" size="sm" className="h-8 px-3 text-xs font-bold rounded-full gap-1">
-                Detail <IconChevronRight className="h-3 w-3" />
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 px-3 text-xs font-bold rounded-full">
+                    Ganti
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {vehicles.map((v) => (
+                    <DropdownMenuItem
+                      key={v.id}
+                      onClick={async () => {
+                        try {
+                          await setPrimaryVehicle(v.id)
+                          toast.success(`Kendaraan utama diganti ke ${v.name}`)
+                        } catch {
+                          toast.error("Gagal mengganti kendaraan utama")
+                        }
+                      }}
+                      disabled={v.id === primaryVehicle.id}
+                    >
+                      {v.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Link href={`/vehicles/${primaryVehicle.id}`}>
+                <Button variant="secondary" size="sm" className="h-8 px-3 text-xs font-bold rounded-full gap-1">
+                  Detail <IconChevronRight className="h-3 w-3" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-8">

@@ -1,6 +1,6 @@
 import db from "@/db";
 import { vehicles } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
@@ -27,6 +27,13 @@ export async function PATCH(
   const existing = await db.select().from(vehicles).where(eq(vehicles.id, id)).get();
   if (!existing) {
     return Response.json({ error: "Vehicle not found" }, { status: 404 });
+  }
+
+  if (body.isPrimary === true) {
+    await db
+      .update(vehicles)
+      .set({ isPrimary: false, updatedAt: now })
+      .where(ne(vehicles.id, id));
   }
 
   await db
