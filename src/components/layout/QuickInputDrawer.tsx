@@ -158,7 +158,7 @@ export function QuickInputDrawer({ children }: { children?: React.ReactNode }) {
         <DialogTrigger asChild>
           {children || (
             <Button className="w-full gap-2" size="lg">
-              <IconPlus className="h-5 w-5" />
+              <IconPlus className="h-8 w-8" />
               Input Cepat
             </Button>
           )}
@@ -180,8 +180,11 @@ export function QuickInputDrawer({ children }: { children?: React.ReactNode }) {
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
         {children || (
-          <Button size="icon" className="h-16 w-16 rounded-full shadow-xl shadow-primary/30 border-4 border-background hover:scale-105 active:scale-95 transition-transform duration-200">
-            <IconPlus className="h-8 w-8" />
+          <Button
+            size="icon"
+            className="h-14 w-14 rounded-full shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-transform duration-200"
+          >
+            <IconPlus className="size-6" />
           </Button>
         )}
       </DrawerTrigger>
@@ -195,9 +198,9 @@ export function QuickInputDrawer({ children }: { children?: React.ReactNode }) {
         <div className="px-4">
           <QuickInputContent onSuccess={handleSuccess} />
         </div>
-        <DrawerFooter className="pt-2">
+        <DrawerFooter className="pt-8">
           <DrawerClose asChild>
-            <Button variant="ghost">Batal</Button>
+            <Button variant="outline">Tutup</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
