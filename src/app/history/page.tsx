@@ -6,7 +6,16 @@ import { IconDroplet, IconTool, IconTrash } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
 import type { FuelLog, MaintenanceRecord } from "@/lib/types"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { toast } from "sonner"
 
 const fadeUp = {
@@ -37,13 +46,17 @@ function groupByMonth(items: Array<{ date: string } & Record<string, any>>) {
 }
 
 export default function HistoryPage() {
+  const { vehicles, fetchVehicles } = useVehicleStore()
   const [fuelLogs, setFuelLogs] = useState<FuelLog[]>([])
   const [maintenance, setMaintenance] = useState<MaintenanceRecord[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("all")
+  const [selectedLogType, setSelectedLogType] = useState<string>("all")
 
   useEffect(() => {
     async function load() {
       try {
+        await fetchVehicles()
         const [fuel, maint] = await Promise.all([
           api.getFuelLogs(),
           api.getMaintenanceRecords(),
@@ -57,12 +70,15 @@ export default function HistoryPage() {
       }
     }
     load()
-  }, [])
+  }, [fetchVehicles])
 
   const allItems = [
     ...fuelLogs.map((f) => ({ ...f, type: "fuel" as const })),
     ...maintenance.map((m) => ({ ...m, type: "maintenance" as const })),
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  ]
+    .filter((item) => selectedVehicleId === "all" || item.vehicleId === selectedVehicleId)
+    .filter((item) => selectedLogType === "all" || item.type === selectedLogType)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   const grouped = groupByMonth(allItems)
   const monthOrder = ["Bulan Ini", "Bulan Lalu"]
@@ -75,9 +91,39 @@ export default function HistoryPage() {
       variants={fadeUp}
       className="space-y-6"
     >
-      <div className="hidden md:block">
-        <h1 className="text-3xl font-bold tracking-tight">Riwayat</h1>
-        <p className="text-muted-foreground">Log pengisian BBM dan servis kendaraan Anda.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="hidden md:block">
+          <h1 className="text-3xl font-bold tracking-tight">Riwayat</h1>
+          <p className="text-muted-foreground">Log pengisian BBM dan servis kendaraan Anda.</p>
+        </div>
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
+          {/* Vehicle Filter */}
+          <Select value={selectedVehicleId} onValueChange={setSelectedVehicleId}>
+            <SelectTrigger className="flex-1 sm:w-[180px] h-10 rounded-full bg-card/50">
+              <SelectValue placeholder="Semua Kendaraan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Kendaraan</SelectItem>
+              {vehicles.map((v) => (
+                <SelectItem key={v.id} value={v.id}>
+                  {v.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Log Type Filter */}
+          <Select value={selectedLogType} onValueChange={setSelectedLogType}>
+            <SelectTrigger className="flex-1 sm:w-[150px] h-10 rounded-full bg-card/50">
+              <SelectValue placeholder="Semua Tipe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Tipe</SelectItem>
+              <SelectItem value="fuel">BBM</SelectItem>
+              <SelectItem value="maintenance">Perawatan</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {loading ? (
@@ -103,36 +149,44 @@ export default function HistoryPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {items.map((item: any) => (
-                      <div key={item.id} className="flex gap-4 items-center justify-between group">
-                        <div className="flex gap-4 flex-1">
-                          <div className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-full ${
-                            item.type === "fuel" ? "bg-blue-500/10" : "bg-orange-500/10"
-                          }`}>
-                            {item.type === "fuel" ? (
-                              <IconDroplet className="h-5 w-5 text-blue-500" />
-                            ) : (
-                              <IconTool className="h-5 w-5 text-orange-500" />
-                            )}
-                          </div>
-                          <div className="flex-1 space-y-1">
-                            <div className="flex justify-between">
-                              <p className="font-medium text-sm">
-                                {item.type === "fuel" ? `Isi Bensin (${item.fuelType})` : item.description}
-                              </p>
-                              <p className="font-medium text-sm">
-                                {item.amount ? `Rp ${item.amount.toLocaleString()}` : item.cost ? `Rp ${item.cost.toLocaleString()}` : ""}
-                              </p>
+                    {items.map((item: any) => {
+                      const vehicle = vehicles.find((v) => v.id === item.vehicleId)
+                      const vehicleName = vehicle ? vehicle.name : "Kendaraan"
+                      return (
+                        <div key={item.id} className="flex gap-4 items-center justify-between group">
+                          <div className="flex gap-4 flex-1">
+                            <div className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-full ${
+                              item.type === "fuel" ? "bg-blue-500/10" : "bg-orange-500/10"
+                            }`}>
+                              {item.type === "fuel" ? (
+                                <IconDroplet className="h-5 w-5 text-blue-500" />
+                              ) : (
+                                <IconTool className="h-5 w-5 text-orange-500" />
+                              )}
                             </div>
-                            <div className="flex justify-between text-xs text-muted-foreground">
-                              <p>{item.type === "fuel" ? `${item.liters} Liter` : ""}</p>
-                              <p>{item.date}</p>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p className="font-medium text-sm">
+                                    {item.type === "fuel" ? `Isi Bensin (${item.fuelType})` : item.description}
+                                  </p>
+                                  <Badge variant="outline" className="text-[9px] py-0 px-1.5 h-4 rounded-full font-bold">
+                                    {vehicleName}
+                                  </Badge>
+                                </div>
+                                <p className="font-medium text-sm whitespace-nowrap">
+                                  {item.amount ? `Rp ${item.amount.toLocaleString()}` : item.cost ? `Rp ${item.cost.toLocaleString()}` : ""}
+                                </p>
+                              </div>
+                              <div className="flex justify-between text-xs text-muted-foreground">
+                                <p>{item.type === "fuel" ? `${item.liters} Liter` : ""}</p>
+                                <p>{item.date}</p>
+                              </div>
+                              {item.odoReading > 0 && (
+                                <p className="text-xs text-muted-foreground">Odo: {item.odoReading.toLocaleString()} km</p>
+                              )}
                             </div>
-                            {item.odoReading > 0 && (
-                              <p className="text-xs text-muted-foreground">Odo: {item.odoReading.toLocaleString()} km</p>
-                            )}
                           </div>
-                        </div>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -157,7 +211,8 @@ export default function HistoryPage() {
                           <IconTrash className="h-4 w-4" />
                         </Button>
                       </div>
-                    ))}
+                    )
+                  })}
                   </div>
                 </CardContent>
               </Card>

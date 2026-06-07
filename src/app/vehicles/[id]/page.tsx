@@ -24,6 +24,7 @@ import { OdometerForm } from "@/components/forms/OdometerForm"
 import { FuelForm } from "@/components/forms/FuelForm"
 import { ServiceForm } from "@/components/forms/ServiceForm"
 import { VehicleForm } from "@/components/forms/VehicleForm"
+import { ComponentForm } from "@/components/forms/ComponentForm"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,6 +61,7 @@ export default function VehicleDetailPage() {
   const [openFuel, setOpenFuel] = useState(false)
   const [openService, setOpenService] = useState(false)
   const [openEdit, setOpenEdit] = useState(false)
+  const [openComponent, setOpenComponent] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -205,11 +207,33 @@ export default function VehicleDetailPage() {
 
       <Card className="border-none bg-card/50">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex justify-between">
+          <CardTitle className="text-base flex justify-between items-center">
             Status Komponen
-            <Button variant="link" className="h-auto p-0 text-xs" asChild>
-              <Link href="/maintenance">Lihat Semua</Link>
-            </Button>
+            <div className="flex gap-2 items-center">
+              <FormDialog
+                title="Tambah Komponen"
+                open={openComponent}
+                onOpenChange={setOpenComponent}
+                trigger={
+                  <Button variant="link" className="h-auto p-0 text-xs text-primary font-bold">
+                    Tambah
+                  </Button>
+                }
+              >
+                <ComponentForm
+                  vehicleId={id}
+                  onSuccess={() => {
+                    setOpenComponent(false)
+                    fetchComponents(id)
+                    fetchVehicleHealth(id)
+                  }}
+                />
+              </FormDialog>
+              <span className="text-muted-foreground/30 text-xs font-normal">•</span>
+              <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
+                <Link href="/maintenance">Lihat Semua</Link>
+              </Button>
+            </div>
           </CardTitle>
           <CardDescription className="text-xs">Prediksi penggantian part selanjutnya.</CardDescription>
         </CardHeader>

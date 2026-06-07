@@ -10,6 +10,13 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { FormDialog } from "@/components/forms/FormDialog"
 import { ServiceForm } from "@/components/forms/ServiceForm"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -20,6 +27,7 @@ const fadeUp = {
 export default function MaintenancePage() {
   const [healthData, setHealthData] = useState<VehicleHealth[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("all")
 
   async function load() {
     try {
@@ -46,8 +54,11 @@ export default function MaintenancePage() {
       vehicleName: h.vehicle.name,
     }))
   )
-  const dueItems = allComponents.filter((c) => c.status === "danger" || c.status === "warning")
-  const safeItems = allComponents.filter((c) => c.status === "safe")
+  const filteredComponents = allComponents.filter(
+    (c) => selectedVehicleId === "all" || c.vehicleId === selectedVehicleId
+  )
+  const dueItems = filteredComponents.filter((c) => c.status === "danger" || c.status === "warning")
+  const safeItems = filteredComponents.filter((c) => c.status === "safe")
 
   return (
     <motion.div 
@@ -56,9 +67,26 @@ export default function MaintenancePage() {
       variants={fadeUp}
       className="space-y-6"
     >
-      <div className="hidden md:block">
-        <h1 className="text-3xl font-bold tracking-tight">Perawatan</h1>
-        <p className="text-muted-foreground">Jadwal perawatan kendaraan Anda.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="hidden md:block">
+          <h1 className="text-3xl font-bold tracking-tight">Perawatan</h1>
+          <p className="text-muted-foreground">Jadwal perawatan kendaraan Anda.</p>
+        </div>
+        {healthData.length > 0 && (
+          <Select value={selectedVehicleId} onValueChange={setSelectedVehicleId}>
+            <SelectTrigger className="w-full sm:w-[220px] h-10 rounded-full bg-card/50">
+              <SelectValue placeholder="Semua Kendaraan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Kendaraan</SelectItem>
+              {healthData.map((h) => (
+                <SelectItem key={h.vehicle.id} value={h.vehicle.id}>
+                  {h.vehicle.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {loading ? (
