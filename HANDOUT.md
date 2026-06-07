@@ -182,17 +182,17 @@ f33e95b chore: add drizzle ORM, better-sqlite3, zod, zustand deps and shadcn UI 
 
 ## Known Issues / TODOs
 
-- [ ] Profile page still has hardcoded user name ("Nanas Gunung") — needs auth
-- [ ] "Ganti Kendaraan Utama" button on dashboard not functional
-- [ ] "Lihat Semua" button on vehicle detail component list not wired
-- [ ] Vehicle cards on list page don't show actual odometer
-- [ ] No delete/edit for records (vehicles, fuel logs, etc.)
-- [ ] No loading states for form submissions (isSubmitting used but no spinner)
-- [ ] Dashboard fuel level is still mock (3.2L hardcoded)
-- [ ] Monthly cost on dashboard is still mock (Rp 450.000)
-- [ ] Odometer "minggu ini" delta is still mock (+120 km)
-- [ ] Type badge on vehicle cards uses `Badge` component correctly
-- [ ] Some `<p>` inside `<Card>` still not converted to `<CardDescription>` (minor)
+- [x] Profile page still has hardcoded user name ("Nanas Gunung") — needs auth (Resolved via Zustand store and local storage sync)
+- [x] "Ganti Kendaraan Utama" button on dashboard not functional (Resolved)
+- [x] "Lihat Semua" button on vehicle detail component list not wired (Resolved)
+- [x] Vehicle cards on list page don't show actual odometer (Resolved)
+- [x] No delete/edit for records (vehicles, fuel logs, etc.) (Resolved)
+- [x] No loading states for form submissions (isSubmitting used but no spinner) (Resolved)
+- [x] Dashboard fuel level is still mock (3.2L hardcoded) (Resolved)
+- [x] Monthly cost on dashboard is still mock (Rp 450.000) (Resolved)
+- [x] Odometer "minggu ini" delta is still mock (+120 km) (Resolved)
+- [x] Type badge on vehicle cards uses `Badge` component correctly (Resolved)
+- [x] Some `<p>` inside `<Card>` still not converted to `<CardDescription>` (minor) (Resolved)
 
 ## Perintah Berguna
 
