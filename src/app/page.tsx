@@ -201,9 +201,6 @@ export default function Home() {
       <Card className="relative overflow-hidden border-none bg-linear-to-br from-primary/5 via-background to-background shadow-md ring-1 ring-primary/10">
         <CardContent className="p-3.5 md:p-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3 relative z-10">
-            <div className="bg-primary p-2 md:p-2.5 rounded-xl text-primary-foreground shadow-md shrink-0">
-              <IconCar className="h-4 w-4 md:h-5 md:w-5" />
-            </div>
             <div className="min-w-0">
               <h2 className="text-sm md:text-base font-bold tracking-tight truncate">
                 {primaryVehicle.name}

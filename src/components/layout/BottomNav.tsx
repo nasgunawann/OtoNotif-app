@@ -33,20 +33,20 @@ export function BottomNav() {
                 animate={{ scale: isActive ? 1.2 : 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-6 w-6" />
               </motion.div>
               <span className="text-[10px] font-medium">{item.label}</span>
               {isActive && (
                 <motion.div 
                   layoutId="bottom-nav-indicator"
-                  className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" 
+                  className="absolute bottom-1 left-1/2 -translate-x-1/2 h-[2px] w-6 rounded-full bg-primary" 
                 />
               )}
             </Link>
           )
         })}
 
-        <div className="flex items-center justify-center -mt-8">
+        <div className="flex items-center justify-center -mt-10">
           <QuickInputDrawer />
         </div>
 
@@ -65,13 +65,13 @@ export function BottomNav() {
                 animate={{ scale: isActive ? 1.2 : 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-6 w-6" />
               </motion.div>
               <span className="text-[10px] font-medium">{item.label}</span>
               {isActive && (
                 <motion.div 
                   layoutId="bottom-nav-indicator"
-                  className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" 
+                  className="absolute bottom-1 left-1/2 -translate-x-1/2 h-[2px] w-6 rounded-full bg-primary" 
                 />
               )}
             </Link>

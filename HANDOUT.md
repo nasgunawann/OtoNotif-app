@@ -169,6 +169,12 @@ Use it like:
 ## Log Komit Terbaru
 
 ```
+2f3e39a style: implement right-aligned ambient background photo with grayscale filter and fallback category icon on vehicle selector card
+1442d37 style: rearrange bottom dashboard to 2 columns on desktop (components at 2/3, recent activity at 1/3)
+24d7706 feat: optimize mobile dashboard layout with compact metrics grid, single-line greeting header, and currency helper
+9401f78 feat: add animated loader spinners to all form submission buttons
+24eebfc feat: add custom components form, add vehicle and log type filters to history and maintenance pages, fix syntax errors
+3699cd3 feat: implement dynamic username and responsive dark/light mode SVGs for desktop sidebar and mobile topbar
 81f0264 refactor: replace raw HTML with shadcn components (Button, Badge, ScrollArea)
 0f421ea fix: increase input sizes for better mobile touch targets, use Dialog on desktop for QuickInputDrawer
 f7c60d9 feat: add functional forms for odometer, fuel, service, and vehicle creation; add SQLite Docker volume
