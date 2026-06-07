@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
-const isStandalone = process.env.NEXT_STANDALONE === "true";
+// Check if standalone has been explicitly disabled for local use
+const disableStandalone = process.env.DISABLE_STANDALONE === "true";
 
 const nextConfig: NextConfig = {
-  // 1. Keep your conditional build output
-  output: isStandalone ? "standalone" : undefined,
+  // 1. Defaults to standalone unless overridden by your environment flag
+  output: disableStandalone ? undefined : "standalone",
 
   allowedDevOrigins: ["192.168.1.8"],
 };
