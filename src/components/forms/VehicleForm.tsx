@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import type { Vehicle } from "@/lib/types"
 
 const formSchema = z.object({
   name: z.string().min(1, "Nama kendaraan harus diisi"),
@@ -33,35 +34,46 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 type Props = {
+  vehicle?: Vehicle
   onSuccess?: () => void
 }
 
-export function VehicleForm({ onSuccess }: Props) {
-  const { createVehicle } = useVehicleStore()
+export function VehicleForm({ vehicle, onSuccess }: Props) {
+  const { createVehicle, updateVehicle } = useVehicleStore()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      type: "motor",
-      engine: "",
-      fuelCapacity: undefined as any,
+      name: vehicle?.name || "",
+      type: vehicle?.type || "motor",
+      engine: vehicle?.engine || "",
+      fuelCapacity: vehicle?.fuelCapacity || undefined as any,
     },
   })
 
   async function onSubmit(values: FormValues) {
     try {
-      await createVehicle({
-        name: values.name,
-        type: values.type,
-        engine: values.engine || "",
-        fuelCapacity: values.fuelCapacity || 0,
-        image: values.type === "motor" ? "/motorcycle_supra_mockup.png" : "/car_civic_mockup.png",
-      })
-      toast.success(`${values.name} ditambahkan`)
+      if (vehicle) {
+        await updateVehicle(vehicle.id, {
+          name: values.name,
+          type: values.type,
+          engine: values.engine || "",
+          fuelCapacity: values.fuelCapacity || 0,
+        })
+        toast.success(`Kendaraan ${values.name} diperbarui`)
+      } else {
+        await createVehicle({
+          name: values.name,
+          type: values.type,
+          engine: values.engine || "",
+          fuelCapacity: values.fuelCapacity || 0,
+          image: values.type === "motor" ? "/motorcycle_supra_mockup.png" : "/car_civic_mockup.png",
+        })
+        toast.success(`${values.name} ditambahkan`)
+      }
       onSuccess?.()
     } catch {
-      toast.error("Gagal menambahkan kendaraan")
+      toast.error(vehicle ? "Gagal memperbarui kendaraan" : "Gagal menambahkan kendaraan")
     }
   }
 
@@ -129,7 +141,7 @@ export function VehicleForm({ onSuccess }: Props) {
           )}
         />
         <Button type="submit" size="lg" className="w-full h-12 text-base" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Menyimpan..." : "Tambah Kendaraan"}
+          {form.formState.isSubmitting ? "Menyimpan..." : (vehicle ? "Simpan Perubahan" : "Tambah Kendaraan")}
         </Button>
       </form>
     </Form>

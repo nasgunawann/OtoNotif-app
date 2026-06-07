@@ -1,5 +1,5 @@
 import db from "@/db";
-import { vehicles } from "@/db/schema";
+import { vehicles, odometerReadings, fuelLogs, components, maintenanceRecords } from "@/db/schema";
 import { eq, ne } from "drizzle-orm";
 
 export async function GET(
@@ -50,6 +50,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  await db.delete(odometerReadings).where(eq(odometerReadings.vehicleId, id));
+  await db.delete(fuelLogs).where(eq(fuelLogs.vehicleId, id));
+  await db.delete(components).where(eq(components.vehicleId, id));
+  await db.delete(maintenanceRecords).where(eq(maintenanceRecords.vehicleId, id));
   await db.delete(vehicles).where(eq(vehicles.id, id));
   return Response.json({ data: { id } });
 }

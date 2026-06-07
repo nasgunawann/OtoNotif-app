@@ -23,7 +23,15 @@ import { FormDialog } from "@/components/forms/FormDialog"
 import { OdometerForm } from "@/components/forms/OdometerForm"
 import { FuelForm } from "@/components/forms/FuelForm"
 import { ServiceForm } from "@/components/forms/ServiceForm"
+import { VehicleForm } from "@/components/forms/VehicleForm"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import Link from "next/link"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -44,12 +52,14 @@ export default function VehicleDetailPage() {
     fetchComponents,
     fetchOdometerReadings,
     deleteOdometerReading,
+    deleteVehicle,
     loading
   } = useVehicleStore()
 
   const [openOdometer, setOpenOdometer] = useState(false)
   const [openFuel, setOpenFuel] = useState(false)
   const [openService, setOpenService] = useState(false)
+  const [openEdit, setOpenEdit] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -65,6 +75,18 @@ export default function VehicleDetailPage() {
       fetchVehicleHealth(id)
       fetchComponents(id)
       fetchOdometerReadings(id)
+    }
+  }
+
+  async function handleDelete() {
+    if (confirm("Apakah Anda yakin ingin menghapus kendaraan ini beserta seluruh catatannya? Tindakan ini tidak dapat dibatalkan.")) {
+      try {
+        await deleteVehicle(id)
+        toast.success("Kendaraan berhasil dihapus")
+        router.push("/vehicles")
+      } catch {
+        toast.error("Gagal menghapus kendaraan")
+      }
     }
   }
 
@@ -104,12 +126,48 @@ export default function VehicleDetailPage() {
           <IconChevronLeft className="h-6 w-6" />
         </Button>
         <h1 className="text-lg font-bold">Detail Kendaraan</h1>
-        <Button variant="ghost" size="icon">
-          <IconSettings className="h-5 w-5" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <IconSettings className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setOpenEdit(true)}>
+              Edit Kendaraan
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-500 focus:text-red-500"
+              onClick={handleDelete}
+            >
+              Hapus Kendaraan
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="relative h-40 md:h-60 w-full rounded-xl overflow-hidden bg-muted shadow-inner">
+        <div className="absolute top-4 right-4 z-10">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="h-9 w-9 rounded-full bg-background/80 backdrop-blur hover:bg-background shadow-md">
+                <IconSettings className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setOpenEdit(true)}>
+                Edit Kendaraan
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-500 focus:text-red-500"
+                onClick={handleDelete}
+              >
+                Hapus Kendaraan
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {vehicle.image ? (
           <Image
             src={vehicle.image}
@@ -149,7 +207,9 @@ export default function VehicleDetailPage() {
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex justify-between">
             Status Komponen
-            <Button variant="link" className="h-auto p-0 text-xs">Lihat Semua</Button>
+            <Button variant="link" className="h-auto p-0 text-xs" asChild>
+              <Link href="/maintenance">Lihat Semua</Link>
+            </Button>
           </CardTitle>
           <CardDescription className="text-xs">Prediksi penggantian part selanjutnya.</CardDescription>
         </CardHeader>
@@ -278,6 +338,21 @@ export default function VehicleDetailPage() {
           vehicleId={vehicle.id}
           vehicleName={vehicle.name}
           onSuccess={() => { setOpenOdometer(false); refresh() }}
+        />
+      </FormDialog>
+
+      <FormDialog
+        title="Edit Kendaraan"
+        description={vehicle.name}
+        open={openEdit}
+        onOpenChange={setOpenEdit}
+      >
+        <VehicleForm
+          vehicle={vehicle}
+          onSuccess={() => {
+            setOpenEdit(false)
+            refresh()
+          }}
         />
       </FormDialog>
     </motion.div>
