@@ -7,6 +7,9 @@ import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
 import type { VehicleHealth } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { FormDialog } from "@/components/forms/FormDialog"
+import { ServiceForm } from "@/components/forms/ServiceForm"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -18,25 +21,30 @@ export default function MaintenancePage() {
   const [healthData, setHealthData] = useState<VehicleHealth[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const vehicles = await api.getVehicles()
-        const health = await Promise.all(
-          vehicles.map((v: any) => api.getVehicleHealth(v.id))
-        )
-        setHealthData(health)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
+  async function load() {
+    try {
+      const vehicles = await api.getVehicles()
+      const health = await Promise.all(
+        vehicles.map((v: any) => api.getVehicleHealth(v.id))
+      )
+      setHealthData(health)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     load()
   }, [])
 
   const allComponents = healthData.flatMap((h) =>
-    h.components.map((c) => ({ ...c, vehicleName: h.vehicle.name }))
+    h.components.map((c) => ({
+      ...c,
+      vehicleId: h.vehicle.id,
+      vehicleName: h.vehicle.name,
+    }))
   )
   const dueItems = allComponents.filter((c) => c.status === "danger" || c.status === "warning")
   const safeItems = allComponents.filter((c) => c.status === "safe")
@@ -108,6 +116,28 @@ export default function MaintenancePage() {
                   <div className="flex justify-between text-sm mt-1">
                     <span className="text-muted-foreground">Terpakai</span>
                     <span className="font-medium text-foreground">{item.usedKm.toLocaleString()} km</span>
+                  </div>
+
+                  <div className="flex justify-end mt-4 pt-2 border-t border-border/20">
+                    <FormDialog
+                      title="Tambah Servis"
+                      description={`Servis komponen ${item.component.name} untuk ${item.vehicleName}`}
+                      trigger={
+                        <Button size="sm" className="h-8 text-xs font-bold gap-1 rounded-full">
+                          <IconTool className="h-3.5 w-3.5" /> Servis Sekarang
+                        </Button>
+                      }
+                    >
+                      <ServiceForm
+                        vehicleId={item.vehicleId}
+                        vehicleName={item.vehicleName}
+                        defaultComponentId={item.component.id}
+                        defaultDescription={`Ganti ${item.component.name}`}
+                        onSuccess={() => {
+                          load()
+                        }}
+                      />
+                    </FormDialog>
                   </div>
                 </CardContent>
               </Card>

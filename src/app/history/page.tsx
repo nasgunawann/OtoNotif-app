@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { IconDroplet, IconTool } from "@tabler/icons-react"
+import { IconDroplet, IconTool, IconTrash } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
 import type { FuelLog, MaintenanceRecord } from "@/lib/types"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -102,33 +104,58 @@ export default function HistoryPage() {
                 <CardContent>
                   <div className="space-y-6">
                     {items.map((item: any) => (
-                      <div key={item.id} className="flex gap-4">
-                        <div className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-full ${
-                          item.type === "fuel" ? "bg-blue-500/10" : "bg-orange-500/10"
-                        }`}>
-                          {item.type === "fuel" ? (
-                            <IconDroplet className="h-5 w-5 text-blue-500" />
-                          ) : (
-                            <IconTool className="h-5 w-5 text-orange-500" />
-                          )}
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <div className="flex justify-between">
-                            <p className="font-medium text-sm">
-                              {item.type === "fuel" ? `Isi Bensin (${item.fuelType})` : item.description}
-                            </p>
-                            <p className="font-medium text-sm">
-                              {item.amount ? `Rp ${item.amount.toLocaleString()}` : ""}
-                            </p>
+                      <div key={item.id} className="flex gap-4 items-center justify-between group">
+                        <div className="flex gap-4 flex-1">
+                          <div className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-full ${
+                            item.type === "fuel" ? "bg-blue-500/10" : "bg-orange-500/10"
+                          }`}>
+                            {item.type === "fuel" ? (
+                              <IconDroplet className="h-5 w-5 text-blue-500" />
+                            ) : (
+                              <IconTool className="h-5 w-5 text-orange-500" />
+                            )}
                           </div>
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <p>{item.type === "fuel" ? `${item.liters} Liter` : ""}</p>
-                            <p>{item.date}</p>
+                          <div className="flex-1 space-y-1">
+                            <div className="flex justify-between">
+                              <p className="font-medium text-sm">
+                                {item.type === "fuel" ? `Isi Bensin (${item.fuelType})` : item.description}
+                              </p>
+                              <p className="font-medium text-sm">
+                                {item.amount ? `Rp ${item.amount.toLocaleString()}` : item.cost ? `Rp ${item.cost.toLocaleString()}` : ""}
+                              </p>
+                            </div>
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <p>{item.type === "fuel" ? `${item.liters} Liter` : ""}</p>
+                              <p>{item.date}</p>
+                            </div>
+                            {item.odoReading > 0 && (
+                              <p className="text-xs text-muted-foreground">Odo: {item.odoReading.toLocaleString()} km</p>
+                            )}
                           </div>
-                          {item.odoReading > 0 && (
-                            <p className="text-xs text-muted-foreground">Odo: {item.odoReading.toLocaleString()} km</p>
-                          )}
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-red-500 rounded-full shrink-0"
+                          onClick={async () => {
+                            if (confirm(`Hapus catatan ${item.type === "fuel" ? "BBM" : "servis"} ini?`)) {
+                              try {
+                                if (item.type === "fuel") {
+                                  await api.deleteFuelLog(item.id)
+                                  setFuelLogs((prev) => prev.filter((f) => f.id !== item.id))
+                                } else {
+                                  await api.deleteMaintenanceRecord(item.id)
+                                  setMaintenance((prev) => prev.filter((m) => m.id !== item.id))
+                                }
+                                toast.success("Catatan berhasil dihapus")
+                              } catch {
+                                toast.error("Gagal menghapus catatan")
+                              }
+                            }
+                          }}
+                        >
+                          <IconTrash className="h-4 w-4" />
+                        </Button>
                       </div>
                     ))}
                   </div>

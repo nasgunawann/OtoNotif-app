@@ -42,10 +42,12 @@ type FormValues = z.infer<typeof formSchema>
 type Props = {
   vehicleId: string
   vehicleName: string
+  defaultComponentId?: string
+  defaultDescription?: string
   onSuccess?: () => void
 }
 
-export function ServiceForm({ vehicleId, vehicleName, onSuccess }: Props) {
+export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaultDescription, onSuccess }: Props) {
   const { createMaintenanceRecord } = useVehicleStore()
   const [components, setComponents] = useState<Component[]>([])
 
@@ -56,8 +58,8 @@ export function ServiceForm({ vehicleId, vehicleName, onSuccess }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      componentId: "",
-      description: "",
+      componentId: defaultComponentId || "",
+      description: defaultDescription || "",
       cost: undefined as any,
       date: new Date().toISOString().split("T")[0],
       odoReading: undefined as any,

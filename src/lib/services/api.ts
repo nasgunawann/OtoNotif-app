@@ -35,6 +35,7 @@ export const api = {
   // Fuel
   getFuelLogs: (vehicleId?: string) => request<any[]>(`/api/fuel${vehicleId ? `?vehicleId=${vehicleId}` : ""}`),
   createFuelLog: (data: any) => request<any>("/api/fuel", { method: "POST", body: data }),
+  deleteFuelLog: (id: string) => request<{ id: string }>(`/api/fuel/${id}`, { method: "DELETE" }),
 
   // Components
   getComponents: (vehicleId: string) => request<any[]>(`/api/components?vehicleId=${vehicleId}`),
@@ -44,6 +45,7 @@ export const api = {
   getMaintenanceRecords: (vehicleId?: string) =>
     request<any[]>(`/api/maintenance${vehicleId ? `?vehicleId=${vehicleId}` : ""}`),
   createMaintenanceRecord: (data: any) => request<any>("/api/maintenance", { method: "POST", body: data }),
+  deleteMaintenanceRecord: (id: string) => request<{ id: string }>(`/api/maintenance/${id}`, { method: "DELETE" }),
 
   // Health
   getVehicleHealth: (vehicleId: string) => request<any>(`/api/health?vehicleId=${vehicleId}`),
