@@ -31,8 +31,9 @@ export async function GET(request: Request) {
     .where(eq(components.vehicleId, vehicleId))
     .all();
 
-  let totalHealth = 100;
-  let componentCount = 0;
+  let dangerCount = 0;
+  let warningCount = 0;
+  let safeCount = 0;
 
   const componentHealth = comps.map((comp) => {
     const usedKm = currentOdo - (comp.lastReplacedOdo ?? 0);
@@ -43,12 +44,19 @@ export async function GET(request: Request) {
       : usagePercent > 70 ? "warning" as const
       : "safe" as const;
 
-    totalHealth -= usagePercent > 85 ? 15 : usagePercent > 70 ? 5 : 0;
-    componentCount++;
+    if (status === "danger") dangerCount++;
+    else if (status === "warning") warningCount++;
+    else safeCount++;
+
     return { component: comp, currentOdo, usedKm, remainingKm, usagePercent, status };
   });
 
-  const health = componentCount > 0 ? Math.max(0, Math.round(totalHealth / componentCount)) : 100;
+  const componentSummary = {
+    total: comps.length,
+    danger: dangerCount,
+    warning: warningCount,
+    safe: safeCount,
+  };
 
   const fuelStats = await getFuelStats(vehicleId, vehicle.fuelCapacity, currentOdo);
   const weeklyOdoDelta = await getWeeklyOdometerDelta(vehicleId, currentOdo);
@@ -87,7 +95,7 @@ export async function GET(request: Request) {
     data: {
       vehicle,
       latestOdo: currentOdo || null,
-      health,
+      componentSummary,
       components: componentHealth,
       lastUpdate,
       fuel: fuelStats,

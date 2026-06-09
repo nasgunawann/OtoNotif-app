@@ -8,9 +8,9 @@ import {
   IconSettings,
   IconGauge,
   IconCar,
+  IconMotorbike,
   IconDroplet,
   IconTool,
-  IconActivity,
   IconPlus,
   IconArrowRight,
   IconTrash,
@@ -18,7 +18,6 @@ import {
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { FormDialog } from "@/components/forms/FormDialog"
@@ -61,7 +60,6 @@ export default function VehicleDetailPage() {
     deleteOdometerReading,
     deleteVehicle,
     updateVehicle,
-    createComponentsBatch,
     loading
   } = useVehicleStore()
 
@@ -125,403 +123,319 @@ export default function VehicleDetailPage() {
 
   const vehicle = selectedVehicle
   const healthData = vehicleHealth
+  const summary = healthData?.componentSummary
+
+  const formatCompactCurrency = (value: number) => {
+    if (value >= 1_000_000) return `Rp ${(value / 1_000_000).toFixed(1).replace(".", ",").replace(",0", "")} jt`
+    if (value >= 1_000) return `Rp ${(value / 1_000).toLocaleString("id-ID")} rb`
+    return `Rp ${value.toLocaleString("id-ID")}`
+  }
 
   return (
     <motion.div
       initial="initial"
       animate="animate"
       variants={fadeUp}
-      className="space-y-6 pb-24 md:pb-6"
+      className="space-y-4 pb-24 md:pb-6"
     >
-      <div className="hidden md:flex justify-between items-center">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <IconChevronLeft className="h-6 w-6" />
-        </Button>
-        <h1 className="text-lg font-bold">Detail Kendaraan</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <IconSettings className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setOpenEdit(true)}>
-              Edit Kendaraan
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-500 focus:text-red-500"
-              onClick={handleDelete}
-            >
-              Hapus Kendaraan
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <div className="relative h-40 md:h-60 w-full rounded-xl overflow-hidden bg-muted shadow-inner">
-        <div className="absolute top-4 right-4 z-10">
+      {/* === HEADER + COMPACT INFO BAR === */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 min-w-0">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => router.back()}>
+            <IconChevronLeft className="h-5 w-5" />
+          </Button>
+          <div className="min-w-0">
+            <h1 className="text-base md:text-lg font-bold truncate">{vehicle.name}</h1>
+            <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+              {vehicle.type === "motor" ? <IconMotorbike className="h-3 w-3 inline mr-0.5" /> : <IconCar className="h-3 w-3 inline mr-0.5" />}
+              {vehicle.engine || vehicle.type} • {vehicle.fuelCapacity}L
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <FormDialog
+            title="Update Odometer"
+            description={vehicle.name}
+            trigger={
+              <Button size="sm" className="h-8 text-xs font-bold gap-1 rounded-full hidden md:flex">
+                <IconGauge className="h-3.5 w-3.5" />
+                Update Odo
+              </Button>
+            }
+            open={openOdometer}
+            onOpenChange={setOpenOdometer}
+          >
+            <OdometerForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenOdometer(false); refresh() }} />
+          </FormDialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="h-9 w-9 rounded-full bg-background/80 backdrop-blur hover:bg-background shadow-md">
-                <IconSettings className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <IconSettings className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setOpenEdit(true)}>
-                Edit Kendaraan
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-red-500 focus:text-red-500"
-                onClick={handleDelete}
-              >
-                Hapus Kendaraan
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpenEdit(true)}>Edit Kendaraan</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-500 focus:text-red-500" onClick={handleDelete}>Hapus Kendaraan</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+      </div>
 
-        {vehicle.image ? (
-          <Image
-            src={vehicle.image}
-            alt={vehicle.name}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full w-full text-muted-foreground/20">
-            {vehicle.type === "motor" ? <IconActivity className="h-24 w-24" /> : <IconCar className="h-24 w-24" />}
+      {/* === STATS ROW: Odometer + Component Summary === */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-1.5 text-sm font-bold">
+          <IconGauge className="h-4 w-4 text-primary" />
+          {healthData?.latestOdo ? `${healthData.latestOdo.toLocaleString()} km` : "—"}
+        </div>
+        {summary && summary.total > 0 && (
+          <div className="flex items-center gap-1.5 text-[10px] font-bold">
+            {summary.danger > 0 && (
+              <span className="bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded-md">
+                {summary.danger} Kritis
+              </span>
+            )}
+            {summary.warning > 0 && (
+              <span className="bg-orange-500/10 text-orange-500 px-1.5 py-0.5 rounded-md">
+                {summary.warning} Periksa
+              </span>
+            )}
+            {summary.safe > 0 && (
+              <span className="bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded-md">
+                {summary.safe} Aman
+              </span>
+            )}
           </div>
         )}
-        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/60 to-transparent p-6">
-          <h2 className="text-2xl font-bold text-white">{vehicle.name}</h2>
-          <p className="text-white/80 text-sm font-medium">{vehicle.engine} • {vehicle.fuelCapacity}L</p>
+        {vehicle.taxDueDate && (
+          <span className={cn(
+            "text-[10px] font-extrabold px-1.5 py-0.5 rounded-md",
+            healthData?.taxStatus?.status === "danger" ? "bg-red-500/10 text-red-500" :
+            healthData?.taxStatus?.status === "warning" ? "bg-orange-500/10 text-orange-500" :
+            "bg-green-500/10 text-green-500",
+          )}>
+            Pajak: {healthData?.taxStatus?.status === "danger" ? "Overdue" : healthData?.taxStatus?.status === "warning" ? `H-${healthData.taxStatus.daysRemaining}` : "Lunas"}
+          </span>
+        )}
+      </div>
+
+      {/* === MAIN LAYOUT: 2-COLUMN DESKTOP === */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+
+        {/* ===== LEFT COLUMN (lg:col-span-2) ===== */}
+        <div className="lg:col-span-2 space-y-4">
+
+          {/* Mobile Quick Actions */}
+          <div className="grid grid-cols-3 gap-2 lg:hidden">
+            <FormDialog title="Update Odometer" description={vehicle.name} open={openOdometer} onOpenChange={setOpenOdometer}
+              trigger={<Button className="h-10 text-[10px] font-bold gap-1" variant="outline"><IconGauge className="h-3.5 w-3.5" /> Odometer</Button>}>
+              <OdometerForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenOdometer(false); refresh() }} />
+            </FormDialog>
+            <FormDialog title="Isi Bensin" description={vehicle.name} open={openFuel} onOpenChange={setOpenFuel}
+              trigger={<Button className="h-10 text-[10px] font-bold gap-1" variant="outline"><IconDroplet className="h-3.5 w-3.5 text-blue-500" /> Bensin</Button>}>
+              <FuelForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenFuel(false); refresh() }} />
+            </FormDialog>
+            <FormDialog title="Tambah Servis" description={vehicle.name} open={openService} onOpenChange={setOpenService}
+              trigger={<Button className="h-10 text-[10px] font-bold gap-1" variant="outline"><IconTool className="h-3.5 w-3.5" /> Servis</Button>}>
+              <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenService(false); refresh() }} />
+            </FormDialog>
+          </div>
+
+          {/* Status Komponen */}
+          <Card className="border-none bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm md:text-base flex justify-between items-center">
+                Komponen
+                <div className="flex gap-2 items-center">
+                  <FormDialog title="Tambah Komponen" open={openComponent} onOpenChange={setOpenComponent}
+                    trigger={<Button variant="link" className="h-auto p-0 text-xs text-primary font-bold">Tambah</Button>}>
+                    <ComponentForm vehicleId={id} vehicleType={vehicle.type} onSuccess={() => { setOpenComponent(false); fetchComponents(id); fetchVehicleHealth(id) }} />
+                  </FormDialog>
+                  <span className="text-muted-foreground/30 text-xs">•</span>
+                  <Button variant="ghost" size="sm" className="h-6 text-[10px] font-bold rounded-full gap-1 px-2" onClick={() => setOpenSelectComponents(true)}>
+                    <IconPlus className="h-3 w-3" /> Umum
+                  </Button>
+                  <span className="text-muted-foreground/30 text-xs">•</span>
+                  <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
+                    <Link href="/maintenance">Lihat Semua</Link>
+                  </Button>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1">
+              {healthData?.components.map((item) => {
+                const { component, remainingKm, status } = item
+                return (
+                  <div key={component.id} className="flex items-center justify-between rounded-lg hover:bg-muted/30 transition-colors group">
+                    <button type="button" className="flex items-center gap-2.5 flex-1 min-w-0 py-2 px-2 text-left"
+                      onClick={() => setDetailComponent(item)}>
+                      <div className={`p-1.5 rounded-full shrink-0 ${status === 'danger' ? 'bg-red-500/10' : status === 'warning' ? 'bg-orange-500/10' : 'bg-green-500/10'}`}>
+                        <IconTool className={`h-3.5 w-3.5 ${status === 'danger' ? 'text-red-500' : status === 'warning' ? 'text-orange-500' : 'text-green-500'}`} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-semibold truncate">{component.name}</p>
+                        <p className="text-[9px] md:text-[10px] text-muted-foreground">
+                          {status === "danger" ? `Perlu ganti (${remainingKm} km)` : status === "warning" ? `Sisa ${remainingKm} km` : "Kondisi Baik"}
+                        </p>
+                      </div>
+                    </button>
+                    <button type="button" className="p-1.5 shrink-0 text-muted-foreground/30 hover:text-foreground transition-colors"
+                      onClick={() => setDetailComponent(item)} aria-label="Detail komponen">
+                      <IconArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )
+              })}
+              {(!healthData?.components || healthData.components.length === 0) && (
+                <p className="text-sm text-muted-foreground text-center py-4">Belum ada komponen.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Riwayat Odometer (compact) */}
+          <Card className="border-none bg-card/50">
+            <CardHeader className="pb-2 px-3 md:px-4">
+              <CardTitle className="text-xs md:text-sm font-bold">Riwayat Odometer</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 px-3 md:px-4">
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {odometerReadings.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-3">Belum ada catatan.</p>
+                ) : (
+                  odometerReadings.slice(0, 5).map((odo) => (
+                    <div key={odo.id} className="flex items-center justify-between py-1.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <IconGauge className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+                        <span className="text-xs font-semibold">{odo.reading.toLocaleString("id-ID")} km</span>
+                        <span className="text-[9px] text-muted-foreground truncate">{odo.date}</span>
+                      </div>
+                      <button type="button" className="text-muted-foreground/30 hover:text-red-500 transition-colors p-0.5"
+                        onClick={async () => {
+                          if (confirm("Hapus?")) {
+                            try { await deleteOdometerReading(odo.id, vehicle.id); toast.success("Dihapus") }
+                            catch { toast.error("Gagal") }
+                          }
+                        }}>
+                        <IconTrash className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))
+                )}
+                {odometerReadings.length > 5 && (
+                  <p className="text-[9px] text-muted-foreground text-center py-1">+{odometerReadings.length - 5} lagi</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Mobile: Bayar Pajak + Change Odometer */}
+          <div className="lg:hidden space-y-2">
+            <Button className="w-full h-10 text-xs font-bold gap-1" variant="outline"
+              onClick={async () => {
+                if (!vehicle.taxDueDate) { toast.error("Atur tanggal pajak dulu"); return }
+                try {
+                  const due = new Date(vehicle.taxDueDate); const nextDue = new Date(due); nextDue.setFullYear(nextDue.getFullYear() + 1)
+                  await updateVehicle(vehicle.id, { lastTaxPaidDate: new Date().toISOString().split("T")[0], taxDueDate: nextDue.toISOString().split("T")[0] })
+                  toast.success("Pajak dicatat"); refresh()
+                } catch { toast.error("Gagal") }
+              }}>
+              <IconReceipt className="h-3.5 w-3.5" /> Bayar Pajak
+            </Button>
+          </div>
+        </div>
+
+        {/* ===== RIGHT COLUMN (lg:col-span-1, hidden on mobile) ===== */}
+        <div className="hidden lg:flex flex-col gap-4">
+
+          {/* Quick Actions */}
+          <Card className="border-none bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Aksi Cepat</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <FormDialog title="Isi Bensin" description={vehicle.name} open={openFuel} onOpenChange={setOpenFuel}
+                trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconDroplet className="h-4 w-4 text-blue-500" /> Isi Bensin</Button>}>
+                <FuelForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenFuel(false); refresh() }} />
+              </FormDialog>
+              <FormDialog title="Tambah Servis" description={vehicle.name} open={openService} onOpenChange={setOpenService}
+                trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconTool className="h-4 w-4" /> Servis Baru</Button>}>
+                <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenService(false); refresh() }} />
+              </FormDialog>
+              <Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"
+                onClick={async () => {
+                  if (!vehicle.taxDueDate) { toast.error("Atur tanggal pajak dulu"); return }
+                  try {
+                    const due = new Date(vehicle.taxDueDate); const nextDue = new Date(due); nextDue.setFullYear(nextDue.getFullYear() + 1)
+                    await updateVehicle(vehicle.id, { lastTaxPaidDate: new Date().toISOString().split("T")[0], taxDueDate: nextDue.toISOString().split("T")[0] })
+                    toast.success("Pajak dicatat"); refresh()
+                  } catch { toast.error("Gagal") }
+                }}>
+                <IconReceipt className="h-4 w-4" /> Bayar Pajak
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Biaya & Proyeksi */}
+          <Card className="border-none bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Biaya & Proyeksi</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground">Bulan ini</span>
+                <span className="text-sm font-bold">{healthData?.monthlyCost ? formatCompactCurrency(healthData.monthlyCost) : "Rp 0"}</span>
+              </div>
+              {summary && summary.total > 0 && (summary.danger > 0 || summary.warning > 0) && (
+                <div className="pt-2 border-t border-border/40">
+                  <p className="text-[9px] text-muted-foreground uppercase font-bold mb-1.5 tracking-wider">Akan Datang</p>
+                  {healthData?.components.filter(c => c.status !== "safe").slice(0, 3).map(c => (
+                    <div key={c.component.id} className="flex items-center justify-between py-1">
+                      <span className="text-[10px] truncate">{c.component.name}</span>
+                      <span className={cn(
+                        "text-[9px] font-bold",
+                        c.status === "danger" ? "text-red-500" : "text-orange-500",
+                      )}>Sisa {c.remainingKm} km</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {(healthData?.monthlyCost ?? 0) > 0 && (healthData?.latestOdo ?? 0) > 0 && (
+                <div className="pt-2 border-t border-border/40 flex items-center justify-between">
+                  <span className="text-[9px] text-muted-foreground">per km</span>
+                  <span className="text-[10px] font-bold">
+                    Rp {Math.round((healthData?.monthlyCost ?? 0) / Math.max(1, healthData?.latestOdo ?? 1)).toLocaleString("id-ID")}
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Info Kendaraan */}
+          <Card className="border-none bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Info Kendaraan</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-[10px]">
+              <div className="flex justify-between"><span className="text-muted-foreground">Tipe</span><span className="font-semibold capitalize">{vehicle.type}</span></div>
+              {vehicle.engine && <div className="flex justify-between"><span className="text-muted-foreground">Mesin</span><span className="font-semibold">{vehicle.engine}</span></div>}
+              <div className="flex justify-between"><span className="text-muted-foreground">Kapasitas BBM</span><span className="font-semibold">{vehicle.fuelCapacity}L</span></div>
+              {vehicle.taxDueDate && <div className="flex justify-between"><span className="text-muted-foreground">Pajak</span>
+                <span className={cn("font-semibold", healthData?.taxStatus?.status === "danger" ? "text-red-500" : healthData?.taxStatus?.status === "warning" ? "text-orange-500" : "text-green-500")}>
+                  {healthData?.taxStatus?.status === "danger" ? "Overdue" : healthData?.taxStatus?.status === "warning" ? `H-${healthData.taxStatus.daysRemaining}` : "Lunas"}
+                  {vehicle.taxAmount > 0 && ` • ${formatCompactCurrency(vehicle.taxAmount)}`}
+                </span>
+              </div>}
+              <div className="flex justify-between"><span className="text-muted-foreground">Terdaftar</span><span className="font-semibold">{vehicle.createdAt?.split("T")[0]}</span></div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="border-none bg-card/50">
-          <CardContent className="p-4 flex flex-col items-center text-center">
-            <IconGauge className="h-5 w-5 text-primary mb-2" />
-            <p className="text-[10px] text-muted-foreground uppercase font-bold">Odometer</p>
-            <p className="font-bold">{healthData?.latestOdo ? `${healthData.latestOdo.toLocaleString()} km` : "—"}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-none bg-card/50">
-          <CardContent className="p-4 flex flex-col items-center text-center">
-            <IconActivity className="h-5 w-5 text-green-500 mb-2" />
-            <p className="text-[10px] text-muted-foreground uppercase font-bold">Kesehatan</p>
-            <p className="font-bold text-green-500">{healthData?.health ?? "—"}%</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="border-none bg-card/50">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex justify-between items-center">
-            Status Komponen
-            <div className="flex gap-2 items-center">
-              <FormDialog
-                title="Tambah Komponen"
-                open={openComponent}
-                onOpenChange={setOpenComponent}
-                trigger={
-                  <Button variant="link" className="h-auto p-0 text-xs text-primary font-bold">
-                    Tambah
-                  </Button>
-                }
-              >
-                <ComponentForm
-                  vehicleId={id}
-                  vehicleType={vehicle.type}
-                  onSuccess={() => {
-                    setOpenComponent(false)
-                    fetchComponents(id)
-                    fetchVehicleHealth(id)
-                  }}
-                />
-              </FormDialog>
-              <span className="text-muted-foreground/30 text-xs font-normal">•</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-[10px] font-bold rounded-full gap-1 px-2"
-                onClick={() => setOpenSelectComponents(true)}
-              >
-                <IconPlus className="h-3 w-3" /> Umum
-              </Button>
-              <span className="text-muted-foreground/30 text-xs font-normal">•</span>
-              <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
-                <Link href="/maintenance">Lihat Semua</Link>
-              </Button>
-            </div>
-          </CardTitle>
-          <CardDescription className="text-xs">Prediksi penggantian part selanjutnya.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-1">
-          {healthData?.components.map((item) => {
-            const { component, remainingKm, status } = item
-            return (
-              <div key={component.id} className="flex items-center justify-between rounded-lg hover:bg-muted/30 transition-colors group">
-                <button
-                  type="button"
-                  className="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-2 text-left"
-                  onClick={() => setDetailComponent(item)}
-                >
-                  <div className={`p-2 rounded-full shrink-0 ${status === 'danger' ? 'bg-orange-500/10' : status === 'warning' ? 'bg-yellow-500/10' : 'bg-green-500/10'}`}>
-                    <IconTool className={`h-4 w-4 ${status === 'danger' ? 'text-orange-500' : status === 'warning' ? 'text-yellow-500' : 'text-green-500'}`} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate">{component.name}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {status === "danger" ? `Ganti dalam ${remainingKm} km` : status === "warning" ? `Sisa ${remainingKm} km` : "Kondisi Baik"}
-                    </p>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className="p-2 shrink-0 text-muted-foreground/30 hover:text-foreground transition-colors"
-                  onClick={() => setDetailComponent(item)}
-                  aria-label="Detail komponen"
-                >
-                  <IconArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            )
-          })}
-          {(!healthData?.components || healthData.components.length === 0) && (
-            <p className="text-sm text-muted-foreground text-center py-4">Belum ada komponen.</p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Tax Status Card */}
-      <Card className="border-none bg-card/50">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex justify-between items-center">
-            Status Pajak
-          </CardTitle>
-          <CardDescription className="text-xs">Informasi pajak kendaraan tahunan.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {vehicle.taxDueDate ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-2 rounded-full",
-                  healthData?.taxStatus?.status === "danger"
-                    ? "bg-red-500/10"
-                    : healthData?.taxStatus?.status === "warning"
-                      ? "bg-orange-500/10"
-                      : "bg-green-500/10",
-                )}>
-                  <IconReceipt className={cn(
-                    "h-5 w-5",
-                    healthData?.taxStatus?.status === "danger"
-                      ? "text-red-500"
-                      : healthData?.taxStatus?.status === "warning"
-                        ? "text-orange-500"
-                        : "text-green-500",
-                  )} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">
-                    Jatuh tempo {vehicle.taxDueDate}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {healthData?.taxStatus?.status === "danger"
-                      ? `Terlambat ${Math.abs(healthData.taxStatus.daysRemaining ?? 0)} hari`
-                      : healthData?.taxStatus?.status === "warning"
-                        ? `Sisa ${healthData.taxStatus.daysRemaining} hari lagi`
-                        : healthData?.taxStatus?.status === "safe"
-                          ? "Masih panjang"
-                          : "—"}
-                    {vehicle.taxAmount > 0 && ` • Rp ${vehicle.taxAmount.toLocaleString("id-ID")}`}
-                  </p>
-                </div>
-              </div>
-              <span className={cn(
-                "text-[10px] font-extrabold uppercase px-2 py-1 rounded-md",
-                healthData?.taxStatus?.status === "danger"
-                  ? "bg-red-500/10 text-red-500"
-                  : healthData?.taxStatus?.status === "warning"
-                    ? "bg-orange-500/10 text-orange-500"
-                    : healthData?.taxStatus?.status === "safe"
-                      ? "bg-green-500/10 text-green-500"
-                      : "bg-muted text-muted-foreground",
-              )}>
-                {healthData?.taxStatus?.status === "danger"
-                  ? "Overdue"
-                  : healthData?.taxStatus?.status === "warning"
-                    ? `H-${healthData.taxStatus.daysRemaining}`
-                    : healthData?.taxStatus?.status === "safe"
-                      ? "Aman"
-                      : "—"}
-              </span>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              Data pajak belum diatur. Edit kendaraan untuk menambahkan.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="border-none bg-card/50">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex justify-between items-center">
-            Riwayat Odometer
-          </CardTitle>
-          <CardDescription className="text-xs">Catatan riwayat pembaruan odometer kendaraan.</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-2">
-          <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
-            {odometerReadings.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">Belum ada catatan odometer.</p>
-            ) : (
-              odometerReadings.map((odo) => (
-                <div key={odo.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="p-1.5 bg-primary/10 rounded-md">
-                      <IconGauge className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">{odo.reading.toLocaleString("id-ID")} km</p>
-                      <p className="text-[10px] text-muted-foreground">{odo.date} {odo.notes ? `• ${odo.notes}` : ""}</p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-red-500 rounded-full"
-                    onClick={async () => {
-                      if (confirm("Hapus catatan odometer ini?")) {
-                        try {
-                          await deleteOdometerReading(odo.id, vehicle.id)
-                          toast.success("Catatan odometer berhasil dihapus")
-                        } catch {
-                          toast.error("Gagal menghapus catatan odometer")
-                        }
-                      }
-                    }}
-                  >
-                    <IconTrash className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-2 gap-3">
-        <FormDialog
-          title="Isi Bensin"
-          description={vehicle.name}
-          trigger={
-            <Button className="gap-2 h-12" variant="outline">
-              <IconDroplet className="h-4 w-4 text-blue-500" />
-              Isi Bensin
-            </Button>
-          }
-          open={openFuel}
-          onOpenChange={setOpenFuel}
-        >
-          <FuelForm
-            vehicleId={vehicle.id}
-            vehicleName={vehicle.name}
-            onSuccess={() => { setOpenFuel(false); refresh() }}
-          />
-        </FormDialog>
-
-        <FormDialog
-          title="Tambah Servis"
-          description={vehicle.name}
-          trigger={
-            <Button className="gap-2 h-12" variant="outline">
-              <IconPlus className="h-4 w-4" />
-              Servis Baru
-            </Button>
-          }
-          open={openService}
-          onOpenChange={setOpenService}
-        >
-          <ServiceForm
-            vehicleId={vehicle.id}
-            vehicleName={vehicle.name}
-            onSuccess={() => { setOpenService(false); refresh() }}
-          />
-        </FormDialog>
-      </div>
-
-      <Button
-        className="w-full h-12 gap-2 font-bold"
-        variant="outline"
-        onClick={async () => {
-          if (!vehicle.taxDueDate) {
-            toast.error("Atur tanggal pajak dulu di edit kendaraan")
-            return
-          }
-          try {
-            const today = new Date()
-            const nextYear = new Date(today)
-            nextYear.setFullYear(nextYear.getFullYear() + 1)
-            const due = new Date(vehicle.taxDueDate)
-            const nextDue = new Date(due)
-            nextDue.setFullYear(nextDue.getFullYear() + 1)
-            await updateVehicle(vehicle.id, {
-              lastTaxPaidDate: today.toISOString().split("T")[0],
-              taxDueDate: nextDue.toISOString().split("T")[0],
-            })
-            toast.success("Pembayaran pajak berhasil dicatat")
-            refresh()
-          } catch {
-            toast.error("Gagal mencatat pembayaran pajak")
-          }
-        }}
-      >
-        <IconReceipt className="h-4 w-4" />
-        Bayar Pajak
-      </Button>
-
-      <FormDialog
-        title="Update Odometer"
-        description={vehicle.name}
-        trigger={
-          <Button className="w-full h-12 bg-primary font-bold">
-            Update Odometer Sekarang
-          </Button>
-        }
-        open={openOdometer}
-        onOpenChange={setOpenOdometer}
-      >
-        <OdometerForm
-          vehicleId={vehicle.id}
-          vehicleName={vehicle.name}
-          onSuccess={() => { setOpenOdometer(false); refresh() }}
-        />
+      {/* === DIALOGS (shared) === */}
+      <FormDialog title="Edit Kendaraan" description={vehicle.name} open={openEdit} onOpenChange={setOpenEdit}>
+        <VehicleForm vehicle={vehicle} onSuccess={() => { setOpenEdit(false); refresh() }} />
       </FormDialog>
 
-      <FormDialog
-        title="Edit Kendaraan"
-        description={vehicle.name}
-        open={openEdit}
-        onOpenChange={setOpenEdit}
-      >
-        <VehicleForm
-          vehicle={vehicle}
-          onSuccess={() => {
-            setOpenEdit(false)
-            refresh()
-          }}
-        />
-      </FormDialog>
-
-      <SelectComponentsDialog
-        vehicle={vehicle}
-        open={openSelectComponents}
-        onOpenChange={setOpenSelectComponents}
-        onSuccess={refresh}
-      />
+      <SelectComponentsDialog vehicle={vehicle} open={openSelectComponents} onOpenChange={setOpenSelectComponents} onSuccess={refresh} />
 
       {detailComponent && (
         <ComponentDetailSheet

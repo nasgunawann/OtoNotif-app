@@ -73,10 +73,17 @@ export interface ComponentHealth {
 
 export type TaxStatusValue = "safe" | "warning" | "danger" | "none"
 
+export interface ComponentSummary {
+  total: number
+  danger: number
+  warning: number
+  safe: number
+}
+
 export interface VehicleHealth {
   vehicle: Vehicle
   latestOdo: number | null
-  health: number
+  componentSummary: ComponentSummary
   components: ComponentHealth[]
   lastUpdate: string | null
   fuel?: {

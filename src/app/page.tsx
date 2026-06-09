@@ -357,6 +357,11 @@ export default function Home() {
             <p className="text-[9px] md:text-[10px] text-emerald-700/80 dark:text-emerald-400/80 font-bold uppercase mt-0.5 md:mt-1.5">
               Bulan Ini
             </p>
+            {vehicleHealth && (vehicleHealth.monthlyCost ?? 0) > 0 && (vehicleHealth.latestOdo ?? 0) > 0 && (
+              <p className="text-[8px] md:text-[9px] text-emerald-600/60 dark:text-emerald-300/60 font-medium mt-0.5">
+                Rp {Math.round((vehicleHealth.monthlyCost ?? 0) / Math.max(1, vehicleHealth.latestOdo ?? 1)).toLocaleString("id-ID")}/km
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
