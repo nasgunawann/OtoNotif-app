@@ -255,7 +255,8 @@ export default function HistoryPage() {
 
                       const title = isFuel ? item.fuelType : isMaint ? item.description : `${odoItem!.reading.toLocaleString("id-ID")} km`
                       const cost = isFuel ? `Rp ${item.amount.toLocaleString("id-ID")}` : isMaint && item.cost ? `Rp ${item.cost.toLocaleString("id-ID")}` : ""
-                      const subtitle = isFuel ? `${item.liters} L` : ""
+                      const kml = isFuel ? (item as FuelLog & { type: "fuel" }).kmPerLiter : null
+                      const subtitle = isFuel ? `${item.liters} L${kml ? ` • ${kml} km/L` : ""}` : ""
 
                       return (
                         <div key={item.id} className="flex gap-2.5 items-start">

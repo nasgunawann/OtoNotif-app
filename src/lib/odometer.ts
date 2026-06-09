@@ -145,7 +145,7 @@ export async function getFuelStats(
     const curr = logsAsc[i];
     if (curr.odoReading && prev.odoReading && curr.odoReading > prev.odoReading) {
       totalDistance += (curr.odoReading - prev.odoReading);
-      totalLiters += curr.liters;
+      totalLiters += prev.liters;
     }
   }
 

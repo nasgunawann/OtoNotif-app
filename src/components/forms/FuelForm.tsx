@@ -31,6 +31,7 @@ const formSchema = z.object({
   amount: z.coerce.number().min(1, "Biaya harus diisi"),
   fuelType: z.string().min(1, "Pilih jenis BBM"),
   date: z.string().min(1, "Tanggal harus diisi"),
+  kmPerLiter: z.coerce.number().optional(),
   notes: z.string().optional(),
 })
 
@@ -45,6 +46,10 @@ type Props = {
 export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
   const { createFuelLog, vehicleHealth } = useVehicleStore()
   const latestOdo = vehicleHealth?.latestOdo ?? 0
+  const prevLog = vehicleHealth?.latestFuelLog
+  const estimatedKmL = prevLog?.odoReading && latestOdo > prevLog.odoReading && prevLog.liters > 0
+    ? Math.round(((latestOdo - prevLog.odoReading) / prevLog.liters) * 10) / 10
+    : null
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -53,6 +58,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
       amount: undefined as unknown as number,
       fuelType: "",
       date: new Date().toISOString().split("T")[0],
+      kmPerLiter: undefined,
       notes: "",
     },
   })
@@ -66,6 +72,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
         fuelType: values.fuelType,
         date: values.date,
         odoReading: latestOdo,
+        kmPerLiter: values.kmPerLiter || null,
         notes: values.notes || "",
       })
       toast.success(`Log BBM ${vehicleName} tersimpan`)
@@ -150,6 +157,29 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="kmPerLiter"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Konsumsi BBM (opsional)</FormLabel>
+              <FormControl>
+                <InputGroup>
+                  <NumberInput placeholder="—" value={field.value} onChange={field.onChange} />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>km/L</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
+              </FormControl>
+              {estimatedKmL !== null && (
+                <p className="text-[10px] text-muted-foreground">
+                  Estimasi dari pengisian sebelumnya: <span className="font-semibold text-foreground">{estimatedKmL} km/L</span>
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}

@@ -34,6 +34,7 @@ export const fuelLogs = sqliteTable("fuel_logs", {
   amount: real("amount").notNull(),
   fuelType: text("fuel_type").notNull(),
   odoReading: integer("odo_reading").default(0),
+  kmPerLiter: real("km_per_liter"),
   notes: text("notes").default(""),
   createdAt: text("created_at").notNull(),
 });
