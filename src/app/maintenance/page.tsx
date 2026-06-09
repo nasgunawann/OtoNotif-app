@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { IconAlertCircle, IconCircleCheck, IconTool, IconInfoCircle, IconCoin, IconPlus, IconChevronRight } from "@tabler/icons-react"
+import { IconAlertCircle, IconTool, IconInfoCircle, IconCoin, IconPlus, IconChevronRight } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
 import type { Vehicle, VehicleHealth, ComponentHealth } from "@/lib/types"
@@ -302,29 +302,7 @@ export default function MaintenancePage() {
         </div>
       )}
 
-      {/* Safe */}
-      {safeItems.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
-            <h2 className="text-lg font-bold">Aman</h2>
-            <Badge variant="outline" className="text-[10px] font-bold rounded-full ml-1">{safeItems.length}</Badge>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {safeItems.map((item) => (
-              <Card key={item.component.id}>
-                <CardContent className="p-2.5 flex items-center gap-2">
-                  <IconCircleCheck className="h-3.5 w-3.5 text-green-500 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-semibold truncate">{item.component.name}</p>
-                    <p className="text-[8px] text-muted-foreground">{item.remainingKm.toLocaleString()} km lagi</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* Dialogs */}
       <SelectComponentsDialog vehicle={
