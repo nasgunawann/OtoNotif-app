@@ -53,6 +53,9 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
     ? Math.round(((latestOdo - prevLog.odoReading) / prevLog.liters) * 10) / 10
     : null
   const prevFull = prevLog?.isFull && prevLog.odoReading && latestOdo > prevLog.odoReading && prevLog.liters > 0
+  const cap = vehicleHealth?.fuel?.max ?? 0
+  const remaining = vehicleHealth?.fuel?.current ?? 0
+  const fullLiters = cap > 0 && remaining > 0 ? Math.max(0, Math.round((cap - remaining) * 10) / 10) : 0
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -66,6 +69,8 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
       notes: "",
     },
   })
+
+  const isFullWatcher = form.watch("isFull")
 
   async function onSubmit(values: FormValues) {
     try {
@@ -96,10 +101,10 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
             name="liters"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Liter</FormLabel>
+                <FormLabel>Liter {isFullWatcher && fullLiters > 0 ? "(auto)" : ""}</FormLabel>
                 <FormControl>
                   <InputGroup>
-                    <NumberInput placeholder="3,5" value={field.value} onChange={field.onChange} />
+                    <NumberInput placeholder="3,5" value={field.value} onChange={field.onChange} disabled={isFullWatcher && fullLiters > 0} />
                     <InputGroupAddon align="inline-end">
                       <InputGroupText>L</InputGroupText>
                     </InputGroupAddon>
@@ -145,14 +150,23 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
                       ? "bg-primary/10 border-primary/30 text-primary"
                       : "bg-background border-input text-muted-foreground hover:border-primary/30",
                   )}
-                  onClick={() => field.onChange(!field.value)}
+                  onClick={() => {
+                    const next = !field.value
+                    field.onChange(next)
+                    if (next && fullLiters > 0) {
+                      form.setValue("liters", fullLiters)
+                    } else if (!next) {
+                      form.setValue("liters", undefined as unknown as number)
+                    }
+                  }}
                 >
                   <IconFlask className={cn("h-3.5 w-3.5", field.value ? "text-primary" : "text-muted-foreground/50")} />
                   {field.value ? "Isi Penuh" : "Tidak penuh"}
                 </button>
-                {field.value && prevFull && estimatedKmL && (
+                {field.value && fullLiters > 0 && (
                   <span className="text-[10px] text-muted-foreground">
-                    km/L otomatis terisi ({estimatedKmL} km/L)
+                    Liter: {fullLiters}L (otomatis)
+                    {prevFull && estimatedKmL && ` • km/L: ${estimatedKmL}`}
                   </span>
                 )}
               </div>
