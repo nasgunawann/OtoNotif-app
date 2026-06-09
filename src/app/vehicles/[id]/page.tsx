@@ -189,43 +189,6 @@ export default function VehicleDetailPage() {
         </div>
       </div>
 
-      {/* === STATS ROW: Odometer + Component Summary === */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-1.5 text-sm font-bold">
-          <IconGauge className="h-4 w-4 text-primary" />
-          {healthData?.latestOdo ? `${healthData.latestOdo.toLocaleString()} km` : "—"}
-        </div>
-        {summary && summary.total > 0 && (
-          <div className="flex items-center gap-1.5 text-[10px] font-bold">
-            {summary.danger > 0 && (
-              <span className="bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded-md">
-                {summary.danger} Kritis
-              </span>
-            )}
-            {summary.warning > 0 && (
-              <span className="bg-orange-500/10 text-orange-500 px-1.5 py-0.5 rounded-md">
-                {summary.warning} Periksa
-              </span>
-            )}
-            {summary.safe > 0 && (
-              <span className="bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded-md">
-                {summary.safe} Aman
-              </span>
-            )}
-          </div>
-        )}
-        {vehicle.taxDueDate && (
-          <span className={cn(
-            "text-[10px] font-extrabold px-1.5 py-0.5 rounded-md",
-            healthData?.taxStatus?.status === "danger" ? "bg-red-500/10 text-red-500" :
-            healthData?.taxStatus?.status === "warning" ? "bg-orange-500/10 text-orange-500" :
-            "bg-green-500/10 text-green-500",
-          )}>
-            Pajak: {healthData?.taxStatus?.status === "danger" ? "Overdue" : healthData?.taxStatus?.status === "warning" ? `H-${healthData.taxStatus.daysRemaining}` : "Lunas"}
-          </span>
-        )}
-      </div>
-
       {/* === MAIN LAYOUT: 2-COLUMN DESKTOP === */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
 
@@ -259,11 +222,11 @@ export default function VehicleDetailPage() {
                     <ComponentForm vehicleId={id} vehicleType={vehicle.type} onSuccess={() => { setOpenComponent(false); fetchComponents(id); fetchVehicleHealth(id) }} />
                   </FormDialog>
                   <span className="text-muted-foreground/30 text-xs">•</span>
-                  <Button variant="ghost" size="sm" className="h-6 text-[10px] font-bold rounded-full gap-1 px-2" onClick={async () => {
+                  <Button variant="link" className="h-auto p-0 text-xs text-primary font-bold" onClick={async () => {
                     await fetchVehicleHealth(id)
                     setOpenSelectComponents(true)
                   }}>
-                    <IconPlus className="h-3 w-3" /> Umum
+                    Umum
                   </Button>
                   <span className="text-muted-foreground/30 text-xs">•</span>
                   <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
@@ -297,7 +260,25 @@ export default function VehicleDetailPage() {
                 )
               })}
               {(!healthData?.components || healthData.components.length === 0) && (
-                <p className="text-sm text-muted-foreground text-center py-4">Belum ada komponen.</p>
+                <div className="text-center py-6 space-y-3">
+                  <div className="flex justify-center gap-3 text-muted-foreground/30">
+                    <IconTool className="h-6 w-6" />
+                    <IconGauge className="h-6 w-6" />
+                    <IconCar className="h-6 w-6" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Belum ada komponen yang dipantau</p>
+                  <p className="text-[10px] text-muted-foreground/60">Pantau kondisi oli, ban, kampas rem, dan lainnya</p>
+                  <div className="flex justify-center gap-2 pt-1">
+                    <FormDialog title="Tambah Komponen" open={openComponent} onOpenChange={setOpenComponent}
+                      trigger={<Button size="sm" className="text-xs font-bold gap-1 rounded-full"><IconPlus className="h-3.5 w-3.5" /> Tambah</Button>}>
+                      <ComponentForm vehicleId={id} vehicleType={vehicle.type} onSuccess={() => { setOpenComponent(false); fetchComponents(id); fetchVehicleHealth(id) }} />
+                    </FormDialog>
+                    <Button size="sm" variant="outline" className="text-xs font-bold gap-1 rounded-full"
+                      onClick={async () => { await fetchVehicleHealth(id); setOpenSelectComponents(true) }}>
+                      <IconPlus className="h-3.5 w-3.5" /> Komponen Umum
+                    </Button>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -382,17 +363,32 @@ export default function VehicleDetailPage() {
             <CardHeader className="pb-2 relative z-10">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Info Kendaraan</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-[10px] relative z-10">
-              <div className="flex justify-between"><span className="text-muted-foreground">Tipe</span><span className="font-semibold capitalize">{vehicle.type}</span></div>
-              {vehicle.engine && <div className="flex justify-between"><span className="text-muted-foreground">Mesin</span><span className="font-semibold">{vehicle.engine}</span></div>}
-              <div className="flex justify-between"><span className="text-muted-foreground">Kapasitas BBM</span><span className="font-semibold">{vehicle.fuelCapacity}L</span></div>
-              {vehicle.taxDueDate && <div className="flex justify-between"><span className="text-muted-foreground">Pajak</span>
-                <span className={cn("font-semibold", healthData?.taxStatus?.status === "danger" ? "text-red-500" : healthData?.taxStatus?.status === "warning" ? "text-orange-500" : "text-green-500")}>
-                  {healthData?.taxStatus?.status === "danger" ? "Overdue" : healthData?.taxStatus?.status === "warning" ? `H-${healthData.taxStatus.daysRemaining}` : "Lunas"}
-                  {vehicle.taxAmount > 0 && ` • ${formatCompactCurrency(vehicle.taxAmount)}`}
-                </span>
-              </div>}
-              <div className="flex justify-between"><span className="text-muted-foreground">Terdaftar</span><span className="font-semibold">{vehicle.createdAt?.split("T")[0]}</span></div>
+            <CardContent className="space-y-2.5 text-[10px] relative z-10">
+              {/* Odometer */}
+              <div className="flex items-center gap-1.5 text-sm font-bold">
+                <IconGauge className="h-4 w-4 text-primary" />
+                {healthData?.latestOdo ? `${healthData.latestOdo.toLocaleString()} km` : "—"}
+              </div>
+              {/* Component Summary Badges */}
+              {summary && summary.total > 0 && (
+                <div className="flex items-center gap-1.5 text-[9px] font-bold flex-wrap">
+                  {summary.danger > 0 && <span className="bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded-md">{summary.danger} Kritis</span>}
+                  {summary.warning > 0 && <span className="bg-orange-500/10 text-orange-500 px-1.5 py-0.5 rounded-md">{summary.warning} Periksa</span>}
+                  {summary.safe > 0 && <span className="bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded-md">{summary.safe} Aman</span>}
+                </div>
+              )}
+              <div className="border-t border-border/40 pt-2 space-y-1.5">
+                <div className="flex justify-between"><span className="text-muted-foreground">Tipe</span><span className="font-semibold capitalize">{vehicle.type}</span></div>
+                {vehicle.engine && <div className="flex justify-between"><span className="text-muted-foreground">Mesin</span><span className="font-semibold">{vehicle.engine}</span></div>}
+                <div className="flex justify-between"><span className="text-muted-foreground">Kapasitas BBM</span><span className="font-semibold">{vehicle.fuelCapacity}L</span></div>
+                {vehicle.taxDueDate && <div className="flex justify-between"><span className="text-muted-foreground">Pajak</span>
+                  <span className={cn("font-semibold", healthData?.taxStatus?.status === "danger" ? "text-red-500" : healthData?.taxStatus?.status === "warning" ? "text-orange-500" : "text-green-500")}>
+                    {healthData?.taxStatus?.status === "danger" ? "Overdue" : healthData?.taxStatus?.status === "warning" ? `H-${healthData.taxStatus.daysRemaining}` : "Lunas"}
+                    {vehicle.taxAmount > 0 && ` • ${formatCompactCurrency(vehicle.taxAmount)}`}
+                  </span>
+                </div>}
+                <div className="flex justify-between"><span className="text-muted-foreground">Terdaftar</span><span className="font-semibold">{vehicle.createdAt?.split("T")[0]}</span></div>
+              </div>
             </CardContent>
           </Card>
 

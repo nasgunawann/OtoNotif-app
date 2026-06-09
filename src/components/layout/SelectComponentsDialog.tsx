@@ -68,11 +68,13 @@ export function SelectComponentsDialog({ vehicle, open, onOpenChange, onSuccess 
     setAdding(true)
     const selectedTemplates = available.filter((t) => selected.has(t.name))
     try {
+      const latestOdo = vehicleHealth?.latestOdo ?? 0
       for (const t of selectedTemplates) {
         await createComponent({
           vehicleId: vehicle.id,
           name: t.name,
           intervalKm: t.intervalKm,
+          lastReplacedOdo: latestOdo,
         })
       }
       toast.success(`${selected.size} komponen berhasil ditambahkan`)

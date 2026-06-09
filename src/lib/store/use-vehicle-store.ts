@@ -344,13 +344,14 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
 
     if (newTemplates.length === 0) return
 
+    const latestOdo = get().vehicleHealth?.latestOdo ?? 0
     const now = new Date().toISOString()
     const tempComponents: Component[] = newTemplates.map((t) => ({
       id: `temp-${crypto.randomUUID()}`,
       vehicleId,
       name: t.name,
       intervalKm: t.intervalKm,
-      lastReplacedOdo: 0,
+      lastReplacedOdo: latestOdo,
       notes: "",
       createdAt: now,
       updatedAt: now,
@@ -361,7 +362,7 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
     try {
       const results = await Promise.all(
         newTemplates.map((t) =>
-          api.createComponent({ vehicleId, name: t.name, intervalKm: t.intervalKm })
+          api.createComponent({ vehicleId, name: t.name, intervalKm: t.intervalKm, lastReplacedOdo: latestOdo })
         )
       )
       set((state) => ({

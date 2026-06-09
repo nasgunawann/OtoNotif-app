@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -43,7 +43,7 @@ type Props = {
 }
 
 export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: Props) {
-  const { createComponent, vehicleHealth } = useVehicleStore()
+  const { createComponent, vehicleHealth, fetchVehicleHealth } = useVehicleStore()
   const [useCustomName, setUseCustomName] = useState(false)
   const currentOdo = vehicleHealth?.latestOdo ?? 0
 
@@ -55,6 +55,16 @@ export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: P
       lastReplacedOdo: currentOdo,
     },
   })
+
+  useEffect(() => {
+    fetchVehicleHealth(vehicleId)
+  }, [vehicleId, fetchVehicleHealth])
+
+  useEffect(() => {
+    if (vehicleHealth?.latestOdo && vehicleHealth.latestOdo > 0) {
+      form.setValue("lastReplacedOdo", vehicleHealth.latestOdo)
+    }
+  }, [vehicleHealth?.latestOdo, form])
 
   const selectedInterval = form.watch("intervalKm")
 
