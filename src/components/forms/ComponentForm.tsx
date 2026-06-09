@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { NumberInput } from "@/components/ui/number-input"
+import { InputGroup, InputGroupAddon, InputGroupText } from "@/components/ui/input-group"
 import {
   Select,
   SelectContent,
@@ -136,9 +137,14 @@ export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: P
           name="intervalKm"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Interval Penggantian (KM)</FormLabel>
+              <FormLabel>Interval Penggantian</FormLabel>
               <FormControl>
-                <NumberInput placeholder="5.000" value={field.value} onChange={field.onChange} />
+                <InputGroup>
+                  <NumberInput placeholder="5.000" value={field.value} onChange={field.onChange} />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>km</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 {selectedInterval
@@ -155,9 +161,14 @@ export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: P
           name="lastReplacedOdo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Odometer Terakhir Diganti (KM)</FormLabel>
+              <FormLabel>Odometer Terakhir Diganti</FormLabel>
               <FormControl>
-                <NumberInput placeholder="0" value={field.value} onChange={field.onChange} />
+                <InputGroup>
+                  <NumberInput placeholder="0" value={field.value} onChange={field.onChange} />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>km</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 Odometer saat ini: {currentOdo.toLocaleString("id-ID")} km

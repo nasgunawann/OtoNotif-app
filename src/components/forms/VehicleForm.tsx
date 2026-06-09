@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { NumberInput } from "@/components/ui/number-input"
+import { InputGroup, InputGroupAddon, InputGroupText } from "@/components/ui/input-group"
 import {
   Select,
   SelectContent,
@@ -147,9 +148,14 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           name="fuelCapacity"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kapasitas BBM (L) (opsional)</FormLabel>
+              <FormLabel>Kapasitas BBM (opsional)</FormLabel>
               <FormControl>
-                <NumberInput placeholder="4" value={field.value} onChange={field.onChange} />
+                <InputGroup>
+                  <NumberInput placeholder="4" value={field.value} onChange={field.onChange} />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>L</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -191,9 +197,14 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
             name="taxAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nominal (Rp)</FormLabel>
+                <FormLabel>Nominal</FormLabel>
                 <FormControl>
-                  <NumberInput placeholder="500.000" value={field.value} onChange={field.onChange} />
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <InputGroupText>Rp</InputGroupText>
+                    </InputGroupAddon>
+                    <NumberInput placeholder="500.000" value={field.value} onChange={field.onChange} />
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>

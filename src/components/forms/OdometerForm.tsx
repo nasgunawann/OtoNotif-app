@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { NumberInput } from "@/components/ui/number-input"
+import { InputGroup, InputGroupAddon, InputGroupText } from "@/components/ui/input-group"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { IconLoader2 } from "@tabler/icons-react"
@@ -78,9 +79,14 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
           name="reading"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Odometer (km)</FormLabel>
+              <FormLabel>Odometer</FormLabel>
               <FormControl>
-                <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
+                <InputGroup>
+                  <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>km</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 Odometer saat ini: <span className="font-semibold text-foreground">{displayOdo}</span> km

@@ -44,6 +44,7 @@ export function NumberInput({ value, onChange, ...props }: NumberInputProps) {
 
   return (
     <Input
+      data-slot="input-group-control"
       inputMode="numeric"
       {...props}
       value={displayValue}

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { NumberInput } from "@/components/ui/number-input"
+import { InputGroup, InputGroupAddon, InputGroupText } from "@/components/ui/input-group"
 import {
   Select,
   SelectContent,
@@ -87,7 +88,12 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
               <FormItem>
                 <FormLabel>Liter</FormLabel>
                 <FormControl>
-                  <NumberInput placeholder="3,5" value={field.value} onChange={field.onChange} />
+                  <InputGroup>
+                    <NumberInput placeholder="3,5" value={field.value} onChange={field.onChange} />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupText>L</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -98,9 +104,14 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Biaya (Rp)</FormLabel>
+                <FormLabel>Biaya</FormLabel>
                 <FormControl>
-                  <NumberInput placeholder="35.000" value={field.value} onChange={field.onChange} />
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <InputGroupText>Rp</InputGroupText>
+                    </InputGroupAddon>
+                    <NumberInput placeholder="35.000" value={field.value} onChange={field.onChange} />
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -152,7 +163,12 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
             <FormItem>
               <FormLabel>Odometer (opsional)</FormLabel>
               <FormControl>
-                <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
+                <InputGroup>
+                  <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>km</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 Odometer saat ini: <span className="font-semibold text-foreground">{latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}</span> km
