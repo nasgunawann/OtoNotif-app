@@ -90,7 +90,7 @@ export function ComponentDetailSheet({
   }
 
   const content = (
-    <div className="space-y-5">
+    <div className="space-y-3">
       {/* Status */}
       <div className="flex items-center gap-3">
         <Badge
@@ -181,9 +181,9 @@ export function ComponentDetailSheet({
           open={openService}
           onOpenChange={setOpenService}
           trigger={
-            <Button className="w-full h-11 gap-2 font-bold" size="lg">
+            <Button className="w-full h-10 gap-2 font-bold">
               <IconTool className="h-4 w-4" />
-              Catat Servis Komponen Ini
+              Catat Servis
             </Button>
           }
         >
@@ -202,8 +202,7 @@ export function ComponentDetailSheet({
 
         <Button
           variant="outline"
-          size="lg"
-          className="w-full h-11 gap-2 text-red-500 hover:text-red-600 hover:bg-red-500/5 border-red-500/20"
+          className="w-full h-10 gap-2 text-red-500 hover:text-red-600 hover:bg-red-500/5 border-red-500/20"
           disabled={deleting}
           onClick={handleDelete}
         >
@@ -235,13 +234,13 @@ export function ComponentDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl max-h-[90vh] overflow-y-auto">
-        <SheetHeader className="text-left mb-4">
-          <SheetTitle className="flex items-center gap-2">
-            <IconTool className="h-5 w-5 text-primary" />
+      <SheetContent side="bottom" className="rounded-t-2xl max-h-[90vh] overflow-y-auto p-4">
+        <SheetHeader className="text-left px-0 pt-1 pb-0 mb-2">
+          <SheetTitle className="flex items-center gap-2 text-sm">
+            <IconTool className="h-4 w-4 text-primary" />
             {component.name}
           </SheetTitle>
-          <SheetDescription>
+          <SheetDescription className="text-xs">
             Informasi lengkap dan edukasi komponen.
           </SheetDescription>
         </SheetHeader>

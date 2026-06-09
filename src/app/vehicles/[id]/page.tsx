@@ -18,6 +18,7 @@ import {
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { FormDialog } from "@/components/forms/FormDialog"
@@ -34,7 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import Link from "next/link"
-import { COMPONENT_TEMPLATES } from "@/lib/component-templates"
+import { COMPONENT_TEMPLATES, type ComponentTemplate } from "@/lib/component-templates"
 import { ComponentDetailSheet } from "@/components/layout/ComponentDetailSheet"
 import { SelectComponentsDialog } from "@/components/layout/SelectComponentsDialog"
 import type { ComponentHealth } from "@/lib/types"
@@ -124,6 +125,13 @@ export default function VehicleDetailPage() {
   const vehicle = selectedVehicle
   const healthData = vehicleHealth
   const summary = healthData?.componentSummary
+  const templates = COMPONENT_TEMPLATES[vehicle.type]
+  const upcomingCost = healthData?.components
+    ?.filter(c => c.status !== "safe")
+    .reduce((sum, c) => {
+      const t = templates.find(tmpl => tmpl.name === c.component.name)
+      return sum + (t?.estimatedCost ?? 0)
+    }, 0) ?? 0
 
   const formatCompactCurrency = (value: number) => {
     if (value >= 1_000_000) return `Rp ${(value / 1_000_000).toFixed(1).replace(".", ",").replace(",0", "")} jt`
@@ -140,7 +148,7 @@ export default function VehicleDetailPage() {
     >
       {/* === HEADER + COMPACT INFO BAR === */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="hidden md:flex items-center gap-2 min-w-0">
           <Button variant="ghost" size="icon" className="shrink-0" onClick={() => router.back()}>
             <IconChevronLeft className="h-5 w-5" />
           </Button>
@@ -251,7 +259,10 @@ export default function VehicleDetailPage() {
                     <ComponentForm vehicleId={id} vehicleType={vehicle.type} onSuccess={() => { setOpenComponent(false); fetchComponents(id); fetchVehicleHealth(id) }} />
                   </FormDialog>
                   <span className="text-muted-foreground/30 text-xs">•</span>
-                  <Button variant="ghost" size="sm" className="h-6 text-[10px] font-bold rounded-full gap-1 px-2" onClick={() => setOpenSelectComponents(true)}>
+                  <Button variant="ghost" size="sm" className="h-6 text-[10px] font-bold rounded-full gap-1 px-2" onClick={async () => {
+                    await fetchVehicleHealth(id)
+                    setOpenSelectComponents(true)
+                  }}>
                     <IconPlus className="h-3 w-3" /> Umum
                   </Button>
                   <span className="text-muted-foreground/30 text-xs">•</span>
@@ -327,8 +338,8 @@ export default function VehicleDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Mobile: Bayar Pajak + Change Odometer */}
-          <div className="lg:hidden space-y-2">
+          {/* Mobile: Bayar Pajak + Biaya */}
+          <div className="lg:hidden space-y-3">
             <Button className="w-full h-10 text-xs font-bold gap-1" variant="outline"
               onClick={async () => {
                 if (!vehicle.taxDueDate) { toast.error("Atur tanggal pajak dulu"); return }
@@ -340,81 +351,38 @@ export default function VehicleDetailPage() {
               }}>
               <IconReceipt className="h-3.5 w-3.5" /> Bayar Pajak
             </Button>
+            <Card className="border-none bg-card/50">
+              <CardContent className="p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Biaya Bulan Ini</p>
+                  <p className="text-sm font-bold">{healthData?.monthlyCost ? formatCompactCurrency(healthData.monthlyCost) : "Rp 0"}</p>
+                </div>
+                {upcomingCost > 0 && (
+                  <div className="text-right">
+                    <p className="text-[9px] text-muted-foreground">Estimasi kritis</p>
+                    <p className="text-xs font-bold text-orange-500">{formatCompactCurrency(upcomingCost)}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        {/* ===== RIGHT COLUMN (lg:col-span-1, hidden on mobile) ===== */}
-        <div className="hidden lg:flex flex-col gap-4">
+        {/* ===== RIGHT COLUMN (lg:col-span-1) ===== */}
+        <div className="flex flex-col gap-4">
 
-          {/* Quick Actions */}
-          <Card className="border-none bg-card/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Aksi Cepat</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <FormDialog title="Isi Bensin" description={vehicle.name} open={openFuel} onOpenChange={setOpenFuel}
-                trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconDroplet className="h-4 w-4 text-blue-500" /> Isi Bensin</Button>}>
-                <FuelForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenFuel(false); refresh() }} />
-              </FormDialog>
-              <FormDialog title="Tambah Servis" description={vehicle.name} open={openService} onOpenChange={setOpenService}
-                trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconTool className="h-4 w-4" /> Servis Baru</Button>}>
-                <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenService(false); refresh() }} />
-              </FormDialog>
-              <Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"
-                onClick={async () => {
-                  if (!vehicle.taxDueDate) { toast.error("Atur tanggal pajak dulu"); return }
-                  try {
-                    const due = new Date(vehicle.taxDueDate); const nextDue = new Date(due); nextDue.setFullYear(nextDue.getFullYear() + 1)
-                    await updateVehicle(vehicle.id, { lastTaxPaidDate: new Date().toISOString().split("T")[0], taxDueDate: nextDue.toISOString().split("T")[0] })
-                    toast.success("Pajak dicatat"); refresh()
-                  } catch { toast.error("Gagal") }
-                }}>
-                <IconReceipt className="h-4 w-4" /> Bayar Pajak
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Biaya & Proyeksi */}
-          <Card className="border-none bg-card/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Biaya & Proyeksi</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground">Bulan ini</span>
-                <span className="text-sm font-bold">{healthData?.monthlyCost ? formatCompactCurrency(healthData.monthlyCost) : "Rp 0"}</span>
+          {/* Info Kendaraan (visible on all screens, top of sidebar on desktop) */}
+          <Card className="border-none bg-card/50 relative overflow-hidden">
+            {vehicle.image && (
+              <div className="absolute inset-0 pointer-events-none select-none">
+                <Image src={vehicle.image} alt="" fill className="object-cover object-right opacity-10 dark:opacity-15 grayscale contrast-125" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
               </div>
-              {summary && summary.total > 0 && (summary.danger > 0 || summary.warning > 0) && (
-                <div className="pt-2 border-t border-border/40">
-                  <p className="text-[9px] text-muted-foreground uppercase font-bold mb-1.5 tracking-wider">Akan Datang</p>
-                  {healthData?.components.filter(c => c.status !== "safe").slice(0, 3).map(c => (
-                    <div key={c.component.id} className="flex items-center justify-between py-1">
-                      <span className="text-[10px] truncate">{c.component.name}</span>
-                      <span className={cn(
-                        "text-[9px] font-bold",
-                        c.status === "danger" ? "text-red-500" : "text-orange-500",
-                      )}>Sisa {c.remainingKm} km</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {(healthData?.monthlyCost ?? 0) > 0 && (healthData?.latestOdo ?? 0) > 0 && (
-                <div className="pt-2 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-[9px] text-muted-foreground">per km</span>
-                  <span className="text-[10px] font-bold">
-                    Rp {Math.round((healthData?.monthlyCost ?? 0) / Math.max(1, healthData?.latestOdo ?? 1)).toLocaleString("id-ID")}
-                  </span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Info Kendaraan */}
-          <Card className="border-none bg-card/50">
-            <CardHeader className="pb-2">
+            )}
+            <CardHeader className="pb-2 relative z-10">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Info Kendaraan</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-[10px]">
+            <CardContent className="space-y-2 text-[10px] relative z-10">
               <div className="flex justify-between"><span className="text-muted-foreground">Tipe</span><span className="font-semibold capitalize">{vehicle.type}</span></div>
               {vehicle.engine && <div className="flex justify-between"><span className="text-muted-foreground">Mesin</span><span className="font-semibold">{vehicle.engine}</span></div>}
               <div className="flex justify-between"><span className="text-muted-foreground">Kapasitas BBM</span><span className="font-semibold">{vehicle.fuelCapacity}L</span></div>
@@ -427,6 +395,79 @@ export default function VehicleDetailPage() {
               <div className="flex justify-between"><span className="text-muted-foreground">Terdaftar</span><span className="font-semibold">{vehicle.createdAt?.split("T")[0]}</span></div>
             </CardContent>
           </Card>
+
+          {/* Quick Actions (desktop only) */}
+          <div className="hidden lg:block">
+            <Card className="border-none bg-card/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Aksi Cepat</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <FormDialog title="Isi Bensin" description={vehicle.name} open={openFuel} onOpenChange={setOpenFuel}
+                  trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconDroplet className="h-4 w-4 text-blue-500" /> Isi Bensin</Button>}>
+                  <FuelForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenFuel(false); refresh() }} />
+                </FormDialog>
+                <FormDialog title="Tambah Servis" description={vehicle.name} open={openService} onOpenChange={setOpenService}
+                  trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconTool className="h-4 w-4" /> Servis Baru</Button>}>
+                  <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenService(false); refresh() }} />
+                </FormDialog>
+                <Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"
+                  onClick={async () => {
+                    if (!vehicle.taxDueDate) { toast.error("Atur tanggal pajak dulu"); return }
+                    try {
+                      const due = new Date(vehicle.taxDueDate); const nextDue = new Date(due); nextDue.setFullYear(nextDue.getFullYear() + 1)
+                      await updateVehicle(vehicle.id, { lastTaxPaidDate: new Date().toISOString().split("T")[0], taxDueDate: nextDue.toISOString().split("T")[0] })
+                      toast.success("Pajak dicatat"); refresh()
+                    } catch { toast.error("Gagal") }
+                  }}>
+                  <IconReceipt className="h-4 w-4" /> Bayar Pajak
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Biaya & Proyeksi (desktop only) */}
+          <div className="hidden lg:block">
+            <Card className="border-none bg-card/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Biaya & Proyeksi</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground">Bulan ini</span>
+                  <span className="text-sm font-bold">{healthData?.monthlyCost ? formatCompactCurrency(healthData.monthlyCost) : "Rp 0"}</span>
+                </div>
+                {upcomingCost > 0 && (
+                  <div className="flex items-center justify-between pt-1 border-t border-border/40">
+                    <span className="text-[10px] text-muted-foreground">Estimasi komponen kritis</span>
+                    <span className="text-sm font-bold text-orange-500">{formatCompactCurrency(upcomingCost)}</span>
+                  </div>
+                )}
+                {summary && summary.total > 0 && (summary.danger > 0 || summary.warning > 0) && (
+                  <div className="pt-2 border-t border-border/40">
+                    <p className="text-[9px] text-muted-foreground uppercase font-bold mb-1.5 tracking-wider">Akan Datang</p>
+                    {healthData?.components.filter(c => c.status !== "safe").slice(0, 3).map(c => (
+                      <div key={c.component.id} className="flex items-center justify-between py-1">
+                        <span className="text-[10px] truncate">{c.component.name}</span>
+                        <span className={cn(
+                          "text-[9px] font-bold",
+                          c.status === "danger" ? "text-red-500" : "text-orange-500",
+                        )}>Sisa {c.remainingKm} km</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {(healthData?.monthlyCost ?? 0) > 0 && (healthData?.latestOdo ?? 0) > 0 && (
+                  <div className="pt-2 border-t border-border/40 flex items-center justify-between">
+                    <span className="text-[9px] text-muted-foreground">per km</span>
+                    <span className="text-[10px] font-bold">
+                      Rp {Math.round((healthData?.monthlyCost ?? 0) / Math.max(1, healthData?.latestOdo ?? 1)).toLocaleString("id-ID")}
+                    </span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
