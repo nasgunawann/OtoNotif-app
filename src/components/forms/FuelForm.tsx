@@ -31,7 +31,6 @@ const formSchema = z.object({
   amount: z.coerce.number().min(1, "Biaya harus diisi"),
   fuelType: z.string().min(1, "Pilih jenis BBM"),
   date: z.string().min(1, "Tanggal harus diisi"),
-  odoReading: z.coerce.number().optional(),
   notes: z.string().optional(),
 })
 
@@ -54,7 +53,6 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
       amount: undefined as unknown as number,
       fuelType: "",
       date: new Date().toISOString().split("T")[0],
-      odoReading: undefined,
       notes: "",
     },
   })
@@ -67,7 +65,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
         amount: values.amount,
         fuelType: values.fuelType,
         date: values.date,
-        odoReading: values.odoReading || 0,
+        odoReading: latestOdo,
         notes: values.notes || "",
       })
       toast.success(`Log BBM ${vehicleName} tersimpan`)
@@ -152,27 +150,6 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="odoReading"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Odometer (opsional)</FormLabel>
-              <FormControl>
-                <InputGroup>
-                  <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupText>km</InputGroupText>
-                  </InputGroupAddon>
-                </InputGroup>
-              </FormControl>
-              <p className="text-[10px] text-muted-foreground">
-                Odometer saat ini: <span className="font-semibold text-foreground">{latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}</span> km
-              </p>
               <FormMessage />
             </FormItem>
           )}

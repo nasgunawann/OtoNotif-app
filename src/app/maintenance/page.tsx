@@ -177,7 +177,6 @@ export default function MaintenancePage() {
                         vehicleId={item.vehicleId}
                         vehicleName={item.vehicleName}
                         defaultComponentId={item.component.id}
-                        defaultDescription={`Ganti ${item.component.name}`}
                         onSuccess={() => {
                           setHealthData([])
                           setLoading(true)

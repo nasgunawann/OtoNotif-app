@@ -344,7 +344,7 @@ export default function Home() {
             <div className="flex items-center gap-1 md:gap-2 text-emerald-700 dark:text-emerald-400">
               <IconActivity className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
               <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] truncate">
-                Biaya
+                Pengeluaran
               </span>
             </div>
           </CardHeader>

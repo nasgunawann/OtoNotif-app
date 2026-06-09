@@ -335,7 +335,7 @@ export default function VehicleDetailPage() {
             <Card className="border-none bg-card/50">
               <CardContent className="p-3 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Biaya Bulan Ini</p>
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Pengeluaran Bulan Ini</p>
                   <p className="text-sm font-bold">{healthData?.monthlyCost ? formatCompactCurrency(healthData.monthlyCost) : "Rp 0"}</p>
                 </div>
                 {upcomingCost > 0 && (
@@ -426,7 +426,7 @@ export default function VehicleDetailPage() {
           <div className="hidden lg:block">
             <Card className="border-none bg-card/50">
               <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Biaya & Proyeksi</CardTitle>
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Pengeluaran & Proyeksi</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">

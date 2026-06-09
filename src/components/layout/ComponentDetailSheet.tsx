@@ -191,7 +191,6 @@ export function ComponentDetailSheet({
             vehicleId={vehicleId}
             vehicleName={vehicleName}
             defaultComponentId={component.id}
-            defaultDescription={`Ganti ${component.name}`}
             onSuccess={() => {
               setOpenService(false)
               onOpenChange(false)

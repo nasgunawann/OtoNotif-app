@@ -37,10 +37,8 @@ import type { Component } from "@/lib/types";
 
 const formSchema = z.object({
   componentId: z.string().optional(),
-  description: z.string().min(1, "Deskripsi harus diisi"),
   cost: z.coerce.number().optional(),
   date: z.string().min(1, "Tanggal harus diisi"),
-  odoReading: z.coerce.number().optional(),
   notes: z.string().optional(),
 });
 
@@ -50,7 +48,6 @@ type Props = {
   vehicleId: string;
   vehicleName: string;
   defaultComponentId?: string;
-  defaultDescription?: string;
   onSuccess?: () => void;
 };
 
@@ -58,7 +55,6 @@ export function ServiceForm({
   vehicleId,
   vehicleName,
   defaultComponentId,
-  defaultDescription,
   onSuccess,
 }: Props) {
   const { createMaintenanceRecord, vehicleHealth } = useVehicleStore();
@@ -76,23 +72,24 @@ export function ServiceForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       componentId: defaultComponentId || "",
-      description: defaultDescription || "",
       cost: undefined as unknown as number,
       date: new Date().toISOString().split("T")[0],
-      odoReading: undefined,
       notes: "",
     },
   });
 
   async function onSubmit(values: FormValues) {
     try {
+      const compName = values.componentId
+        ? components.find(c => c.id === values.componentId)?.name || ""
+        : ""
       await createMaintenanceRecord({
         vehicleId,
         componentId: values.componentId || undefined,
-        description: values.description,
+        description: compName || values.notes?.slice(0, 50) || "Servis",
         cost: values.cost || 0,
         date: values.date,
-        odoReading: values.odoReading || 0,
+        odoReading: latestOdo,
         notes: values.notes || "",
       });
       toast.success(`Servis ${vehicleName} tersimpan`);
@@ -105,19 +102,6 @@ export function ServiceForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Deskripsi Servis</FormLabel>
-              <FormControl>
-                <Input placeholder="Ganti Oli Mesin" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="componentId"
@@ -142,59 +126,28 @@ export function ServiceForm({
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="cost"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Biaya</FormLabel>
-                <FormControl>
-                  <InputGroup>
-                    <InputGroupAddon align="inline-start">
-                      <InputGroupText>Rp</InputGroupText>
-                    </InputGroupAddon>
-                    <NumberInput
-                      placeholder="150.000"
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </InputGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="odoReading"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Odometer</FormLabel>
-                <FormControl>
-                  <InputGroup>
-                    <NumberInput
-                      placeholder="12.500"
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupText>km</InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                </FormControl>
-                <p className="text-[10px] text-muted-foreground">
-                  Odometer saat ini:{" "}
-                  <span className="font-semibold text-foreground">
-                    {latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}
-                  </span>{" "}
-                  km
-                </p>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="cost"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Biaya</FormLabel>
+              <FormControl>
+                <InputGroup>
+                  <InputGroupAddon align="inline-start">
+                    <InputGroupText>Rp</InputGroupText>
+                  </InputGroupAddon>
+                  <NumberInput
+                    placeholder="150.000"
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </InputGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="date"
