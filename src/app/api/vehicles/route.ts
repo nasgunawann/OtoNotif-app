@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     isPrimary: body.isPrimary ?? false,
     taxDueDate: body.taxDueDate ?? null,
     taxReminderDays: body.taxReminderDays ?? 30,
+    taxIntervalYears: body.taxIntervalYears ?? 1,
     taxAmount: body.taxAmount ?? 0,
     lastTaxPaidDate: body.lastTaxPaidDate ?? null,
     createdAt: now,

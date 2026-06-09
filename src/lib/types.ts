@@ -10,6 +10,7 @@ export interface Vehicle {
   isPrimary: boolean
   taxDueDate: string | null
   taxReminderDays: number
+  taxIntervalYears: number
   taxAmount: number
   lastTaxPaidDate: string | null
   createdAt: string
@@ -130,6 +131,7 @@ export interface CreateVehicleInput {
   isPrimary?: boolean
   taxDueDate?: string | null
   taxReminderDays?: number
+  taxIntervalYears?: number
   taxAmount?: number
   lastTaxPaidDate?: string | null
 }

@@ -89,6 +89,7 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
       isPrimary: data.isPrimary ?? false,
       taxDueDate: data.taxDueDate ?? null,
       taxReminderDays: data.taxReminderDays ?? 30,
+      taxIntervalYears: data.taxIntervalYears ?? 1,
       taxAmount: data.taxAmount ?? 0,
       lastTaxPaidDate: data.lastTaxPaidDate ?? null,
       createdAt: new Date().toISOString(),

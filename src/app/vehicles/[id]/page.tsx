@@ -15,6 +15,7 @@ import {
   IconArrowRight,
   IconTrash,
   IconReceipt,
+  IconList,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -218,7 +219,7 @@ export default function VehicleDetailPage() {
                 Komponen
                 <div className="flex gap-2 items-center">
                   <FormDialog title="Tambah Komponen" open={openComponent} onOpenChange={setOpenComponent}
-                    trigger={<Button variant="link" className="h-auto p-0 text-xs text-primary font-bold">Tambah</Button>}>
+                    trigger={<Button variant="link" className="h-auto p-0 text-xs text-primary font-bold"><IconPlus className="h-3 w-3" /> Tambah</Button>}>
                     <ComponentForm vehicleId={id} vehicleType={vehicle.type} onSuccess={() => { setOpenComponent(false); fetchComponents(id); fetchVehicleHealth(id) }} />
                   </FormDialog>
                   <span className="text-muted-foreground/30 text-xs">•</span>
@@ -226,11 +227,11 @@ export default function VehicleDetailPage() {
                     await fetchVehicleHealth(id)
                     setOpenSelectComponents(true)
                   }}>
-                    Umum
+                    <IconList className="h-3 w-3" /> Cepat
                   </Button>
                   <span className="text-muted-foreground/30 text-xs">•</span>
                   <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
-                    <Link href="/maintenance">Lihat Semua</Link>
+                    <Link href="/maintenance"><IconArrowRight className="h-3 w-3" /> Lihat Semua</Link>
                   </Button>
                 </div>
               </CardTitle>

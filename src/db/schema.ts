@@ -10,6 +10,7 @@ export const vehicles = sqliteTable("vehicles", {
   isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(false),
   taxDueDate: text("tax_due_date"),
   taxReminderDays: integer("tax_reminder_days").default(30),
+  taxIntervalYears: integer("tax_interval_years").default(1),
   taxAmount: real("tax_amount").default(0),
   lastTaxPaidDate: text("last_tax_paid_date"),
   createdAt: text("created_at").notNull(),

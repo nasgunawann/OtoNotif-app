@@ -35,6 +35,7 @@ const formSchema = z.object({
   fuelCapacity: z.coerce.number().optional(),
   taxDueDate: z.string().optional(),
   taxReminderDays: z.coerce.number().optional(),
+  taxIntervalYears: z.coerce.number().optional(),
   taxAmount: z.coerce.number().optional(),
 })
 
@@ -57,6 +58,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
       fuelCapacity: vehicle?.fuelCapacity || undefined as unknown as number,
       taxDueDate: vehicle?.taxDueDate || "",
       taxReminderDays: vehicle?.taxReminderDays ?? 30,
+      taxIntervalYears: vehicle?.taxIntervalYears ?? 1,
       taxAmount: vehicle?.taxAmount || undefined as unknown as number,
     },
   })
@@ -71,6 +73,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           fuelCapacity: values.fuelCapacity || 0,
           taxDueDate: values.taxDueDate || null,
           taxReminderDays: values.taxReminderDays ?? 30,
+          taxIntervalYears: values.taxIntervalYears ?? 1,
           taxAmount: values.taxAmount ?? 0,
         })
         toast.success(`Kendaraan ${values.name} diperbarui`)
@@ -82,6 +85,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           fuelCapacity: values.fuelCapacity || 0,
           taxDueDate: values.taxDueDate || undefined,
           taxReminderDays: values.taxReminderDays ?? 30,
+          taxIntervalYears: values.taxIntervalYears ?? 1,
           taxAmount: values.taxAmount ?? 0,
           image: values.type === "motor" ? "/motorcycle_supra_mockup.png" : "/car_civic_mockup.png",
         })
@@ -178,7 +182,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <FormField
             control={form.control}
             name="taxReminderDays"
@@ -188,6 +192,24 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
                 <FormControl>
                   <InputGroup>
                     <NumberInput placeholder="30" value={field.value} onChange={field.onChange} />
+                  </InputGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="taxIntervalYears"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Interval</FormLabel>
+                <FormControl>
+                  <InputGroup>
+                    <NumberInput placeholder="1" value={field.value} onChange={field.onChange} />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupText>thn</InputGroupText>
+                    </InputGroupAddon>
                   </InputGroup>
                 </FormControl>
                 <FormMessage />
