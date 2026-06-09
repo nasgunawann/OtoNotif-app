@@ -186,7 +186,9 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
               <FormItem>
                 <FormLabel>Pengingat (H-)</FormLabel>
                 <FormControl>
-                  <NumberInput placeholder="30" value={field.value} onChange={field.onChange} />
+                  <InputGroup>
+                    <NumberInput placeholder="30" value={field.value} onChange={field.onChange} />
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
