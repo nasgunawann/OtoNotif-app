@@ -95,6 +95,7 @@ export interface VehicleHealth {
     percent: number
     avg: string
     latestFuelLog: FuelLog | null
+    estimating: boolean
   } | null
   monthlyCost?: number
   weeklyOdoDelta?: number

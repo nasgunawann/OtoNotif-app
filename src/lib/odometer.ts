@@ -117,6 +117,7 @@ export async function getFuelStats(
   percent: number;
   avg: string;
   latestFuelLog: FuelLog | null;
+  estimating: boolean;
 }> {
   const logs = await db
     .select()
@@ -132,6 +133,7 @@ export async function getFuelStats(
       percent: 0,
       avg: "—",
       latestFuelLog: null,
+      estimating: true,
     };
   }
 
@@ -170,6 +172,7 @@ export async function getFuelStats(
     percent: Math.round(percent),
     avg: avgConsumption ? `${Math.round(avgConsumption * 10) / 10} km/L` : "—",
     latestFuelLog: latestLog as FuelLog,
+    estimating: !avgConsumption,
   };
 }
 

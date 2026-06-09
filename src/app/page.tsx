@@ -319,20 +319,52 @@ export default function Home() {
             </div>
           </CardHeader>
           <CardContent className="p-2 md:p-4 pt-0 space-y-1 md:space-y-2">
-            <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate">
-              {fuel ? `${fuel.current}L` : "—"}{" "}
-              <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
-                /{fuel?.max}L
-              </span>
-            </div>
-            {fuel && (
-              <div className="relative h-1 md:h-2 w-full bg-blue-500/20 dark:bg-blue-500/30 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${fuel.percent}%` }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="absolute inset-y-0 left-0 bg-linear-to-r from-blue-600 to-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.4)]"
-                />
+            {!fuel ? (
+              <div className="text-xs text-muted-foreground">
+                Belum ada data BBM
+              </div>
+            ) : fuel.estimating ? (
+              <div>
+                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate">
+                  {fuel.current > 0 ? `${fuel.current}L` : "—"}{" "}
+                  <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
+                    /{fuel.max}L
+                  </span>
+                </div>
+                <div className="relative h-1 md:h-2 w-full bg-blue-500/20 dark:bg-blue-500/30 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${fuel.percent}%` }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="absolute inset-y-0 left-0 bg-linear-to-r from-blue-600 to-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.4)]"
+                  />
+                </div>
+                {fuel.current > 0 ? (
+                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1">
+                    📊 Kalibrasi: catat isi BBM berikutnya untuk estimasi konsumsi akurat
+                  </p>
+                ) : (
+                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1">
+                    ⛽ Catat pengisian BBM untuk mulai memantau
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div>
+                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate">
+                  {fuel.current}L{" "}
+                  <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
+                    /{fuel.max}L
+                  </span>
+                </div>
+                <div className="relative h-1 md:h-2 w-full bg-blue-500/20 dark:bg-blue-500/30 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${fuel.percent}%` }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="absolute inset-y-0 left-0 bg-linear-to-r from-blue-600 to-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.4)]"
+                  />
+                </div>
               </div>
             )}
           </CardContent>
