@@ -260,6 +260,7 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
       amount: data.amount,
       fuelType: data.fuelType,
       odoReading: data.odoReading ?? 0,
+      isFull: data.isFull ?? false,
       kmPerLiter: data.kmPerLiter ?? null,
       notes: data.notes || "",
       createdAt: new Date().toISOString(),

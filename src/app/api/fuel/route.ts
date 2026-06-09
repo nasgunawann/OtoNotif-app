@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     amount: body.amount,
     fuelType: body.fuelType,
     odoReading: body.odoReading ?? 0,
+    isFull: body.isFull ?? false,
     kmPerLiter: body.kmPerLiter ?? null,
     notes: body.notes || "",
     createdAt: now,

@@ -36,6 +36,7 @@ export interface FuelLog {
   amount: number
   fuelType: string
   odoReading: number
+  isFull: boolean
   kmPerLiter: number | null
   notes: string
   createdAt: string
@@ -151,6 +152,7 @@ export interface CreateFuelLogInput {
   amount: number
   fuelType: string
   odoReading?: number
+  isFull?: boolean
   kmPerLiter?: number | null
   notes?: string
 }

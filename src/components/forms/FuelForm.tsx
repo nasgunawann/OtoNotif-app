@@ -24,13 +24,15 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
-import { IconLoader2 } from "@tabler/icons-react"
+import { IconLoader2, IconFlask } from "@tabler/icons-react"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   liters: z.coerce.number().min(0.1, "Liter harus diisi"),
   amount: z.coerce.number().min(1, "Biaya harus diisi"),
   fuelType: z.string().min(1, "Pilih jenis BBM"),
   date: z.string().min(1, "Tanggal harus diisi"),
+  isFull: z.boolean().optional(),
   kmPerLiter: z.coerce.number().optional(),
   notes: z.string().optional(),
 })
@@ -50,6 +52,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
   const estimatedKmL = prevLog?.odoReading && latestOdo > prevLog.odoReading && prevLog.liters > 0
     ? Math.round(((latestOdo - prevLog.odoReading) / prevLog.liters) * 10) / 10
     : null
+  const prevFull = prevLog?.isFull && prevLog.odoReading && latestOdo > prevLog.odoReading && prevLog.liters > 0
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -58,7 +61,8 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
       amount: undefined as unknown as number,
       fuelType: "",
       date: new Date().toISOString().split("T")[0],
-      kmPerLiter: undefined,
+      isFull: false,
+      kmPerLiter: estimatedKmL && prevFull ? estimatedKmL : undefined,
       notes: "",
     },
   })
@@ -72,6 +76,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
         fuelType: values.fuelType,
         date: values.date,
         odoReading: latestOdo,
+        isFull: values.isFull ?? false,
         kmPerLiter: values.kmPerLiter || null,
         notes: values.notes || "",
       })
@@ -123,6 +128,39 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="isFull"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={field.value}
+                  className={cn(
+                    "h-9 rounded-lg px-3 text-xs font-bold gap-1.5 border transition-all flex items-center",
+                    field.value
+                      ? "bg-primary/10 border-primary/30 text-primary"
+                      : "bg-background border-input text-muted-foreground hover:border-primary/30",
+                  )}
+                  onClick={() => field.onChange(!field.value)}
+                >
+                  <IconFlask className={cn("h-3.5 w-3.5", field.value ? "text-primary" : "text-muted-foreground/50")} />
+                  {field.value ? "Isi Penuh" : "Tidak penuh"}
+                </button>
+                {field.value && prevFull && estimatedKmL && (
+                  <span className="text-[10px] text-muted-foreground">
+                    km/L otomatis terisi ({estimatedKmL} km/L)
+                  </span>
+                )}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="fuelType"
