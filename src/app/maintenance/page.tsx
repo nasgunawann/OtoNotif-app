@@ -176,6 +176,15 @@ export default function MaintenancePage() {
         </Card>
       )}
 
+      {/* All Safe */}
+      {allComponents.length > 0 && dangerItems.length === 0 && warningItems.length === 0 && (
+        <Card className="p-8 text-center border-green-500/20 bg-green-500/5">
+          <IconTool className="h-10 w-10 mx-auto text-green-500/30 mb-3" />
+          <p className="text-sm font-bold text-green-700 dark:text-green-400 mb-1">Semua Komponen Dalam Kondisi Baik</p>
+          <p className="text-xs text-muted-foreground">Tidak ada komponen yang perlu diperhatikan saat ini.</p>
+        </Card>
+      )}
+
       {/* Empty State */}
       {allComponents.length === 0 && (
         <Card className="p-10 text-center border-dashed">
