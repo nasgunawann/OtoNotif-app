@@ -37,9 +37,25 @@ import {
 import { toast } from "sonner"
 import Link from "next/link"
 import { COMPONENT_TEMPLATES, type ComponentTemplate } from "@/lib/component-templates"
+import { api } from "@/lib/services/api"
 import { ComponentDetailSheet } from "@/components/layout/ComponentDetailSheet"
+import type { FuelLog, MaintenanceRecord } from "@/lib/types"
 import { SelectComponentsDialog } from "@/components/layout/SelectComponentsDialog"
-import type { ComponentHealth } from "@/lib/types"
+import { PayTaxSheet } from "@/components/layout/PayTaxSheet"
+import type { ComponentHealth, OdometerReading } from "@/lib/types"
+
+type ActivityItem = {
+  id: string
+  type: "odometer" | "fuel" | "maintenance"
+  reading?: number
+  date: string
+  description?: string
+  fuelType?: string
+  liters?: number
+  amount?: number
+  cost?: number
+  delta: number
+}
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -71,7 +87,9 @@ export default function VehicleDetailPage() {
   const [openEdit, setOpenEdit] = useState(false)
   const [openComponent, setOpenComponent] = useState(false)
   const [openSelectComponents, setOpenSelectComponents] = useState(false)
+  const [openPayTax, setOpenPayTax] = useState(false)
   const [detailComponent, setDetailComponent] = useState<ComponentHealth | null>(null)
+  const [activities, setActivities] = useState<ActivityItem[]>([])
 
   useEffect(() => {
     if (id) {
@@ -81,6 +99,32 @@ export default function VehicleDetailPage() {
       fetchOdometerReadings(id)
     }
   }, [id, fetchVehicle, fetchVehicleHealth, fetchComponents, fetchOdometerReadings])
+
+  useEffect(() => {
+    if (!id) return
+    async function load() {
+      try {
+        const [fuel, maint, odos] = await Promise.all([
+          api.getFuelLogs(id),
+          api.getMaintenanceRecords(id),
+          api.getOdometerReadings(id),
+        ])
+        const odoSorted = [...odos].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        const odoDeltas = new Map<string, number>()
+        for (let i = 1; i < odoSorted.length; i++) {
+          const d = odoSorted[i].reading - odoSorted[i - 1].reading
+          if (d > 0) odoDeltas.set(odoSorted[i].id, d)
+        }
+        const all: ActivityItem[] = [
+          ...odos.map(o => ({ id: o.id, type: "odometer" as const, reading: o.reading, date: o.date, delta: odoDeltas.get(o.id) || 0 })),
+          ...fuel.map(f => ({ id: f.id, type: "fuel" as const, date: f.date, fuelType: f.fuelType, liters: f.liters, amount: f.amount, delta: 0 })),
+          ...maint.map(m => ({ id: m.id, type: "maintenance" as const, date: m.date, description: m.description, cost: m.cost, delta: 0 })),
+        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8)
+        setActivities(all)
+      } catch {}
+    }
+    load()
+  }, [id])
 
   function refresh() {
     if (id) {
@@ -284,37 +328,41 @@ export default function VehicleDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Riwayat Odometer (compact) */}
+          {/* Aktivitas Terbaru */}
           <Card className="border-none bg-card/50">
             <CardHeader className="pb-2 px-3 md:px-4">
-              <CardTitle className="text-xs md:text-sm font-bold">Riwayat Odometer</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs md:text-sm font-bold">Aktivitas Terbaru</CardTitle>
+                <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
+                  <Link href={`/history`}>Lihat Semua</Link>
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="pt-0 px-3 md:px-4">
-              <div className="space-y-2 max-h-40 overflow-y-auto">
-                {odometerReadings.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-3">Belum ada catatan.</p>
+              <div className="space-y-2 max-h-44 overflow-y-auto">
+                {activities.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-3">Belum ada aktivitas.</p>
                 ) : (
-                  odometerReadings.slice(0, 5).map((odo) => (
-                    <div key={odo.id} className="flex items-center justify-between py-1.5">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <IconGauge className="h-3 w-3 text-muted-foreground/50 shrink-0" />
-                        <span className="text-xs font-semibold">{odo.reading.toLocaleString("id-ID")} km</span>
-                        <span className="text-[9px] text-muted-foreground truncate">{odo.date}</span>
+                  activities.map((act) => {
+                    const Icon = act.type === "fuel" ? IconDroplet : act.type === "maintenance" ? IconTool : IconGauge
+                    const iconBg = act.type === "fuel" ? "bg-blue-500/10" : act.type === "maintenance" ? "bg-orange-500/10" : "bg-amber-500/10"
+                    const iconColor = act.type === "fuel" ? "text-blue-500" : act.type === "maintenance" ? "text-orange-500" : "text-amber-600"
+                    const title = act.type === "fuel" ? `Isi Bensin (${act.fuelType ?? ""})` : act.type === "maintenance" ? (act.description ?? "") : `${(act.reading ?? 0).toLocaleString("id-ID")} km`
+                    const cost = act.type === "fuel" ? `Rp ${(act.amount ?? 0).toLocaleString("id-ID")}` : act.type === "maintenance" && act.cost ? `Rp ${act.cost.toLocaleString("id-ID")}` : ""
+                    const subtitle = act.type === "fuel" ? `${act.liters ?? ""} L` : ""
+                    return (
+                      <div key={act.id} className="flex items-center gap-2 py-1.5 group">
+                        <div className={`p-1 rounded-full shrink-0 ${iconBg}`}>
+                          <Icon className={`h-3 w-3 ${iconColor}`} />
+                        </div>
+                        <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                          <span className="text-[10px] font-semibold truncate">{title}</span>
+                          {act.delta > 0 && <span className="text-[8px] font-bold text-emerald-600">+{act.delta.toLocaleString("id-ID")}</span>}
+                        </div>
+                        <span className="text-[8px] text-muted-foreground shrink-0">{act.date}</span>
                       </div>
-                      <button type="button" className="text-muted-foreground/30 hover:text-red-500 transition-colors p-0.5"
-                        onClick={async () => {
-                          if (confirm("Hapus?")) {
-                            try { await deleteOdometerReading(odo.id, vehicle.id); toast.success("Dihapus") }
-                            catch { toast.error("Gagal") }
-                          }
-                        }}>
-                        <IconTrash className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))
-                )}
-                {odometerReadings.length > 5 && (
-                  <p className="text-[9px] text-muted-foreground text-center py-1">+{odometerReadings.length - 5} lagi</p>
+                    )
+                  })
                 )}
               </div>
             </CardContent>
@@ -322,15 +370,7 @@ export default function VehicleDetailPage() {
 
           {/* Mobile: Bayar Pajak + Biaya */}
           <div className="lg:hidden space-y-3">
-            <Button className="w-full h-10 text-xs font-bold gap-1" variant="outline"
-              onClick={async () => {
-                if (!vehicle.taxDueDate) { toast.error("Atur tanggal pajak dulu"); return }
-                try {
-                  const due = new Date(vehicle.taxDueDate); const nextDue = new Date(due); nextDue.setFullYear(nextDue.getFullYear() + 1)
-                  await updateVehicle(vehicle.id, { lastTaxPaidDate: new Date().toISOString().split("T")[0], taxDueDate: nextDue.toISOString().split("T")[0] })
-                  toast.success("Pajak dicatat"); refresh()
-                } catch { toast.error("Gagal") }
-              }}>
+            <Button className="w-full h-10 text-xs font-bold gap-1" variant="outline" onClick={() => setOpenPayTax(true)}>
               <IconReceipt className="h-3.5 w-3.5" /> Bayar Pajak
             </Button>
             <Card className="border-none bg-card/50">
@@ -408,15 +448,7 @@ export default function VehicleDetailPage() {
                   trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconTool className="h-4 w-4" /> Servis Baru</Button>}>
                   <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenService(false); refresh() }} />
                 </FormDialog>
-                <Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"
-                  onClick={async () => {
-                    if (!vehicle.taxDueDate) { toast.error("Atur tanggal pajak dulu"); return }
-                    try {
-                      const due = new Date(vehicle.taxDueDate); const nextDue = new Date(due); nextDue.setFullYear(nextDue.getFullYear() + 1)
-                      await updateVehicle(vehicle.id, { lastTaxPaidDate: new Date().toISOString().split("T")[0], taxDueDate: nextDue.toISOString().split("T")[0] })
-                      toast.success("Pajak dicatat"); refresh()
-                    } catch { toast.error("Gagal") }
-                  }}>
+                <Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline" onClick={() => setOpenPayTax(true)}>
                   <IconReceipt className="h-4 w-4" /> Bayar Pajak
                 </Button>
               </CardContent>
@@ -474,6 +506,8 @@ export default function VehicleDetailPage() {
       </FormDialog>
 
       <SelectComponentsDialog vehicle={vehicle} open={openSelectComponents} onOpenChange={setOpenSelectComponents} onSuccess={refresh} />
+
+      <PayTaxSheet vehicle={vehicle} open={openPayTax} onOpenChange={setOpenPayTax} onSuccess={refresh} />
 
       {detailComponent && (
         <ComponentDetailSheet
