@@ -7,6 +7,7 @@ import {
   IconGauge,
   IconDroplet,
   IconTool,
+  IconCheck,
 } from "@tabler/icons-react";
 import {
   Dialog,
@@ -34,12 +35,14 @@ import { api } from "@/lib/services/api";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { IconChevronLeft } from "@tabler/icons-react";
 import type { Vehicle } from "@/lib/types";
+import { SelectComponentsDialog } from "@/components/layout/SelectComponentsDialog";
 
 type Step = "menu" | "odometer" | "fuel" | "service";
 
 function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
   const [step, setStep] = useState<Step>("menu");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [selectComponentsOpen, setSelectComponentsOpen] = useState(false);
 
   useEffect(() => {
     api
@@ -140,7 +143,32 @@ function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
             </div>
           </div>
         </Button>
+
+        <Button
+          variant="outline"
+          className="h-14 justify-start text-left px-4 text-base"
+          onClick={() => setSelectComponentsOpen(true)}
+        >
+          <div className="bg-emerald-500/10 p-2.5 rounded-full mr-4">
+            <IconCheck className="h-5 w-5 text-emerald-500" />
+          </div>
+          <div>
+            <div className="font-semibold">Tambah Komponen Tracking</div>
+            <div className="text-xs text-muted-foreground">
+              Pilih komponen yang ingin dipantau
+            </div>
+          </div>
+        </Button>
       </div>
+
+      {primary && (
+        <SelectComponentsDialog
+          vehicle={primary}
+          open={selectComponentsOpen}
+          onOpenChange={setSelectComponentsOpen}
+          onSuccess={onSuccess}
+        />
+      )}
     </>
   );
 }

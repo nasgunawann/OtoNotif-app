@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { IconAlertCircle, IconCircleCheck, IconTool } from "@tabler/icons-react"
+import { IconAlertCircle, IconCircleCheck, IconTool, IconInfoCircle } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
-import type { Vehicle, VehicleHealth } from "@/lib/types"
+import type { Vehicle, VehicleHealth, ComponentHealth } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { FormDialog } from "@/components/forms/FormDialog"
 import { ServiceForm } from "@/components/forms/ServiceForm"
+import { ComponentDetailSheet } from "@/components/layout/ComponentDetailSheet"
 import {
   Select,
   SelectContent,
@@ -28,6 +29,12 @@ export default function MaintenancePage() {
   const [healthData, setHealthData] = useState<VehicleHealth[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>("all")
+  const [detailComponent, setDetailComponent] = useState<{
+    data: ComponentHealth
+    vehicleId: string
+    vehicleName: string
+    vehicleType: "motor" | "mobil"
+  } | null>(null)
 
   useEffect(() => {
     api.getVehicles().then((vehicles) =>
@@ -48,6 +55,7 @@ export default function MaintenancePage() {
       ...c,
       vehicleId: h.vehicle.id,
       vehicleName: h.vehicle.name,
+      vehicleType: h.vehicle.type,
     }))
   )
   const filteredComponents = allComponents.filter(
@@ -118,7 +126,7 @@ export default function MaintenancePage() {
                   />
                   <CardTitle
                     className={cn(
-                      "text-base font-bold",
+                      "text-base font-bold flex-1",
                       item.status === 'danger'
                         ? "text-orange-700 dark:text-orange-400"
                         : "text-yellow-700 dark:text-yellow-400"
@@ -126,6 +134,19 @@ export default function MaintenancePage() {
                   >
                     Ganti {item.component.name} - {item.vehicleName}
                   </CardTitle>
+                  <button
+                    type="button"
+                    className="shrink-0 p-1 rounded-full hover:bg-muted transition-colors"
+                    onClick={() => setDetailComponent({
+                      data: item,
+                      vehicleId: item.vehicleId,
+                      vehicleName: item.vehicleName,
+                      vehicleType: (item as typeof item & { vehicleType: "motor" | "mobil" }).vehicleType,
+                    })}
+                    aria-label="Detail komponen"
+                  >
+                    <IconInfoCircle className="h-4 w-4 text-muted-foreground/50 hover:text-foreground" />
+                  </button>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
@@ -201,6 +222,28 @@ export default function MaintenancePage() {
             )}
           </div>
         </div>
+      )}
+
+      {detailComponent && (
+        <ComponentDetailSheet
+          data={detailComponent.data}
+          vehicleId={detailComponent.vehicleId}
+          vehicleName={detailComponent.vehicleName}
+          vehicleType={detailComponent.vehicleType}
+          open={!!detailComponent}
+          onOpenChange={(open) => { if (!open) setDetailComponent(null) }}
+          onDeleted={() => {
+            api.getVehicles().then((vehicles) =>
+              Promise.all(
+                vehicles.map((v: Vehicle) => api.getVehicleHealth(v.id))
+              )
+            ).then((health) => {
+              setHealthData(health)
+            }).catch((e) => {
+              console.error(e)
+            })
+          }}
+        />
       )}
     </motion.div>
   )

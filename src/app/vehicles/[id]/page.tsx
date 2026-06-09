@@ -35,6 +35,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import Link from "next/link"
+import { COMPONENT_TEMPLATES } from "@/lib/component-templates"
+import { ComponentDetailSheet } from "@/components/layout/ComponentDetailSheet"
+import { SelectComponentsDialog } from "@/components/layout/SelectComponentsDialog"
+import type { ComponentHealth } from "@/lib/types"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -57,6 +61,7 @@ export default function VehicleDetailPage() {
     deleteOdometerReading,
     deleteVehicle,
     updateVehicle,
+    createComponentsBatch,
     loading
   } = useVehicleStore()
 
@@ -65,6 +70,8 @@ export default function VehicleDetailPage() {
   const [openService, setOpenService] = useState(false)
   const [openEdit, setOpenEdit] = useState(false)
   const [openComponent, setOpenComponent] = useState(false)
+  const [openSelectComponents, setOpenSelectComponents] = useState(false)
+  const [detailComponent, setDetailComponent] = useState<ComponentHealth | null>(null)
 
   useEffect(() => {
     if (id) {
@@ -225,6 +232,7 @@ export default function VehicleDetailPage() {
               >
                 <ComponentForm
                   vehicleId={id}
+                  vehicleType={vehicle.type}
                   onSuccess={() => {
                     setOpenComponent(false)
                     fetchComponents(id)
@@ -233,6 +241,15 @@ export default function VehicleDetailPage() {
                 />
               </FormDialog>
               <span className="text-muted-foreground/30 text-xs font-normal">•</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-[10px] font-bold rounded-full gap-1 px-2"
+                onClick={() => setOpenSelectComponents(true)}
+              >
+                <IconPlus className="h-3 w-3" /> Umum
+              </Button>
+              <span className="text-muted-foreground/30 text-xs font-normal">•</span>
               <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
                 <Link href="/maintenance">Lihat Semua</Link>
               </Button>
@@ -240,23 +257,37 @@ export default function VehicleDetailPage() {
           </CardTitle>
           <CardDescription className="text-xs">Prediksi penggantian part selanjutnya.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {healthData?.components.map(({ component, remainingKm, status }) => (
-            <div key={component.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${status === 'danger' ? 'bg-orange-500/10' : status === 'warning' ? 'bg-yellow-500/10' : 'bg-green-500/10'}`}>
-                  <IconTool className={`h-4 w-4 ${status === 'danger' ? 'text-orange-500' : status === 'warning' ? 'text-yellow-500' : 'text-green-500'}`} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{component.name}</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {status === "danger" ? `Ganti dalam ${remainingKm} km` : status === "warning" ? `Sisa ${remainingKm} km` : "Kondisi Baik"}
-                  </p>
-                </div>
+        <CardContent className="space-y-1">
+          {healthData?.components.map((item) => {
+            const { component, remainingKm, status } = item
+            return (
+              <div key={component.id} className="flex items-center justify-between rounded-lg hover:bg-muted/30 transition-colors group">
+                <button
+                  type="button"
+                  className="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-2 text-left"
+                  onClick={() => setDetailComponent(item)}
+                >
+                  <div className={`p-2 rounded-full shrink-0 ${status === 'danger' ? 'bg-orange-500/10' : status === 'warning' ? 'bg-yellow-500/10' : 'bg-green-500/10'}`}>
+                    <IconTool className={`h-4 w-4 ${status === 'danger' ? 'text-orange-500' : status === 'warning' ? 'text-yellow-500' : 'text-green-500'}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate">{component.name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {status === "danger" ? `Ganti dalam ${remainingKm} km` : status === "warning" ? `Sisa ${remainingKm} km` : "Kondisi Baik"}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  className="p-2 shrink-0 text-muted-foreground/30 hover:text-foreground transition-colors"
+                  onClick={() => setDetailComponent(item)}
+                  aria-label="Detail komponen"
+                >
+                  <IconArrowRight className="h-4 w-4" />
+                </button>
               </div>
-              <IconArrowRight className="h-4 w-4 text-muted-foreground/30" />
-            </div>
-          ))}
+            )
+          })}
           {(!healthData?.components || healthData.components.length === 0) && (
             <p className="text-sm text-muted-foreground text-center py-4">Belum ada komponen.</p>
           )}
@@ -484,6 +515,25 @@ export default function VehicleDetailPage() {
           }}
         />
       </FormDialog>
+
+      <SelectComponentsDialog
+        vehicle={vehicle}
+        open={openSelectComponents}
+        onOpenChange={setOpenSelectComponents}
+        onSuccess={refresh}
+      />
+
+      {detailComponent && (
+        <ComponentDetailSheet
+          data={detailComponent}
+          vehicleId={id}
+          vehicleName={vehicle.name}
+          vehicleType={vehicle.type}
+          open={!!detailComponent}
+          onOpenChange={(open) => { if (!open) setDetailComponent(null) }}
+          onDeleted={refresh}
+        />
+      )}
     </motion.div>
   )
 }

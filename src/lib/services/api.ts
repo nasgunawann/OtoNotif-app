@@ -55,6 +55,7 @@ export const api = {
   // Components
   getComponents: (vehicleId: string) => request<Component[]>(`/api/components?vehicleId=${vehicleId}`),
   createComponent: (data: CreateComponentInput) => request<Component>("/api/components", { method: "POST", body: data }),
+  deleteComponent: (id: string) => request<{ id: string }>(`/api/components/${id}`, { method: "DELETE" }),
 
   // Maintenance
   getMaintenanceRecords: (vehicleId?: string) =>

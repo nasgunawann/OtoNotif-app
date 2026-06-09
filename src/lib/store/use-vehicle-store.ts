@@ -3,6 +3,7 @@
 import { create } from "zustand"
 import { api } from "@/lib/services/api"
 import type { Vehicle, OdometerReading, FuelLog, Component, MaintenanceRecord, VehicleHealth, CreateOdometerInput, CreateFuelLogInput, CreateComponentInput, CreateMaintenanceInput } from "@/lib/types"
+import type { ComponentTemplate } from "@/lib/component-templates"
 
 interface VehicleStore {
   vehicles: Vehicle[]
@@ -31,6 +32,8 @@ interface VehicleStore {
 
   fetchComponents: (vehicleId: string) => Promise<void>
   createComponent: (data: CreateComponentInput) => Promise<void>
+  deleteComponent: (id: string, vehicleId: string) => Promise<void>
+  createComponentsBatch: (vehicleId: string, templates: ComponentTemplate[]) => Promise<void>
 
   fetchMaintenanceRecords: (vehicleId?: string) => Promise<void>
   createMaintenanceRecord: (data: CreateMaintenanceInput) => Promise<void>
@@ -328,6 +331,59 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
         components: state.components.map((c) => (c.id === tempId ? component : c)),
       }))
       get().fetchVehicleHealth(data.vehicleId)
+    } catch (e) {
+      set({ components: previousComponents })
+      throw e
+    }
+  },
+
+  createComponentsBatch: async (vehicleId, templates) => {
+    const previousComponents = get().components
+    const existingNames = new Set(previousComponents.map((c) => c.name))
+    const newTemplates = templates.filter((t) => !existingNames.has(t.name))
+
+    if (newTemplates.length === 0) return
+
+    const now = new Date().toISOString()
+    const tempComponents: Component[] = newTemplates.map((t) => ({
+      id: `temp-${crypto.randomUUID()}`,
+      vehicleId,
+      name: t.name,
+      intervalKm: t.intervalKm,
+      lastReplacedOdo: 0,
+      notes: "",
+      createdAt: now,
+      updatedAt: now,
+    }))
+
+    set({ components: [...previousComponents, ...tempComponents] })
+
+    try {
+      const results = await Promise.all(
+        newTemplates.map((t) =>
+          api.createComponent({ vehicleId, name: t.name, intervalKm: t.intervalKm })
+        )
+      )
+      set((state) => ({
+        components: state.components.map((c) => {
+          const match = results.find((r) => r.name === c.name && c.id.startsWith("temp-"))
+          return match || c
+        }),
+      }))
+      get().fetchVehicleHealth(vehicleId)
+    } catch (e) {
+      set({ components: previousComponents })
+      throw e
+    }
+  },
+
+  deleteComponent: async (id, vehicleId) => {
+    const previousComponents = get().components
+    set({ components: previousComponents.filter((c) => c.id !== id) })
+
+    try {
+      await api.deleteComponent(id)
+      get().fetchVehicleHealth(vehicleId)
     } catch (e) {
       set({ components: previousComponents })
       throw e
