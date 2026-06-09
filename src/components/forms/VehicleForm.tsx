@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import {
   Select,
   SelectContent,
@@ -148,7 +149,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
             <FormItem>
               <FormLabel>Kapasitas BBM (L) (opsional)</FormLabel>
               <FormControl>
-                <Input type="number" step="0.1" placeholder="4" {...field} />
+                <NumberInput placeholder="4" value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -179,7 +180,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
               <FormItem>
                 <FormLabel>Pengingat (H-)</FormLabel>
                 <FormControl>
-                  <Input type="number" min={1} max={90} {...field} />
+                  <NumberInput placeholder="30" value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -192,7 +193,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
               <FormItem>
                 <FormLabel>Nominal (Rp)</FormLabel>
                 <FormControl>
-                  <Input type="number" min={0} step="1000" placeholder="500000" {...field} />
+                  <NumberInput placeholder="500.000" value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

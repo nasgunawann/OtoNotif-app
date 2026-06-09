@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { IconLoader2 } from "@tabler/icons-react"
@@ -79,7 +80,7 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
             <FormItem>
               <FormLabel>Odometer (km)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="12.500" {...field} />
+                <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 Odometer saat ini: <span className="font-semibold text-foreground">{displayOdo}</span> km

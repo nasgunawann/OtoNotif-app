@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import {
   Select,
   SelectContent,
@@ -86,7 +87,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
               <FormItem>
                 <FormLabel>Liter</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.1" placeholder="3.5" {...field} />
+                  <NumberInput placeholder="3,5" value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,7 +100,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
               <FormItem>
                 <FormLabel>Biaya (Rp)</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="35000" {...field} />
+                  <NumberInput placeholder="35.000" value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -151,7 +152,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
             <FormItem>
               <FormLabel>Odometer (opsional)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="12.500" {...field} />
+                <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 Odometer saat ini: <span className="font-semibold text-foreground">{latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}</span> km

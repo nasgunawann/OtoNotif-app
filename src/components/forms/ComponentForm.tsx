@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import {
   Select,
   SelectContent,
@@ -137,7 +138,7 @@ export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: P
             <FormItem>
               <FormLabel>Interval Penggantian (KM)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="5000" {...field} />
+                <NumberInput placeholder="5.000" value={field.value} onChange={field.onChange} />
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 {selectedInterval
@@ -156,7 +157,7 @@ export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: P
             <FormItem>
               <FormLabel>Odometer Terakhir Diganti (KM)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="0" {...field} />
+                <NumberInput placeholder="0" value={field.value} onChange={field.onChange} />
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 Odometer saat ini: {currentOdo.toLocaleString("id-ID")} km

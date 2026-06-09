@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
@@ -133,7 +134,7 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
               <FormItem>
                 <FormLabel>Biaya (Rp)</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="150000" {...field} />
+                  <NumberInput placeholder="150.000" value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -146,7 +147,7 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
               <FormItem>
                 <FormLabel>Odometer</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="12.500" {...field} />
+                  <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <p className="text-[10px] text-muted-foreground">
                   Odometer saat ini: <span className="font-semibold text-foreground">{latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}</span> km
