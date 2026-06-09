@@ -8,6 +8,10 @@ export const vehicles = sqliteTable("vehicles", {
   engine: text("engine").notNull().default(""),
   fuelCapacity: real("fuel_capacity").notNull().default(0),
   isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(false),
+  taxDueDate: text("tax_due_date"),
+  taxReminderDays: integer("tax_reminder_days").default(30),
+  taxAmount: real("tax_amount").default(0),
+  lastTaxPaidDate: text("last_tax_paid_date"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

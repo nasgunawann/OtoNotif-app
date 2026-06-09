@@ -54,6 +54,35 @@ export async function GET(request: Request) {
   const weeklyOdoDelta = await getWeeklyOdometerDelta(vehicleId, currentOdo);
   const monthlyCost = await getMonthlyOperatingCost(vehicleId);
 
+  const today = new Date();
+  const taxStatus: {
+    dueDate: string | null;
+    daysRemaining: number | null;
+    amount: number;
+    lastPaidDate: string | null;
+    status: "safe" | "warning" | "danger" | "none";
+  } = {
+    dueDate: vehicle.taxDueDate ?? null,
+    daysRemaining: null,
+    amount: vehicle.taxAmount ?? 0,
+    lastPaidDate: vehicle.lastTaxPaidDate ?? null,
+    status: "none",
+  };
+
+  if (vehicle.taxDueDate) {
+    const due = new Date(vehicle.taxDueDate);
+    const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const reminderDays = vehicle.taxReminderDays ?? 30;
+    taxStatus.daysRemaining = diff;
+    if (diff <= 0) {
+      taxStatus.status = "danger";
+    } else if (diff <= reminderDays) {
+      taxStatus.status = "warning";
+    } else {
+      taxStatus.status = "safe";
+    }
+  }
+
   return Response.json({
     data: {
       vehicle,
@@ -65,6 +94,7 @@ export async function GET(request: Request) {
       monthlyCost,
       weeklyOdoDelta,
       latestFuelLog: fuelStats.latestFuelLog,
+      taxStatus,
     },
   });
 }

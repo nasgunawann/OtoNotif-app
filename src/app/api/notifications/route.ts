@@ -59,6 +59,31 @@ export async function GET() {
         type: "warning",
       });
     }
+
+    if (v.taxDueDate) {
+      const today = new Date();
+      const due = new Date(v.taxDueDate);
+      const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const reminderDays = v.taxReminderDays ?? 30;
+
+      if (diff <= 0) {
+        notifications.push({
+          id: crypto.randomUUID(),
+          title: `Pajak ${v.name} Jatuh Tempo!`,
+          description: `Pajak ${v.name} sudah lewat ${Math.abs(diff)} hari. Segera bayar!`,
+          time: "Overdue",
+          type: "danger" as const,
+        });
+      } else if (diff <= reminderDays) {
+        notifications.push({
+          id: crypto.randomUUID(),
+          title: `Pajak ${v.name} Akan Jatuh Tempo`,
+          description: `Sisa ${diff} hari lagi. Segera siapkan pembayaran.`,
+          time: `H-${diff}`,
+          type: "warning" as const,
+        });
+      }
+    }
   }
 
   return Response.json({ data: notifications });

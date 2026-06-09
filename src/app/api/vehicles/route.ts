@@ -31,6 +31,10 @@ export async function POST(request: Request) {
     engine: body.engine || "",
     fuelCapacity: body.fuelCapacity ?? 0,
     isPrimary: body.isPrimary ?? false,
+    taxDueDate: body.taxDueDate ?? null,
+    taxReminderDays: body.taxReminderDays ?? 30,
+    taxAmount: body.taxAmount ?? 0,
+    lastTaxPaidDate: body.lastTaxPaidDate ?? null,
     createdAt: now,
     updatedAt: now,
   };

@@ -14,10 +14,12 @@ import {
   IconPlus,
   IconArrowRight,
   IconTrash,
+  IconReceipt,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { FormDialog } from "@/components/forms/FormDialog"
 import { OdometerForm } from "@/components/forms/OdometerForm"
@@ -54,6 +56,7 @@ export default function VehicleDetailPage() {
     fetchOdometerReadings,
     deleteOdometerReading,
     deleteVehicle,
+    updateVehicle,
     loading
   } = useVehicleStore()
 
@@ -260,6 +263,78 @@ export default function VehicleDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Tax Status Card */}
+      <Card className="border-none bg-card/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex justify-between items-center">
+            Status Pajak
+          </CardTitle>
+          <CardDescription className="text-xs">Informasi pajak kendaraan tahunan.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {vehicle.taxDueDate ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "p-2 rounded-full",
+                  healthData?.taxStatus?.status === "danger"
+                    ? "bg-red-500/10"
+                    : healthData?.taxStatus?.status === "warning"
+                      ? "bg-orange-500/10"
+                      : "bg-green-500/10",
+                )}>
+                  <IconReceipt className={cn(
+                    "h-5 w-5",
+                    healthData?.taxStatus?.status === "danger"
+                      ? "text-red-500"
+                      : healthData?.taxStatus?.status === "warning"
+                        ? "text-orange-500"
+                        : "text-green-500",
+                  )} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">
+                    Jatuh tempo {vehicle.taxDueDate}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {healthData?.taxStatus?.status === "danger"
+                      ? `Terlambat ${Math.abs(healthData.taxStatus.daysRemaining ?? 0)} hari`
+                      : healthData?.taxStatus?.status === "warning"
+                        ? `Sisa ${healthData.taxStatus.daysRemaining} hari lagi`
+                        : healthData?.taxStatus?.status === "safe"
+                          ? "Masih panjang"
+                          : "—"}
+                    {vehicle.taxAmount > 0 && ` • Rp ${vehicle.taxAmount.toLocaleString("id-ID")}`}
+                  </p>
+                </div>
+              </div>
+              <span className={cn(
+                "text-[10px] font-extrabold uppercase px-2 py-1 rounded-md",
+                healthData?.taxStatus?.status === "danger"
+                  ? "bg-red-500/10 text-red-500"
+                  : healthData?.taxStatus?.status === "warning"
+                    ? "bg-orange-500/10 text-orange-500"
+                    : healthData?.taxStatus?.status === "safe"
+                      ? "bg-green-500/10 text-green-500"
+                      : "bg-muted text-muted-foreground",
+              )}>
+                {healthData?.taxStatus?.status === "danger"
+                  ? "Overdue"
+                  : healthData?.taxStatus?.status === "warning"
+                    ? `H-${healthData.taxStatus.daysRemaining}`
+                    : healthData?.taxStatus?.status === "safe"
+                      ? "Aman"
+                      : "—"}
+              </span>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Data pajak belum diatur. Edit kendaraan untuk menambahkan.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="border-none bg-card/50">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex justify-between items-center">
@@ -346,6 +421,36 @@ export default function VehicleDetailPage() {
           />
         </FormDialog>
       </div>
+
+      <Button
+        className="w-full h-12 gap-2 font-bold"
+        variant="outline"
+        onClick={async () => {
+          if (!vehicle.taxDueDate) {
+            toast.error("Atur tanggal pajak dulu di edit kendaraan")
+            return
+          }
+          try {
+            const today = new Date()
+            const nextYear = new Date(today)
+            nextYear.setFullYear(nextYear.getFullYear() + 1)
+            const due = new Date(vehicle.taxDueDate)
+            const nextDue = new Date(due)
+            nextDue.setFullYear(nextDue.getFullYear() + 1)
+            await updateVehicle(vehicle.id, {
+              lastTaxPaidDate: today.toISOString().split("T")[0],
+              taxDueDate: nextDue.toISOString().split("T")[0],
+            })
+            toast.success("Pembayaran pajak berhasil dicatat")
+            refresh()
+          } catch {
+            toast.error("Gagal mencatat pembayaran pajak")
+          }
+        }}
+      >
+        <IconReceipt className="h-4 w-4" />
+        Bayar Pajak
+      </Button>
 
       <FormDialog
         title="Update Odometer"

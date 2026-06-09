@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { IconLoader2 } from "@tabler/icons-react"
@@ -30,6 +31,9 @@ const formSchema = z.object({
   type: z.enum(["motor", "mobil"]),
   engine: z.string().optional(),
   fuelCapacity: z.coerce.number().optional(),
+  taxDueDate: z.string().optional(),
+  taxReminderDays: z.coerce.number().optional(),
+  taxAmount: z.coerce.number().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -49,6 +53,9 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
       type: vehicle?.type || "motor",
       engine: vehicle?.engine || "",
       fuelCapacity: vehicle?.fuelCapacity || undefined as unknown as number,
+      taxDueDate: vehicle?.taxDueDate || "",
+      taxReminderDays: vehicle?.taxReminderDays ?? 30,
+      taxAmount: vehicle?.taxAmount || undefined as unknown as number,
     },
   })
 
@@ -60,6 +67,9 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           type: values.type,
           engine: values.engine || "",
           fuelCapacity: values.fuelCapacity || 0,
+          taxDueDate: values.taxDueDate || null,
+          taxReminderDays: values.taxReminderDays ?? 30,
+          taxAmount: values.taxAmount ?? 0,
         })
         toast.success(`Kendaraan ${values.name} diperbarui`)
       } else {
@@ -68,6 +78,9 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           type: values.type,
           engine: values.engine || "",
           fuelCapacity: values.fuelCapacity || 0,
+          taxDueDate: values.taxDueDate || undefined,
+          taxReminderDays: values.taxReminderDays ?? 30,
+          taxAmount: values.taxAmount ?? 0,
           image: values.type === "motor" ? "/motorcycle_supra_mockup.png" : "/car_civic_mockup.png",
         })
         toast.success(`${values.name} ditambahkan`)
@@ -141,6 +154,52 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
             </FormItem>
           )}
         />
+        <Separator className="my-2" />
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          Pajak Kendaraan
+        </p>
+        <FormField
+          control={form.control}
+          name="taxDueDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tanggal Jatuh Tempo Pajak</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="taxReminderDays"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pengingat (H-)</FormLabel>
+                <FormControl>
+                  <Input type="number" min={1} max={90} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="taxAmount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nominal (Rp)</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} step="1000" placeholder="500000" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <Button type="submit" size="lg" className="w-full h-12 text-base gap-2" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting ? (
             <>

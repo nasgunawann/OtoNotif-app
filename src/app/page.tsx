@@ -15,6 +15,7 @@ import {
   IconGauge,
   IconChevronRight,
   IconMotorbike,
+  IconReceipt,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -359,6 +360,68 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Tax Status Card */}
+      <Card className="relative overflow-hidden border-none bg-card/50 shadow-sm">
+        <CardContent className="p-3 md:p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={cn(
+              "p-2 rounded-full shrink-0",
+              vehicleHealth?.taxStatus?.status === "danger"
+                ? "bg-red-500/10"
+                : vehicleHealth?.taxStatus?.status === "warning"
+                  ? "bg-orange-500/10"
+                  : "bg-green-500/10",
+            )}>
+              <IconReceipt className={cn(
+                "h-4 w-4 md:h-5 md:w-5",
+                vehicleHealth?.taxStatus?.status === "danger"
+                  ? "text-red-500"
+                  : vehicleHealth?.taxStatus?.status === "warning"
+                    ? "text-orange-500"
+                    : "text-green-500",
+              )} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
+                Pajak Kendaraan
+              </p>
+              <p className="text-xs md:text-sm font-extrabold truncate mt-0.5">
+                {vehicleHealth?.taxStatus?.status === "none" || !vehicleHealth?.taxStatus?.dueDate
+                  ? "Belum diatur"
+                  : vehicleHealth.taxStatus.status === "danger"
+                    ? `Overdue ${Math.abs(vehicleHealth.taxStatus.daysRemaining ?? 0)} hari`
+                    : vehicleHealth.taxStatus.status === "warning"
+                      ? `Jatuh tempo H-${vehicleHealth.taxStatus.daysRemaining}`
+                      : `Lunas — ${vehicleHealth.taxStatus.dueDate}`}
+              </p>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <p className={cn(
+              "text-[10px] md:text-xs font-extrabold",
+              vehicleHealth?.taxStatus?.status === "danger"
+                ? "text-red-500"
+                : vehicleHealth?.taxStatus?.status === "warning"
+                  ? "text-orange-500"
+                  : "text-green-500",
+            )}>
+              {vehicleHealth?.taxStatus?.status === "none" || !vehicleHealth?.taxStatus?.dueDate
+                ? "—"
+                : vehicleHealth.taxStatus.status === "danger"
+                  ? "SEGERA BAYAR"
+                  : vehicleHealth.taxStatus.status === "warning"
+                    ? "SEGERA"
+                    : "AMAN"}
+            </p>
+            {vehicleHealth?.taxStatus != null && vehicleHealth.taxStatus.amount > 0 && (
+              <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium mt-0.5">
+                {formatCompactCurrency(vehicleHealth.taxStatus.amount)}
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Bottom Layout: Component Monitoring & Recent Activity (Side-by-side on Widescreen) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">

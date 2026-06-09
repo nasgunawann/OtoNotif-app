@@ -8,6 +8,10 @@ export interface Vehicle {
   engine: string
   fuelCapacity: number
   isPrimary: boolean
+  taxDueDate: string | null
+  taxReminderDays: number
+  taxAmount: number
+  lastTaxPaidDate: string | null
   createdAt: string
   updatedAt: string
   latestOdo?: number | null
@@ -67,6 +71,8 @@ export interface ComponentHealth {
   status: "safe" | "warning" | "danger"
 }
 
+export type TaxStatusValue = "safe" | "warning" | "danger" | "none"
+
 export interface VehicleHealth {
   vehicle: Vehicle
   latestOdo: number | null
@@ -83,6 +89,13 @@ export interface VehicleHealth {
   monthlyCost?: number
   weeklyOdoDelta?: number
   latestFuelLog?: FuelLog | null
+  taxStatus?: {
+    dueDate: string | null
+    daysRemaining: number | null
+    amount: number
+    lastPaidDate: string | null
+    status: TaxStatusValue
+  }
 }
 
 export type Notification = {
@@ -108,6 +121,10 @@ export interface CreateVehicleInput {
   engine?: string
   fuelCapacity?: number
   isPrimary?: boolean
+  taxDueDate?: string | null
+  taxReminderDays?: number
+  taxAmount?: number
+  lastTaxPaidDate?: string | null
 }
 
 export interface CreateOdometerInput {

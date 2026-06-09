@@ -1,4 +1,4 @@
-CREATE TABLE `components` (
+CREATE TABLE IF NOT EXISTS `components` (
 	`id` text PRIMARY KEY NOT NULL,
 	`vehicle_id` text NOT NULL,
 	`name` text NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `components` (
 	FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `fuel_logs` (
+CREATE TABLE IF NOT EXISTS `fuel_logs` (
 	`id` text PRIMARY KEY NOT NULL,
 	`vehicle_id` text NOT NULL,
 	`date` text NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE `fuel_logs` (
 	FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `maintenance_records` (
+CREATE TABLE IF NOT EXISTS `maintenance_records` (
 	`id` text PRIMARY KEY NOT NULL,
 	`vehicle_id` text NOT NULL,
 	`component_id` text,
@@ -37,7 +37,7 @@ CREATE TABLE `maintenance_records` (
 	FOREIGN KEY (`component_id`) REFERENCES `components`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `odometer_readings` (
+CREATE TABLE IF NOT EXISTS `odometer_readings` (
 	`id` text PRIMARY KEY NOT NULL,
 	`vehicle_id` text NOT NULL,
 	`reading` integer NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE `odometer_readings` (
 	FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `vehicles` (
+CREATE TABLE IF NOT EXISTS `vehicles` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`type` text NOT NULL,
@@ -55,6 +55,10 @@ CREATE TABLE `vehicles` (
 	`engine` text DEFAULT '' NOT NULL,
 	`fuel_capacity` real DEFAULT 0 NOT NULL,
 	`is_primary` integer DEFAULT false NOT NULL,
+	`tax_due_date` text,
+	`tax_reminder_days` integer DEFAULT 30,
+	`tax_amount` real DEFAULT 0,
+	`last_tax_paid_date` text,
 	`created_at` text NOT NULL,
 	`updated_at` text NOT NULL
 );
