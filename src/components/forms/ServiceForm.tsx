@@ -49,7 +49,8 @@ type Props = {
 }
 
 export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaultDescription, onSuccess }: Props) {
-  const { createMaintenanceRecord } = useVehicleStore()
+  const { createMaintenanceRecord, vehicleHealth } = useVehicleStore()
+  const latestOdo = vehicleHealth?.latestOdo ?? 0
   const [components, setComponents] = useState<Component[]>([])
 
   useEffect(() => {
@@ -145,8 +146,11 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
               <FormItem>
                 <FormLabel>Odometer</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="12500" {...field} />
+                  <Input type="number" placeholder="12.500" {...field} />
                 </FormControl>
+                <p className="text-[10px] text-muted-foreground">
+                  Odometer saat ini: <span className="font-semibold text-foreground">{latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}</span> km
+                </p>
                 <FormMessage />
               </FormItem>
             )}

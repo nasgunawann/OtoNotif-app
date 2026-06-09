@@ -42,7 +42,8 @@ type Props = {
 }
 
 export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
-  const { createFuelLog } = useVehicleStore()
+  const { createFuelLog, vehicleHealth } = useVehicleStore()
+  const latestOdo = vehicleHealth?.latestOdo ?? 0
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -150,8 +151,11 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
             <FormItem>
               <FormLabel>Odometer (opsional)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="12500" {...field} />
+                <Input type="number" placeholder="12.500" {...field} />
               </FormControl>
+              <p className="text-[10px] text-muted-foreground">
+                Odometer saat ini: <span className="font-semibold text-foreground">{latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}</span> km
+              </p>
               <FormMessage />
             </FormItem>
           )}

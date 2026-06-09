@@ -67,6 +67,8 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
     }
   }
 
+  const displayOdo = latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -77,8 +79,12 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
             <FormItem>
               <FormLabel>Odometer (km)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="12500" {...field} />
+                <Input type="number" placeholder="12.500" {...field} />
               </FormControl>
+              <p className="text-[10px] text-muted-foreground">
+                Odometer saat ini: <span className="font-semibold text-foreground">{displayOdo}</span> km
+                {latestOdo > 0 && " — isi angka yang lebih besar dari odometer saat ini"}
+              </p>
               <FormMessage />
             </FormItem>
           )}
