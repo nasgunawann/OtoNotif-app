@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { IconDroplet, IconTool, IconTrash, IconGauge } from "@tabler/icons-react"
+import { IconDroplet, IconTool, IconTrash, IconGauge, IconCoin, IconCar } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
 import type { FuelLog, MaintenanceRecord, OdometerReading } from "@/lib/types"
@@ -17,12 +17,31 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
+import Link from "next/link"
 
 type HistoryItem = (
   | (FuelLog & { type: "fuel" })
   | (MaintenanceRecord & { type: "maintenance" })
   | (OdometerReading & { type: "odometer" })
 )
+
+const MONTH_NAMES: Record<string, string> = {
+  "01": "Januari", "02": "Februari", "03": "Maret", "04": "April",
+  "05": "Mei", "06": "Juni", "07": "Juli", "08": "Agustus",
+  "09": "September", "10": "Oktober", "11": "November", "12": "Desember",
+}
+
+const MONTH_ORDER = ["Bulan Ini", "Bulan Lalu"]
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00")
+  const day = d.getDate()
+  const mon = MONTH_NAMES[String(d.getMonth() + 1).padStart(2, "0")] || ""
+  const year = d.getFullYear()
+  const now = new Date()
+  const isThisYear = year === now.getFullYear()
+  return `${day} ${mon}${isThisYear ? "" : ` ${year}`}`
+}
 
 function getMonthKey(dateStr: string): string {
   const now = new Date()
@@ -36,14 +55,20 @@ function getMonthKey(dateStr: string): string {
 }
 
 function getMonthLabel(key: string): string {
-  const names: Record<string, string> = {
-    "Bulan Ini": "Bulan Ini",
-    "Bulan Lalu": "Bulan Lalu",
-  }
-  return names[key] || key
+  if (key === "Bulan Ini") return "Bulan Ini"
+  if (key === "Bulan Lalu") return "Bulan Lalu"
+  const [year, month] = key.split("-")
+  return `${MONTH_NAMES[month] || month} ${year}`
 }
 
-const MONTH_ORDER = ["Bulan Ini", "Bulan Lalu"]
+function formatMonthTotalCost(items: HistoryItem[]): { fuel: number; maint: number } {
+  let fuel = 0, maint = 0
+  for (const item of items) {
+    if (item.type === "fuel") fuel += item.amount ?? 0
+    else if (item.type === "maintenance") maint += item.cost ?? 0
+  }
+  return { fuel, maint }
+}
 
 function monthSortKey(a: string, b: string): number {
   const ai = MONTH_ORDER.indexOf(a)
@@ -134,6 +159,12 @@ export default function HistoryPage() {
   const sortedMonths = Object.keys(groups).sort(monthSortKey)
   const hasData = allItems.length > 0
 
+  const formatCurrency = (v: number) => {
+    if (v >= 1_000_000) return `Rp ${(v / 1_000_000).toFixed(1).replace(".", ",").replace(",0", "")} jt`
+    if (v >= 1_000) return `Rp ${(v / 1_000).toLocaleString("id-ID")} rb`
+    return `Rp ${v.toLocaleString("id-ID")}`
+  }
+
   return (
     <motion.div initial="initial" animate="animate" variants={fadeUp} className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -171,18 +202,44 @@ export default function HistoryPage() {
           {[1, 2].map((i) => (<div key={i} className="h-48 bg-muted rounded-xl" />))}
         </div>
       ) : !hasData ? (
-        <Card className="p-12 text-center">
-          <p className="text-muted-foreground">Belum ada riwayat.</p>
+        <Card className="p-12 text-center border-dashed">
+          <IconGauge className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm font-bold mb-1">Belum Ada Riwayat</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Catat pengisian BBM, servis, atau update odometer untuk mulai melihat riwayat.
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button size="sm" className="text-xs font-bold gap-1 rounded-full" asChild>
+              <Link href="/vehicles"><IconCar className="h-3.5 w-3.5" /> Pilih Kendaraan</Link>
+            </Button>
+          </div>
         </Card>
       ) : (
         <div className="space-y-4">
           {sortedMonths.map((month) => {
             const items = groups[month]
+            const costs = formatMonthTotalCost(items)
+            const totalCost = costs.fuel + costs.maint
             return (
               <Card key={month}>
-                <CardHeader><CardTitle>{getMonthLabel(month)}</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="space-y-5">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">{getMonthLabel(month)}</CardTitle>
+                    {totalCost > 0 && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <IconCoin className="h-3.5 w-3.5" />
+                        <span className="font-semibold text-foreground">{formatCurrency(totalCost)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                    <span>{items.length} catatan</span>
+                    {costs.fuel > 0 && <span>• BBM {formatCurrency(costs.fuel)}</span>}
+                    {costs.maint > 0 && <span>• Servis {formatCurrency(costs.maint)}</span>}
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <div className="space-y-3">
                     {items.map((item) => {
                       const vehicle = vehicles.find((v) => v.id === item.vehicleId)
                       const vehicleName = vehicle ? vehicle.name : "Kendaraan"
@@ -196,42 +253,44 @@ export default function HistoryPage() {
                       const odoItem = isOdo ? (item as OdometerReading & { type: "odometer" }) : null
                       const delta = odoItem ? odoDeltas.get(odoItem.id) || 0 : 0
 
-                      const title = isFuel ? `Isi Bensin (${item.fuelType})` : isMaint ? item.description : `${odoItem!.reading.toLocaleString("id-ID")} km`
+                      const title = isFuel ? item.fuelType : isMaint ? item.description : `${odoItem!.reading.toLocaleString("id-ID")} km`
                       const cost = isFuel ? `Rp ${item.amount.toLocaleString("id-ID")}` : isMaint && item.cost ? `Rp ${item.cost.toLocaleString("id-ID")}` : ""
                       const subtitle = isFuel ? `${item.liters} L` : ""
 
                       return (
-                        <div key={item.id} className="flex gap-3 items-center group">
-                          <div className={`h-9 w-9 shrink-0 flex items-center justify-center rounded-full ${iconBg}`}>
+                        <div key={item.id} className="flex gap-2.5 items-start">
+                          <div className={`h-8 w-8 shrink-0 flex items-center justify-center rounded-full ${iconBg} mt-0.5`}>
                             <Icon className={`h-4 w-4 ${iconColor}`} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-medium text-sm truncate">{title}</span>
-                              {delta > 0 && <span className="text-[9px] font-bold text-emerald-600">+{delta.toLocaleString("id-ID")} km</span>}
-                              <Badge variant="outline" className="text-[8px] py-0 px-1 h-3.5 rounded-full font-bold">{vehicleName}</Badge>
+                              <span className="font-medium text-xs truncate">{title}</span>
+                              {delta > 0 && <span className="text-[8px] font-bold text-emerald-600">+{delta.toLocaleString("id-ID")}</span>}
                             </div>
-                            <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
-                              <span>{subtitle}</span>
-                              <div className="flex items-center gap-2">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+                                <span>{subtitle}</span>
                                 {cost && <span className="font-medium">{cost}</span>}
-                                <span>{item.date}</span>
+                                <Badge variant="outline" className="text-[7px] py-0 px-1 h-3 rounded-full font-bold">{vehicleName}</Badge>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] text-muted-foreground">{formatDate(item.date)}</span>
+                                <button type="button" className="text-muted-foreground/30 hover:text-red-500 transition-colors p-0.5"
+                                  onClick={async () => {
+                                    if (confirm(`Hapus catatan ini?`)) {
+                                      try {
+                                        if (isFuel) { await api.deleteFuelLog(item.id); setFuelLogs(p => p.filter(x => x.id !== item.id)) }
+                                        else if (isMaint) { await api.deleteMaintenanceRecord(item.id); setMaintenance(p => p.filter(x => x.id !== item.id)) }
+                                        else { await api.deleteOdometerReading(item.id); setOdometerReadings(p => p.filter(x => x.id !== item.id)) }
+                                        toast.success("Catatan berhasil dihapus")
+                                      } catch { toast.error("Gagal menghapus") }
+                                    }
+                                  }}>
+                                  <IconTrash className="h-3 w-3" />
+                                </button>
                               </div>
                             </div>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-red-500 rounded-full shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={async () => {
-                              if (confirm(`Hapus catatan ini?`)) {
-                                try {
-                                  if (isFuel) { await api.deleteFuelLog(item.id); setFuelLogs(p => p.filter(x => x.id !== item.id)) }
-                                  else if (isMaint) { await api.deleteMaintenanceRecord(item.id); setMaintenance(p => p.filter(x => x.id !== item.id)) }
-                                  else { await api.deleteOdometerReading(item.id); setOdometerReadings(p => p.filter(x => x.id !== item.id)) }
-                                  toast.success("Catatan berhasil dihapus")
-                                } catch { toast.error("Gagal menghapus") }
-                              }
-                            }}>
-                            <IconTrash className="h-3.5 w-3.5" />
-                          </Button>
                         </div>
                       )
                     })}
