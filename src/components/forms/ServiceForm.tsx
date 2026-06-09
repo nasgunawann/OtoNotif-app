@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,24 +12,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { NumberInput } from "@/components/ui/number-input"
-import { InputGroup, InputGroupAddon, InputGroupText } from "@/components/ui/input-group"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { toast } from "sonner"
-import { useVehicleStore } from "@/lib/store/use-vehicle-store"
-import { api } from "@/lib/services/api"
-import { IconLoader2 } from "@tabler/icons-react"
-import { useState } from "react"
-import type { Component } from "@/lib/types"
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { useVehicleStore } from "@/lib/store/use-vehicle-store";
+import { api } from "@/lib/services/api";
+import { IconLoader2 } from "@tabler/icons-react";
+import { useState } from "react";
+import type { Component } from "@/lib/types";
 
 const formSchema = z.object({
   componentId: z.string().optional(),
@@ -38,26 +42,35 @@ const formSchema = z.object({
   date: z.string().min(1, "Tanggal harus diisi"),
   odoReading: z.coerce.number().optional(),
   notes: z.string().optional(),
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 type Props = {
-  vehicleId: string
-  vehicleName: string
-  defaultComponentId?: string
-  defaultDescription?: string
-  onSuccess?: () => void
-}
+  vehicleId: string;
+  vehicleName: string;
+  defaultComponentId?: string;
+  defaultDescription?: string;
+  onSuccess?: () => void;
+};
 
-export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaultDescription, onSuccess }: Props) {
-  const { createMaintenanceRecord, vehicleHealth } = useVehicleStore()
-  const latestOdo = vehicleHealth?.latestOdo ?? 0
-  const [components, setComponents] = useState<Component[]>([])
+export function ServiceForm({
+  vehicleId,
+  vehicleName,
+  defaultComponentId,
+  defaultDescription,
+  onSuccess,
+}: Props) {
+  const { createMaintenanceRecord, vehicleHealth } = useVehicleStore();
+  const latestOdo = vehicleHealth?.latestOdo ?? 0;
+  const [components, setComponents] = useState<Component[]>([]);
 
   useEffect(() => {
-    api.getComponents(vehicleId).then(setComponents).catch(() => {})
-  }, [vehicleId])
+    api
+      .getComponents(vehicleId)
+      .then(setComponents)
+      .catch(() => {});
+  }, [vehicleId]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -69,7 +82,7 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
       odoReading: undefined,
       notes: "",
     },
-  })
+  });
 
   async function onSubmit(values: FormValues) {
     try {
@@ -81,11 +94,11 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
         date: values.date,
         odoReading: values.odoReading || 0,
         notes: values.notes || "",
-      })
-      toast.success(`Servis ${vehicleName} tersimpan`)
-      onSuccess?.()
+      });
+      toast.success(`Servis ${vehicleName} tersimpan`);
+      onSuccess?.();
     } catch {
-      toast.error("Gagal menyimpan servis")
+      toast.error("Gagal menyimpan servis");
     }
   }
 
@@ -110,7 +123,7 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
           name="componentId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Komponen (opsional)</FormLabel>
+              <FormLabel>Komponen</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -119,7 +132,9 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
                 </FormControl>
                 <SelectContent>
                   {components.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -139,7 +154,11 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
                     <InputGroupAddon align="inline-start">
                       <InputGroupText>Rp</InputGroupText>
                     </InputGroupAddon>
-                    <NumberInput placeholder="150.000" value={field.value} onChange={field.onChange} />
+                    <NumberInput
+                      placeholder="150.000"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   </InputGroup>
                 </FormControl>
                 <FormMessage />
@@ -154,14 +173,22 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
                 <FormLabel>Odometer</FormLabel>
                 <FormControl>
                   <InputGroup>
-                    <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
+                    <NumberInput
+                      placeholder="12.500"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                     <InputGroupAddon align="inline-end">
                       <InputGroupText>km</InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
                 </FormControl>
                 <p className="text-[10px] text-muted-foreground">
-                  Odometer saat ini: <span className="font-semibold text-foreground">{latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}</span> km
+                  Odometer saat ini:{" "}
+                  <span className="font-semibold text-foreground">
+                    {latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"}
+                  </span>{" "}
+                  km
                 </p>
                 <FormMessage />
               </FormItem>
@@ -194,7 +221,12 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full h-12 text-base gap-2" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full h-12 text-base gap-2"
+          disabled={form.formState.isSubmitting}
+        >
           {form.formState.isSubmitting ? (
             <>
               <IconLoader2 className="h-4 w-4 animate-spin" />
@@ -206,5 +238,5 @@ export function ServiceForm({ vehicleId, vehicleName, defaultComponentId, defaul
         </Button>
       </form>
     </Form>
-  )
+  );
 }

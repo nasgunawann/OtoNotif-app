@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,31 +11,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { NumberInput } from "@/components/ui/number-input"
-import { InputGroup, InputGroupAddon, InputGroupText } from "@/components/ui/input-group"
-import { toast } from "sonner"
-import { useVehicleStore } from "@/lib/store/use-vehicle-store"
-import { IconLoader2 } from "@tabler/icons-react"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import { toast } from "sonner";
+import { useVehicleStore } from "@/lib/store/use-vehicle-store";
+import { IconLoader2 } from "@tabler/icons-react";
+import { Textarea } from "../ui/textarea";
 
 const formSchema = z.object({
   reading: z.coerce.number().int().min(1, "Odometer harus diisi"),
   date: z.string().min(1, "Tanggal harus diisi"),
   notes: z.string().optional(),
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 type Props = {
-  vehicleId: string
-  vehicleName: string
-  onSuccess?: () => void
-}
+  vehicleId: string;
+  vehicleName: string;
+  onSuccess?: () => void;
+};
 
 export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
-  const { createOdometerReading, vehicleHealth } = useVehicleStore()
-  const latestOdo = vehicleHealth?.latestOdo ?? 0
+  const { createOdometerReading, vehicleHealth } = useVehicleStore();
+  const latestOdo = vehicleHealth?.latestOdo ?? 0;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -44,15 +49,15 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
       date: new Date().toISOString().split("T")[0],
       notes: "",
     },
-  })
+  });
 
   async function onSubmit(values: FormValues) {
     if (latestOdo > 0 && values.reading <= latestOdo) {
       form.setError("reading", {
         type: "manual",
         message: `Odometer baru harus lebih besar dari odometer saat ini (${latestOdo.toLocaleString()} km)`,
-      })
-      return
+      });
+      return;
     }
 
     try {
@@ -61,15 +66,15 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
         reading: values.reading,
         date: values.date,
         notes: values.notes || "",
-      })
-      toast.success(`Odometer ${vehicleName} diperbarui`)
-      onSuccess?.()
+      });
+      toast.success(`Odometer ${vehicleName} diperbarui`);
+      onSuccess?.();
     } catch {
-      toast.error("Gagal menyimpan odometer")
+      toast.error("Gagal menyimpan odometer");
     }
   }
 
-  const displayOdo = latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—"
+  const displayOdo = latestOdo > 0 ? latestOdo.toLocaleString("id-ID") : "—";
 
   return (
     <Form {...form}>
@@ -82,15 +87,24 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
               <FormLabel>Odometer</FormLabel>
               <FormControl>
                 <InputGroup>
-                  <NumberInput placeholder="12.500" value={field.value} onChange={field.onChange} />
+                  <NumberInput
+                    placeholder="12.500"
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                   <InputGroupAddon align="inline-end">
                     <InputGroupText>km</InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
-                Odometer saat ini: <span className="font-semibold text-foreground">{displayOdo}</span> km
-                {latestOdo > 0 && " — isi angka yang lebih besar dari odometer saat ini"}
+                Odometer saat ini:{" "}
+                <span className="font-semibold text-foreground">
+                  {displayOdo}
+                </span>{" "}
+                km
+                {latestOdo > 0 &&
+                  " — isi angka yang lebih besar dari odometer saat ini"}
               </p>
               <FormMessage />
             </FormItem>
@@ -116,13 +130,21 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
             <FormItem>
               <FormLabel>Catatan (opsional)</FormLabel>
               <FormControl>
-                <Input placeholder="Isi bensin, servis, dll" {...field} />
+                <Textarea
+                  placeholder="Dari rumah ke kantor, dll..."
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full h-12 text-base gap-2" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full h-12 text-base gap-2"
+          disabled={form.formState.isSubmitting}
+        >
           {form.formState.isSubmitting ? (
             <>
               <IconLoader2 className="h-4 w-4 animate-spin" />
@@ -134,5 +156,5 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
         </Button>
       </form>
     </Form>
-  )
+  );
 }
