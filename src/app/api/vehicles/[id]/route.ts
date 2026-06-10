@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const vehicle = await db.select().from(vehicles).where(eq(vehicles.id, id)).get();
+  const [vehicle] = await db.select().from(vehicles).where(eq(vehicles.id, id)).limit(1);
 
   if (!vehicle) {
     return Response.json({ error: "Vehicle not found" }, { status: 404 });
@@ -24,7 +24,7 @@ export async function PATCH(
   const body = await request.json();
   const now = new Date().toISOString();
 
-  const existing = await db.select().from(vehicles).where(eq(vehicles.id, id)).get();
+  const [existing] = await db.select().from(vehicles).where(eq(vehicles.id, id)).limit(1);
   if (!existing) {
     return Response.json({ error: "Vehicle not found" }, { status: 404 });
   }
@@ -41,7 +41,7 @@ export async function PATCH(
     .set({ ...body, updatedAt: now })
     .where(eq(vehicles.id, id));
 
-  const updated = await db.select().from(vehicles).where(eq(vehicles.id, id)).get();
+  const [updated] = await db.select().from(vehicles).where(eq(vehicles.id, id)).limit(1);
   return Response.json({ data: updated });
 }
 

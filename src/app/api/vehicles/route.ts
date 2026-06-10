@@ -5,7 +5,7 @@ import { getLatestOdometer } from "@/lib/odometer";
 import { requireFields } from "@/lib/api-validate";
 
 export async function GET() {
-  const all = await db.select().from(vehicles).orderBy(desc(vehicles.createdAt)).all();
+  const all = await db.select().from(vehicles).orderBy(desc(vehicles.createdAt));
   const data = await Promise.all(
     all.map(async (v) => {
       const latest = await getLatestOdometer(v.id);

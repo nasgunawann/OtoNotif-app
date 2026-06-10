@@ -3,7 +3,7 @@ import { vehicles, odometerReadings, components } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 export async function GET() {
-  const allVehicles = await db.select().from(vehicles).all();
+  const allVehicles = await db.select().from(vehicles);
   const notifications: Array<{
     id: string;
     title: string;
@@ -13,18 +13,17 @@ export async function GET() {
   }> = [];
 
   for (const v of allVehicles) {
-    const latestOdo = await db
+    const [latestOdo] = await db
       .select()
       .from(odometerReadings)
       .where(eq(odometerReadings.vehicleId, v.id))
       .orderBy(desc(odometerReadings.date))
-      .get();
+      .limit(1);
 
     const comps = await db
       .select()
       .from(components)
-      .where(eq(components.vehicleId, v.id))
-      .all();
+      .where(eq(components.vehicleId, v.id));
 
     for (const comp of comps) {
       const currentOdo = latestOdo?.reading ?? comp.lastReplacedOdo ?? 0;

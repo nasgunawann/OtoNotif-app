@@ -1,16 +1,12 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
-import path from "path";
 
-const dbPath = process.env.DATABASE_URL
-  ? process.env.DATABASE_URL.replace("file:", "")
-  : path.join(process.cwd(), "otonotif.db");
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-const sqlite = new Database(dbPath);
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("foreign_keys = ON");
+const db = drizzle(pool, { schema });
 
-const db = drizzle(sqlite, { schema });
-
+export { pool, db };
 export default db;

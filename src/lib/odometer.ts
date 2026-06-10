@@ -4,26 +4,26 @@ import type { FuelLog } from "@/lib/types";
 import { eq, desc, and, lte, sql } from "drizzle-orm";
 
 export async function getLatestOdometer(vehicleId: string): Promise<{ reading: number; date: string | null }> {
-  const latestOdoRecord = await db
+  const [latestOdoRecord] = await db
     .select()
     .from(odometerReadings)
     .where(eq(odometerReadings.vehicleId, vehicleId))
     .orderBy(desc(odometerReadings.date), desc(odometerReadings.reading))
-    .get();
+    .limit(1);
 
-  const latestFuelLog = await db
+  const [latestFuelLog] = await db
     .select()
     .from(fuelLogs)
     .where(eq(fuelLogs.vehicleId, vehicleId))
     .orderBy(desc(fuelLogs.date), desc(fuelLogs.odoReading))
-    .get();
+    .limit(1);
 
-  const latestMaintRecord = await db
+  const [latestMaintRecord] = await db
     .select()
     .from(maintenanceRecords)
     .where(eq(maintenanceRecords.vehicleId, vehicleId))
     .orderBy(desc(maintenanceRecords.date), desc(maintenanceRecords.odoReading))
-    .get();
+    .limit(1);
 
   let reading = latestOdoRecord?.reading ?? 0;
   let date = latestOdoRecord?.date ?? null;
@@ -46,26 +46,26 @@ export async function getWeeklyOdometerDelta(vehicleId: string, currentOdo: numb
   const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
   const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0];
 
-  const odoBefore = await db
+  const [odoBefore] = await db
     .select()
     .from(odometerReadings)
     .where(and(eq(odometerReadings.vehicleId, vehicleId), lte(odometerReadings.date, sevenDaysAgoStr)))
     .orderBy(desc(odometerReadings.date), desc(odometerReadings.reading))
-    .get();
+    .limit(1);
   
-  const fuelBefore = await db
+  const [fuelBefore] = await db
     .select()
     .from(fuelLogs)
     .where(and(eq(fuelLogs.vehicleId, vehicleId), lte(fuelLogs.date, sevenDaysAgoStr)))
     .orderBy(desc(fuelLogs.date), desc(fuelLogs.odoReading))
-    .get();
+    .limit(1);
 
-  const maintBefore = await db
+  const [maintBefore] = await db
     .select()
     .from(maintenanceRecords)
     .where(and(eq(maintenanceRecords.vehicleId, vehicleId), lte(maintenanceRecords.date, sevenDaysAgoStr)))
     .orderBy(desc(maintenanceRecords.date), desc(maintenanceRecords.odoReading))
-    .get();
+    .limit(1);
 
   let pastOdo = 0;
 
@@ -75,26 +75,26 @@ export async function getWeeklyOdometerDelta(vehicleId: string, currentOdo: numb
 
   if (pastOdo === 0) {
     // If no record is older than 7 days, find the earliest record overall
-    const firstOdo = await db
+    const [firstOdo] = await db
       .select()
       .from(odometerReadings)
       .where(eq(odometerReadings.vehicleId, vehicleId))
       .orderBy(odometerReadings.date, odometerReadings.reading)
-      .get();
+      .limit(1);
     
-    const firstFuel = await db
+    const [firstFuel] = await db
       .select()
       .from(fuelLogs)
       .where(eq(fuelLogs.vehicleId, vehicleId))
       .orderBy(fuelLogs.date, fuelLogs.odoReading)
-      .get();
+      .limit(1);
 
-    const firstMaint = await db
+    const [firstMaint] = await db
       .select()
       .from(maintenanceRecords)
       .where(eq(maintenanceRecords.vehicleId, vehicleId))
       .orderBy(maintenanceRecords.date, maintenanceRecords.odoReading)
-      .get();
+      .limit(1);
 
     let earliestOdo = currentOdo;
     if (firstOdo) earliestOdo = Math.min(earliestOdo, firstOdo.reading);
@@ -123,8 +123,7 @@ export async function getFuelStats(
     .select()
     .from(fuelLogs)
     .where(eq(fuelLogs.vehicleId, vehicleId))
-    .orderBy(desc(fuelLogs.date), desc(fuelLogs.odoReading))
-    .all();
+    .orderBy(desc(fuelLogs.date), desc(fuelLogs.odoReading));
 
   if (logs.length === 0) {
     return {
@@ -183,14 +182,12 @@ export async function getMonthlyOperatingCost(vehicleId: string): Promise<number
   const fuelLogsInMonth = await db
     .select()
     .from(fuelLogs)
-    .where(and(eq(fuelLogs.vehicleId, vehicleId), sql`${fuelLogs.date} LIKE ${currentYearMonth + "-%"}`))
-    .all();
+    .where(and(eq(fuelLogs.vehicleId, vehicleId), sql`${fuelLogs.date} LIKE ${currentYearMonth + "-%"}`));
 
   const maintRecordsInMonth = await db
     .select()
     .from(maintenanceRecords)
-    .where(and(eq(maintenanceRecords.vehicleId, vehicleId), sql`${maintenanceRecords.date} LIKE ${currentYearMonth + "-%"}`))
-    .all();
+    .where(and(eq(maintenanceRecords.vehicleId, vehicleId), sql`${maintenanceRecords.date} LIKE ${currentYearMonth + "-%"}`));
 
   const fuelCost = fuelLogsInMonth.reduce((sum, log) => sum + (log.amount ?? 0), 0);
   const maintCost = maintRecordsInMonth.reduce((sum, record) => sum + (record.cost ?? 0), 0);

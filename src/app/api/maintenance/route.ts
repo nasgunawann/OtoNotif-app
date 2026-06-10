@@ -13,15 +13,14 @@ export async function GET(request: Request) {
       .from(maintenanceRecords)
       .where(eq(maintenanceRecords.vehicleId, vehicleId))
       .orderBy(desc(maintenanceRecords.date))
-      .all();
+      ;
     return Response.json({ data: records });
   }
 
   const all = await db
     .select()
     .from(maintenanceRecords)
-    .orderBy(desc(maintenanceRecords.date))
-    .all();
+    .orderBy(desc(maintenanceRecords.date));
 
   return Response.json({ data: all });
 }

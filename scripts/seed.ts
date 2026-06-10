@@ -1,11 +1,11 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../src/db/schema";
-import path from "path";
 
-const dbPath = path.join(process.cwd(), "otonotif.db");
-const sqlite = new Database(dbPath);
-const db = drizzle(sqlite, { schema });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/otonotif",
+});
+const db = drizzle(pool, { schema });
 
 const now = new Date().toISOString();
 
@@ -46,7 +46,7 @@ async function seed() {
   ]);
 
   console.log("Seed complete!");
-  sqlite.close();
+  await pool.end();
 }
 
 seed().catch(console.error);

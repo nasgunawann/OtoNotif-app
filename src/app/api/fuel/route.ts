@@ -13,11 +13,11 @@ export async function GET(request: Request) {
       .from(fuelLogs)
       .where(eq(fuelLogs.vehicleId, vehicleId))
       .orderBy(desc(fuelLogs.date))
-      .all();
+      ;
     return Response.json({ data: logs });
   }
 
-  const all = await db.select().from(fuelLogs).orderBy(desc(fuelLogs.date)).all();
+  const all = await db.select().from(fuelLogs).orderBy(desc(fuelLogs.date));
   return Response.json({ data: all });
 }
 

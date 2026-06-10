@@ -11,11 +11,11 @@ export async function GET(request: Request) {
     return Response.json({ error: "vehicleId is required" }, { status: 400 });
   }
 
-  const vehicle = await db
+  const [vehicle] = await db
     .select()
     .from(vehicles)
     .where(eq(vehicles.id, vehicleId))
-    .get();
+    .limit(1);
 
   if (!vehicle) {
     return Response.json({ error: "Vehicle not found" }, { status: 404 });
@@ -28,8 +28,7 @@ export async function GET(request: Request) {
   const comps = await db
     .select()
     .from(components)
-    .where(eq(components.vehicleId, vehicleId))
-    .all();
+    .where(eq(components.vehicleId, vehicleId));
 
   let dangerCount = 0;
   let warningCount = 0;

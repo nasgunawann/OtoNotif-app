@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     .select()
     .from(components)
     .where(eq(components.vehicleId, vehicleId))
-    .all();
+    ;
 
   return Response.json({ data: comps });
 }

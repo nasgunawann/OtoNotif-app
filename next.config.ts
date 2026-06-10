@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
 
   allowedDevOrigins: ["192.168.1.10"],
 
-  serverExternalPackages: ["better-sqlite3"],
+  serverExternalPackages: ["pg"],
 };
 
 console.log(`> Build Output Mode: ${nextConfig.output ?? "standard"}`);

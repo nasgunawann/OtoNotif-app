@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     .from(odometerReadings)
     .where(eq(odometerReadings.vehicleId, vehicleId))
     .orderBy(desc(odometerReadings.date))
-    .all();
+    ;
 
   return Response.json({ data: readings });
 }

@@ -1,4 +1,19 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: otonotif-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: otonotif
+    ports:
+      - "5432:5432"
+    volumes:
+      - otonotif-pgdata:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - default
+
   web:
     build:
       context: .
@@ -12,16 +27,16 @@ services:
       - PORT=3000
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
-      - DATABASE_URL=file:./data/otonotif.db
-    volumes:
-      - otonotif-data:/app/data
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/otonotif
+    depends_on:
+      - db
     restart: always
     networks:
       - default
       - proxy-net
 
 volumes:
-  otonotif-data:
+  otonotif-pgdata:
 
 networks:
   proxy-net:

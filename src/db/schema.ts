@@ -1,23 +1,23 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, boolean, doublePrecision } from "drizzle-orm/pg-core";
 
-export const vehicles = sqliteTable("vehicles", {
+export const vehicles = pgTable("vehicles", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
-  type: text("type", { enum: ["motor", "mobil"] }).notNull(),
+  type: text("type").notNull(),
   image: text("image").notNull().default(""),
   engine: text("engine").notNull().default(""),
-  fuelCapacity: real("fuel_capacity").notNull().default(0),
-  isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(false),
+  fuelCapacity: doublePrecision("fuel_capacity").notNull().default(0),
+  isPrimary: boolean("is_primary").notNull().default(false),
   taxDueDate: text("tax_due_date"),
   taxReminderDays: integer("tax_reminder_days").default(30),
   taxIntervalYears: integer("tax_interval_years").default(1),
-  taxAmount: real("tax_amount").default(0),
+  taxAmount: doublePrecision("tax_amount").default(0),
   lastTaxPaidDate: text("last_tax_paid_date"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
 
-export const odometerReadings = sqliteTable("odometer_readings", {
+export const odometerReadings = pgTable("odometer_readings", {
   id: text("id").primaryKey(),
   vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
   reading: integer("reading").notNull(),
@@ -26,21 +26,21 @@ export const odometerReadings = sqliteTable("odometer_readings", {
   createdAt: text("created_at").notNull(),
 });
 
-export const fuelLogs = sqliteTable("fuel_logs", {
+export const fuelLogs = pgTable("fuel_logs", {
   id: text("id").primaryKey(),
   vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
   date: text("date").notNull(),
-  liters: real("liters").notNull(),
-  amount: real("amount").notNull(),
+  liters: doublePrecision("liters").notNull(),
+  amount: doublePrecision("amount").notNull(),
   fuelType: text("fuel_type").notNull(),
   odoReading: integer("odo_reading").default(0),
-  isFull: integer("is_full", { mode: "boolean" }).default(false),
-  kmPerLiter: real("km_per_liter"),
+  isFull: boolean("is_full").default(false),
+  kmPerLiter: doublePrecision("km_per_liter"),
   notes: text("notes").default(""),
   createdAt: text("created_at").notNull(),
 });
 
-export const components = sqliteTable("components", {
+export const components = pgTable("components", {
   id: text("id").primaryKey(),
   vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
   name: text("name").notNull(),
@@ -51,13 +51,13 @@ export const components = sqliteTable("components", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const maintenanceRecords = sqliteTable("maintenance_records", {
+export const maintenanceRecords = pgTable("maintenance_records", {
   id: text("id").primaryKey(),
   vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
   componentId: text("component_id").references(() => components.id),
   date: text("date").notNull(),
   description: text("description").notNull(),
-  cost: real("cost").default(0),
+  cost: doublePrecision("cost").default(0),
   odoReading: integer("odo_reading").default(0),
   notes: text("notes").default(""),
   createdAt: text("created_at").notNull(),
