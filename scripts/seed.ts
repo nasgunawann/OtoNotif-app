@@ -8,6 +8,7 @@ const pool = new Pool({
 const db = drizzle(pool, { schema });
 
 const now = new Date().toISOString();
+const nowPg = new Date();
 
 const motorId = crypto.randomUUID();
 const mobilId = crypto.randomUUID();
@@ -15,9 +16,20 @@ const mobilId = crypto.randomUUID();
 async function seed() {
   console.log("Seeding database...");
 
+  const demoUserId = crypto.randomUUID()
+  await db.insert(schema.user).values({
+    id: demoUserId,
+    name: "Demo User",
+    email: "demo@otonotif.app",
+    emailVerified: false,
+    image: null,
+    createdAt: nowPg,
+    updatedAt: nowPg,
+  })
+
   await db.insert(schema.vehicles).values([
-    { id: motorId, name: "Supra Bapak", type: "motor", image: "/motorcycle_supra_mockup.png", engine: "125cc", fuelCapacity: 4, isPrimary: true, createdAt: now, updatedAt: now },
-    { id: mobilId, name: "Civic Turbo", type: "mobil", image: "/car_civic_mockup.png", engine: "1500cc Turbo", fuelCapacity: 47, isPrimary: false, createdAt: now, updatedAt: now },
+    { id: motorId, userId: demoUserId, name: "Supra Bapak", type: "motor", image: "/motorcycle_supra_mockup.png", engine: "125cc", fuelCapacity: 4, isPrimary: true, createdAt: now, updatedAt: now },
+    { id: mobilId, userId: demoUserId, name: "Civic Turbo", type: "mobil", image: "/car_civic_mockup.png", engine: "1500cc Turbo", fuelCapacity: 47, isPrimary: false, createdAt: now, updatedAt: now },
   ]);
 
   await db.insert(schema.odometerReadings).values([

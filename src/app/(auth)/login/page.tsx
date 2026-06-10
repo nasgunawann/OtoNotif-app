@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { signIn } from "@/lib/auth-client"
 import { IconBrandGoogle } from "@tabler/icons-react"
 
 export default function LoginPage() {
@@ -36,12 +37,18 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    toast.error("Fitur login akan tersedia setelah auth backend dipasang.")
-    setLoading(false)
+    const { error } = await signIn.email({ email, password })
+    if (error) {
+      toast.error(error.message || "Email atau password salah")
+      setLoading(false)
+      return
+    }
+    setIsDemo(false)
+    router.push("/")
   }
 
   const handleGoogle = async () => {
-    toast.error("Fitur login Google akan tersedia setelah auth backend dipasang.")
+    await signIn.social({ provider: "google", callbackURL: "/" })
   }
 
   return (

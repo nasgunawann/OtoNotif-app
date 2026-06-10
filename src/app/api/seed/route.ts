@@ -1,15 +1,28 @@
 import db from "@/db";
-import { vehicles, odometerReadings, components, fuelLogs, maintenanceRecords } from "@/db/schema";
+import { user, vehicles, odometerReadings, components, fuelLogs, maintenanceRecords } from "@/db/schema";
 
 const now = new Date().toISOString();
+const nowPg = new Date();
 
+const demoUserId = crypto.randomUUID();
 const motorId = crypto.randomUUID();
 const mobilId = crypto.randomUUID();
 
 const seedData = async () => {
+  await db.insert(user).values({
+    id: demoUserId,
+    name: "Demo User",
+    email: "demo@otonotif.app",
+    emailVerified: false,
+    image: null,
+    createdAt: nowPg,
+    updatedAt: nowPg,
+  })
+
   await db.insert(vehicles).values([
     {
       id: motorId,
+      userId: demoUserId,
       name: "Supra Bapak",
       type: "motor",
       image: "/motorcycle_supra_mockup.png",
@@ -21,6 +34,7 @@ const seedData = async () => {
     },
     {
       id: mobilId,
+      userId: demoUserId,
       name: "Civic Turbo",
       type: "mobil",
       image: "/car_civic_mockup.png",

@@ -38,8 +38,10 @@ export async function POST(request: Request) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
+  // TODO: get userId from session (Phase C)
   const vehicle = {
     id,
+    userId: body.userId || "",
     name: body.name,
     type: body.type,
     image: body.image || "",
