@@ -25,6 +25,7 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { useVehicleStore } from "@/lib/store/use-vehicle-store";
+import { useSession } from "@/lib/auth-client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +49,11 @@ export default function Home() {
     setPrimaryVehicle,
     loading,
     userName,
+    _hydrated,
+    isDemo,
   } = useVehicleStore();
+
+  const { data: session, isPending: sessionLoading } = useSession();
 
   const router = useRouter();
 
@@ -57,11 +62,12 @@ export default function Home() {
   }, [fetchVehicles]);
 
   useEffect(() => {
-    const state = useVehicleStore.getState()
-    if (!state.isDemo && state.vehicles.length === 0 && !state.loading) {
-      router.replace("/login")
+    if (_hydrated && !sessionLoading) {
+      if (!session && !isDemo && vehicles.length === 0) {
+        router.replace("/login")
+      }
     }
-  }, [router])
+  }, [_hydrated, sessionLoading, session, isDemo, vehicles.length, router])
 
   const primaryVehicle = vehicles.find((v) => v.isPrimary) || vehicles[0];
   const isFetched = vehicles.length > 0;
@@ -72,7 +78,7 @@ export default function Home() {
     }
   }, [primaryVehicle, fetchVehicleHealth]);
 
-  if (loading && !isFetched) {
+  if (!_hydrated || sessionLoading || (loading && !isFetched)) {
     return (
       <div className="space-y-6 pb-20 md:pb-6 animate-pulse">
         <div className="h-8 bg-muted rounded w-48" />

@@ -20,6 +20,7 @@ interface VehicleStore {
   error: string | null
 
   isDemo: boolean
+  _hydrated: boolean
   setIsDemo: (val: boolean) => void
   initDemoData: () => void
   resetDemoData: () => void
@@ -67,7 +68,8 @@ export const useVehicleStore = create<VehicleStore>()(
       loading: false,
       error: null,
 
-      isDemo: true,
+      isDemo: false,
+      _hydrated: false,
       setIsDemo: (val) => set({ isDemo: val }),
 
       initDemoData: () => {
@@ -656,6 +658,12 @@ export const useVehicleStore = create<VehicleStore>()(
         components: state.components,
         maintenanceRecords: state.maintenanceRecords,
       }),
+      onRehydrateStorage: () => (state) => {
+        useVehicleStore.setState({
+          _hydrated: true,
+          isDemo: state ? state.vehicles.length > 0 : false,
+        })
+      },
     }
   )
 )
