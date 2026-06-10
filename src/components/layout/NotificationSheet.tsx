@@ -12,7 +12,7 @@ import {
 import { IconBell, IconTool, IconDroplet, IconAlertCircle, IconCircleCheck } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { api } from "@/lib/services/api"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 
 type Notification = {
   id: string
@@ -36,10 +36,11 @@ const colorMap = {
 
 export function NotificationSheet({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const fetchNotificationsSilent = useVehicleStore((s) => s.fetchNotificationsSilent)
 
   useEffect(() => {
-    api.getNotifications().then(setNotifications).catch(() => {})
-  }, [])
+    fetchNotificationsSilent().then(setNotifications).catch(() => {})
+  }, [fetchNotificationsSilent])
 
   return (
     <Sheet>
