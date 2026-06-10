@@ -169,22 +169,53 @@ Use it like:
 ## Log Komit Terbaru
 
 ```
-2f3e39a style: implement right-aligned ambient background photo with grayscale filter and fallback category icon on vehicle selector card
-1442d37 style: rearrange bottom dashboard to 2 columns on desktop (components at 2/3, recent activity at 1/3)
-24d7706 feat: optimize mobile dashboard layout with compact metrics grid, single-line greeting header, and currency helper
-9401f78 feat: add animated loader spinners to all form submission buttons
-24eebfc feat: add custom components form, add vehicle and log type filters to history and maintenance pages, fix syntax errors
-3699cd3 feat: implement dynamic username and responsive dark/light mode SVGs for desktop sidebar and mobile topbar
-81f0264 refactor: replace raw HTML with shadcn components (Button, Badge, ScrollArea)
-0f421ea fix: increase input sizes for better mobile touch targets, use Dialog on desktop for QuickInputDrawer
-f7c60d9 feat: add functional forms for odometer, fuel, service, and vehicle creation; add SQLite Docker volume
-be4a0c2 feat: refactor all pages to use real data from API instead of hardcoded mock data
-5cc9b37 feat: add API service layer and Zustand store for client-side state management
-8d51bba feat: add REST API routes for vehicles, odometer, fuel, components, maintenance, health, and notifications
-b1464da feat: add drizzle schema (5 tables), sqlite client, and TypeScript types
-f33e95b chore: add drizzle ORM, better-sqlite3, zod, zustand deps and shadcn UI components
-173ada3 chore: swap DM_Sans to Inter, add sonner dep and pnpm config
+9866166 fix: isFull auto-fill liters NaN bug — always set value even if 0
+4495058 feat: isFull auto-fills liters based on tank capacity minus estimated remaining
+8888206 feat: fuel gauge estimating state with calibration guidance
+4c6dfc0 feat: add isFull toggle for fuel fill-up
+e79d582 feat: fix km/L calculation, add kmPerLiter field, remove Rp/km
+7443c97 feat: history page UX improvements (month names, cost summary, date format)
+a795489 refactor: remove safe section from maintenance page
+375a202 feat: redesign maintenance page with urgency sections + cost summary
+0be1876 feat: add estimated distance mode for broken speedometer
+c6c10a2 feat: PayTaxSheet, history odometer, activity feed
+2f0a50b feat: header icons, taxIntervalYears schema+types+store+api+form
+df64d7b refactor: remove odoReading from forms, rename Biaya to Pengeluaran
+d7fb467 fix: component lastReplacedOdo defaults to latestOdo, not 0
+ee51130 fix: component detail padding, back btn duplicate, info card image, estimated cost
+bab4220 feat: redesign vehicle detail layout & replace health% with componentSummary
+1c8faf4 feat: component management UX overhaul
+72c8e4e feat: add vehicle tax reminder feature
 ```
+
+## Sesi Terbaru (Juni 2026)
+
+### UX Improvements
+- **Dashboard**: Hapus Rp/km (angka tidak akurat). BBM card 3 state (kosong/kalibrasi/normal)
+- **Vehicle Detail**: 2-column desktop, compact header (no hero), Info card dengan image bg, Aktivitas Terbaru (campuran odo+BBM+servis)
+- **Maintenance**: 🔴🟡 sections (tanpa aman), cost summary, proyeksi waktu, compact cards
+- **History**: Bulan Indonesia, cost per bulan, tanggal natural, hapus selalu visible
+
+### Forms
+- **FuelForm**: Isi Full toggle — auto-fill liters dari kapasitas - sisa, auto-fill km/L jika prev full
+- **OdometerForm**: Mode Perkiraan (jarak tempuh) untuk speedometer rusak
+- **ServiceForm**: Hapus Deskripsi Servis (redundan), hapus odoReading (auto-fill)
+- **FuelForm**: Hapus odoReading (auto-fill latestOdo)
+
+### Pajak
+- **PayTaxSheet**: Dialog konfirmasi bayar pajak dengan input nominal + `taxIntervalYears`
+- **Schema**: `tax_interval_years` (integer, default 1)
+
+### Komponen
+- Template edukasi (tips, estimatedCost, warningSigns)
+- SelectComponentsDialog (checklist) — bukan batch-all
+- ComponentDetailSheet (detail + edukasi)
+
+### Data
+- Fix km/L: `prev.liters` bukan `curr.liters`
+- `kmPerLiter` field di `fuel_logs` (manual input opsional)
+- `isFull` field di `fuel_logs`
+- `estimating` flag di getFuelStats response
 
 ## Known Issues / TODOs
 
@@ -219,3 +250,12 @@ pnpm dlx drizzle-kit generate  # generate migration SQL
 5. **Tailwind v4** — uses modern `@import` in globals.css, not `@tailwind` directives
 6. All files use 2-space indentation
 7. The project uses `"radix-nova"` shadcn style — component patterns follow that style
+8. **FuelForm**: `isFull` toggle auto-fills liters from `fuelCapacity - estimatedRemaining`. km/L auto-fills if previous fill was also full. Uses `NumberInput` inside `InputGroup`.
+9. **OdometerForm**: Has toggle between "Odometer" (exact reading) and "Perkiraan" (estimated distance from last reading). Use when speedometer is broken.
+10. **Component templates** in `src/lib/component-templates.ts` contain `estimatedCost`, `tips`, `warningSigns` for education.
+11. **PayTaxSheet**: Dialog/Drawer for paying tax. Uses `taxIntervalYears` for next due date calculation. Allows editing nominal paid.
+12. **Vehicle Detail layout**: Desktop 2-column (left: components + history, right: info + actions + cost). No hero image.
+13. **History page**: Shows mixed timeline (odometer + fuel + maintenance). Includes delta (+X km) for odometer readings. Delete always visible.
+14. **Maintenance page**: Only shows 🔴 Danger ("Perlu Ganti") and 🟡 Warning ("Segera Cek"). 🟢 Safe hidden. Includes cost summary and time projection (~2 minggu).
+15. **Dashboard BBM card**: 3 states — no data, estimating (<2 logs, shows calibration guidance), normal.
+16. **Fuel km/L calculation**: `totalDistance / totalLiters` where `totalLiters` uses `prev.liters` (previous fill's liters), not `curr.liters`. Needs at least 2 fuel logs with odometer readings.
