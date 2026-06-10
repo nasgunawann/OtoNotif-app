@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -49,9 +50,18 @@ export default function Home() {
     userName,
   } = useVehicleStore();
 
+  const router = useRouter();
+
   useEffect(() => {
     fetchVehicles();
   }, [fetchVehicles]);
+
+  useEffect(() => {
+    const state = useVehicleStore.getState()
+    if (!state.isDemo && state.vehicles.length === 0 && !state.loading) {
+      router.replace("/login")
+    }
+  }, [router])
 
   const primaryVehicle = vehicles.find((v) => v.isPrimary) || vehicles[0];
   const isFetched = vehicles.length > 0;
