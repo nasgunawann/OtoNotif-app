@@ -55,7 +55,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
   const prevFull = prevLog?.isFull && prevLog.odoReading && latestOdo > prevLog.odoReading && prevLog.liters > 0
   const cap = vehicleHealth?.fuel?.max ?? 0
   const remaining = vehicleHealth?.fuel?.current ?? 0
-  const fullLiters = cap > 0 && remaining > 0 ? Math.max(0, Math.round((cap - remaining) * 10) / 10) : 0
+  const fullLiters = cap > 0 ? Math.max(0.1, Math.round(Math.max(0, cap - Math.max(0, remaining)) * 10) / 10) : 0
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -153,9 +153,9 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
                   onClick={() => {
                     const next = !field.value
                     field.onChange(next)
-                    if (next && fullLiters > 0) {
+                    if (next) {
                       form.setValue("liters", fullLiters)
-                    } else if (!next) {
+                    } else {
                       form.setValue("liters", undefined as unknown as number)
                     }
                   }}
