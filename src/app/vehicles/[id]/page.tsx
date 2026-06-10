@@ -76,7 +76,8 @@ export default function VehicleDetailPage() {
     fetchComponents,
     deleteVehicle,
     updateVehicle,
-    loading
+    loading,
+    isDemo,
   } = useVehicleStore()
 
   const [openOdometer, setOpenOdometer] = useState(false)
@@ -90,6 +91,16 @@ export default function VehicleDetailPage() {
   const [activities, setActivities] = useState<ActivityItem[]>([])
 
   async function loadActivities(vehicleId: string) {
+    if (isDemo) {
+      const s = useVehicleStore.getState()
+      const all: ActivityItem[] = [
+        ...s.odometerReadings.filter(r => r.vehicleId === vehicleId).map(o => ({ id: o.id, type: "odometer" as const, reading: o.reading, date: o.date, delta: 0 })),
+        ...s.fuelLogs.filter(f => f.vehicleId === vehicleId).map(f => ({ id: f.id, type: "fuel" as const, date: f.date, fuelType: f.fuelType, liters: f.liters, amount: f.amount, delta: 0 })),
+        ...s.maintenanceRecords.filter(m => m.vehicleId === vehicleId).map(m => ({ id: m.id, type: "maintenance" as const, date: m.date, description: m.description, cost: m.cost, delta: 0 })),
+      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8)
+      setActivities(all)
+      return
+    }
     try {
       const [fuel, maint, odos] = await Promise.all([
         api.getFuelLogs(vehicleId),

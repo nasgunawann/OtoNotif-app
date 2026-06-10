@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import Link from "next/link"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 
 type HistoryItem = (
   | (FuelLog & { type: "fuel" })
@@ -102,6 +103,7 @@ const typeFilters = [
 ]
 
 export default function HistoryPage() {
+  const isDemo = useVehicleStore((s) => s.isDemo)
 
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([])
   const [fuelLogs, setFuelLogs] = useState<FuelLog[]>([])
@@ -112,6 +114,10 @@ export default function HistoryPage() {
   const [selectedLogType, setSelectedLogType] = useState<string>("all")
 
   useEffect(() => {
+    if (isDemo) {
+      setLoading(false)
+      return
+    }
     async function load() {
       setLoading(true)
       try {
@@ -134,7 +140,7 @@ export default function HistoryPage() {
       }
     }
     load()
-  }, [])
+  }, [isDemo])
 
   const odoDeltas = useMemo(() => computeOdoDeltas(odometerReadings), [odometerReadings])
 

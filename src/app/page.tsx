@@ -58,8 +58,10 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    fetchVehicles();
-  }, [fetchVehicles]);
+    if (_hydrated) {
+      fetchVehicles();
+    }
+  }, [_hydrated, fetchVehicles]);
 
   useEffect(() => {
     if (_hydrated && !sessionLoading) {
@@ -73,10 +75,10 @@ export default function Home() {
   const isFetched = vehicles.length > 0;
 
   useEffect(() => {
-    if (primaryVehicle) {
+    if (_hydrated && primaryVehicle) {
       fetchVehicleHealth(primaryVehicle.id);
     }
-  }, [primaryVehicle, fetchVehicleHealth]);
+  }, [_hydrated, primaryVehicle, fetchVehicleHealth]);
 
   if (!_hydrated || sessionLoading || (loading && !isFetched)) {
     return (

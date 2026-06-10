@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import Link from "next/link"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -51,7 +52,13 @@ export default function MaintenancePage() {
     vehicleType: "motor" | "mobil"
   } | null>(null)
 
+  const isDemo = useVehicleStore((s) => s.isDemo)
+
   function loadData() {
+    if (isDemo) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
     api.getVehicles().then((vehicles) =>
       Promise.all(vehicles.map((v) => api.getVehicleHealth(v.id)))
