@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, doublePrecision } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, doublePrecision, index } from "drizzle-orm/pg-core";
 
 export const vehicles = pgTable("vehicles", {
   id: text("id").primaryKey(),
@@ -24,7 +24,9 @@ export const odometerReadings = pgTable("odometer_readings", {
   date: text("date").notNull(),
   notes: text("notes").default(""),
   createdAt: text("created_at").notNull(),
-});
+}, (table) => ({
+  vehicleIdx: index("idx_odometer_vehicle").on(table.vehicleId),
+}));
 
 export const fuelLogs = pgTable("fuel_logs", {
   id: text("id").primaryKey(),
@@ -38,7 +40,9 @@ export const fuelLogs = pgTable("fuel_logs", {
   kmPerLiter: doublePrecision("km_per_liter"),
   notes: text("notes").default(""),
   createdAt: text("created_at").notNull(),
-});
+}, (table) => ({
+  vehicleIdx: index("idx_fuel_vehicle").on(table.vehicleId),
+}));
 
 export const components = pgTable("components", {
   id: text("id").primaryKey(),
@@ -49,7 +53,9 @@ export const components = pgTable("components", {
   notes: text("notes").default(""),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
-});
+}, (table) => ({
+  vehicleIdx: index("idx_components_vehicle").on(table.vehicleId),
+}));
 
 export const maintenanceRecords = pgTable("maintenance_records", {
   id: text("id").primaryKey(),
@@ -61,4 +67,6 @@ export const maintenanceRecords = pgTable("maintenance_records", {
   odoReading: integer("odo_reading").default(0),
   notes: text("notes").default(""),
   createdAt: text("created_at").notNull(),
-});
+}, (table) => ({
+  vehicleIdx: index("idx_maintenance_vehicle").on(table.vehicleId),
+}));

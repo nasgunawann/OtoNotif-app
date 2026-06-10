@@ -1,21 +1,32 @@
 import db from "@/db";
 import { vehicles } from "@/db/schema";
-import { desc } from "drizzle-orm";
-import { getLatestOdometer } from "@/lib/odometer";
+import { desc, sql, getTableColumns } from "drizzle-orm";
 import { requireFields } from "@/lib/api-validate";
 
 export async function GET() {
-  const all = await db.select().from(vehicles).orderBy(desc(vehicles.createdAt));
-  const data = await Promise.all(
-    all.map(async (v) => {
-      const latest = await getLatestOdometer(v.id);
-      return {
-        ...v,
-        latestOdo: latest.reading,
-        latestOdoDate: latest.date,
-      };
+  const data = await db
+    .select({
+      ...getTableColumns(vehicles),
+      latestOdo: sql<number | null>`
+        GREATEST(
+          COALESCE((SELECT MAX(reading) FROM odometer_readings WHERE vehicle_id = ${vehicles.id}), 0),
+          COALESCE((SELECT MAX(odo_reading) FROM fuel_logs WHERE vehicle_id = ${vehicles.id}), 0),
+          COALESCE((SELECT MAX(odo_reading) FROM maintenance_records WHERE vehicle_id = ${vehicles.id}), 0)
+        )
+      `.mapWith(Number),
+      latestOdoDate: sql<string | null>`
+        (SELECT date FROM (
+          SELECT date, reading FROM odometer_readings WHERE vehicle_id = ${vehicles.id}
+          UNION ALL
+          SELECT date, odo_reading FROM fuel_logs WHERE vehicle_id = ${vehicles.id} AND odo_reading IS NOT NULL
+          UNION ALL
+          SELECT date, odo_reading FROM maintenance_records WHERE vehicle_id = ${vehicles.id} AND odo_reading IS NOT NULL
+        ) sub ORDER BY reading DESC LIMIT 1)
+      `,
     })
-  );
+    .from(vehicles)
+    .orderBy(desc(vehicles.createdAt));
+
   return Response.json({ data });
 }
 
