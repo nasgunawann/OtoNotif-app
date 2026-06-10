@@ -9,32 +9,33 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
-import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { signUp, signIn } from "@/lib/auth-client"
 import { IconBrandGoogle } from "@tabler/icons-react"
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { initDemoData, setIsDemo } = useVehicleStore()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
 
-  const setDemoCookie = () => {
-    document.cookie = "otonotif_demo=true; path=/; max-age=86400"
-  }
-
-  const clearDemoCookie = () => {
-    document.cookie = "otonotif_demo=; max-age=0; path=/"
-  }
-
-  const handleDemo = () => {
-    initDemoData()
-    setIsDemo(true)
-    setDemoCookie()
-    router.push("/dashboard")
-    toast.success("Mode demo aktif. Data disimpan di browser.")
+  const handleDemo = async () => {
+    setDemoLoading(true)
+    try {
+      const res = await fetch("/api/auth/demo", { method: "POST" })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        toast.success("Mode demo aktif.")
+        router.push("/dashboard")
+      } else {
+        toast.error(data.error || "Gagal masuk ke mode demo")
+      }
+    } catch {
+      toast.error("Terjadi kesalahan sistem")
+    } finally {
+      setDemoLoading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,13 +47,10 @@ export default function RegisterPage() {
       setLoading(false)
       return
     }
-    setIsDemo(false)
-    clearDemoCookie()
     router.push("/dashboard")
   }
 
   const handleGoogle = async () => {
-    clearDemoCookie()
     await signIn.social({ provider: "google", callbackURL: "/dashboard" })
   }
 
@@ -95,8 +93,8 @@ export default function RegisterPage() {
 
           <Separator />
 
-          <Button variant="outline" className="w-full h-11 gap-2 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/50" onClick={handleDemo}>
-            Jelajahi Demo ☕
+          <Button variant="outline" className="w-full h-11 gap-2 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/50" onClick={handleDemo} disabled={demoLoading}>
+            {demoLoading ? "Menyiapkan Demo..." : "Jelajahi Demo ☕"}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">

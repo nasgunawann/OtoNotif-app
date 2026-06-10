@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { IconUserCircle, IconSettings, IconLogout, IconSun, IconEdit } from "@tabler/icons-react"
@@ -11,6 +11,8 @@ import { FormDialog } from "@/components/forms/FormDialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { useSession, signOut } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -19,14 +21,26 @@ const fadeUp = {
 }
 
 export default function ProfilePage() {
+  const router = useRouter()
+  const { data: session } = useSession()
   const { userName, setUserName } = useVehicleStore()
+
+  const displayName = session?.user?.name || userName
+  const displayEmail = session?.user?.email || "email"
+
   const [open, setOpen] = useState(false)
-  const [nameInput, setNameInput] = useState(userName)
+  const [nameInput, setNameInput] = useState(displayName)
+
+  useEffect(() => {
+    if (displayName) {
+      setNameInput(displayName)
+    }
+  }, [displayName])
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
     if (newOpen) {
-      setNameInput(userName)
+      setNameInput(displayName)
     }
   }
 
@@ -39,6 +53,16 @@ export default function ProfilePage() {
     setUserName(nameInput.trim())
     setOpen(false)
     toast.success("Nama profil berhasil diperbarui")
+  }
+
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      toast.success("Berhasil keluar")
+      router.push("/login")
+    } catch {
+      toast.error("Gagal keluar")
+    }
   }
 
   return (
@@ -58,8 +82,8 @@ export default function ProfilePage() {
           <div className="flex items-center gap-4">
             <IconUserCircle className="h-16 w-16 text-muted-foreground" />
             <div>
-              <h2 className="text-xl font-bold">{userName}</h2>
-              <CardDescription>nanas@example.com</CardDescription>
+              <h2 className="text-xl font-bold">{displayName}</h2>
+              <CardDescription>{displayEmail}</CardDescription>
             </div>
           </div>
           <FormDialog
@@ -121,7 +145,7 @@ export default function ProfilePage() {
         <h3 className="text-lg font-semibold mt-6">Akun</h3>
         <Card>
           <CardContent className="p-0">
-            <div className="flex items-center justify-between p-4">
+            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors" onClick={handleLogout}>
               <div className="flex items-center gap-3 text-red-500">
                 <IconLogout className="h-5 w-5" />
                 <span>Keluar</span>

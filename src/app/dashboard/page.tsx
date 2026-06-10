@@ -50,7 +50,6 @@ export default function Dashboard() {
     loading,
     userName,
     _hydrated,
-    isDemo,
   } = useVehicleStore();
 
   const { data: session, isPending: sessionLoading } = useSession();
@@ -60,13 +59,13 @@ export default function Dashboard() {
   useEffect(() => {
     if (!_hydrated || sessionLoading) return
 
-    if (!session && !isDemo) {
+    if (!session) {
       router.replace("/login")
       return
     }
 
     fetchVehicles()
-  }, [_hydrated, sessionLoading, session, isDemo, router, fetchVehicles])
+  }, [_hydrated, sessionLoading, session, router, fetchVehicles])
 
   const primaryVehicle = vehicles.find((v) => v.isPrimary) || vehicles[0];
   const isFetched = vehicles.length > 0;

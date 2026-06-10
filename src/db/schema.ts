@@ -48,7 +48,7 @@ export const verification = pgTable("verification", {
 
 export const vehicles = pgTable("vehicles", {
   id: text("id").primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   type: text("type").notNull(),
   image: text("image").notNull().default(""),
@@ -66,7 +66,7 @@ export const vehicles = pgTable("vehicles", {
 
 export const odometerReadings = pgTable("odometer_readings", {
   id: text("id").primaryKey(),
-  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
+  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id, { onDelete: "cascade" }),
   reading: integer("reading").notNull(),
   date: text("date").notNull(),
   notes: text("notes").default(""),
@@ -77,7 +77,7 @@ export const odometerReadings = pgTable("odometer_readings", {
 
 export const fuelLogs = pgTable("fuel_logs", {
   id: text("id").primaryKey(),
-  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
+  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id, { onDelete: "cascade" }),
   date: text("date").notNull(),
   liters: doublePrecision("liters").notNull(),
   amount: doublePrecision("amount").notNull(),
@@ -93,7 +93,7 @@ export const fuelLogs = pgTable("fuel_logs", {
 
 export const components = pgTable("components", {
   id: text("id").primaryKey(),
-  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
+  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   intervalKm: integer("interval_km").notNull(),
   lastReplacedOdo: integer("last_replaced_odo").default(0),
@@ -106,8 +106,8 @@ export const components = pgTable("components", {
 
 export const maintenanceRecords = pgTable("maintenance_records", {
   id: text("id").primaryKey(),
-  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id),
-  componentId: text("component_id").references(() => components.id),
+  vehicleId: text("vehicle_id").notNull().references(() => vehicles.id, { onDelete: "cascade" }),
+  componentId: text("component_id").references(() => components.id, { onDelete: "set null" }),
   date: text("date").notNull(),
   description: text("description").notNull(),
   cost: doublePrecision("cost").default(0),

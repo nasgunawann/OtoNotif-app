@@ -60,21 +60,16 @@ export function ServiceForm({
   defaultComponentId,
   onSuccess,
 }: Props) {
-  const { createMaintenanceRecord, vehicleHealth, isDemo } = useVehicleStore();
+  const { createMaintenanceRecord, vehicleHealth } = useVehicleStore();
   const latestOdo = vehicleHealth?.latestOdo ?? 0;
   const [components, setComponents] = useState<Component[]>([]);
-  const storeComponents = useVehicleStore((s) => s.components);
 
   useEffect(() => {
-    if (isDemo) {
-      setComponents(storeComponents.filter((c) => c.vehicleId === vehicleId))
-      return
-    }
     api
       .getComponents(vehicleId)
       .then(setComponents)
       .catch(() => {});
-  }, [vehicleId, isDemo, storeComponents]);
+  }, [vehicleId]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

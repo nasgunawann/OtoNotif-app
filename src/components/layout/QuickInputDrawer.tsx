@@ -45,19 +45,13 @@ function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
   const [step, setStep] = useState<Step>("menu");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectComponentsOpen, setSelectComponentsOpen] = useState(false);
-  const isDemo = useVehicleStore((s) => s.isDemo);
-  const storeVehicles = useVehicleStore((s) => s.vehicles);
 
   useEffect(() => {
-    if (isDemo) {
-      setVehicles(storeVehicles)
-      return
-    }
     api
       .getVehicles()
       .then(setVehicles)
       .catch(() => {});
-  }, [isDemo, storeVehicles]);
+  }, []);
 
   const primary = vehicles.find((v) => v.isPrimary) || vehicles[0];
 

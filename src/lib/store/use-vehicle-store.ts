@@ -3,8 +3,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { api } from "@/lib/services/api"
-import { getDemoSeedData } from "@/lib/demo-seed"
-import { computeVehicleHealth, computeNotifications } from "@/lib/demo-compute"
 import type { Vehicle, OdometerReading, FuelLog, Component, MaintenanceRecord, VehicleHealth, CreateOdometerInput, CreateFuelLogInput, CreateComponentInput, CreateMaintenanceInput } from "@/lib/types"
 import type { ComponentTemplate } from "@/lib/component-templates"
 
@@ -19,11 +17,7 @@ interface VehicleStore {
   loading: boolean
   error: string | null
 
-  isDemo: boolean
   _hydrated: boolean
-  setIsDemo: (val: boolean) => void
-  initDemoData: () => void
-  resetDemoData: () => void
 
   fetchVehicles: () => Promise<void>
   fetchVehicle: (id: string) => Promise<void>
@@ -68,44 +62,11 @@ export const useVehicleStore = create<VehicleStore>()(
       loading: false,
       error: null,
 
-      isDemo: false,
       _hydrated: false,
-      setIsDemo: (val) => set({ isDemo: val }),
-
-      initDemoData: () => {
-        const seed = getDemoSeedData()
-        set({
-          vehicles: seed.vehicles,
-          odometerReadings: seed.odometerReadings,
-          fuelLogs: seed.fuelLogs,
-          components: seed.components,
-          maintenanceRecords: seed.maintenanceRecords,
-          selectedVehicle: null,
-          vehicleHealth: null,
-          loading: false,
-          error: null,
-        })
-      },
-
-      resetDemoData: () => {
-        const seed = getDemoSeedData()
-        set({
-          vehicles: seed.vehicles,
-          odometerReadings: seed.odometerReadings,
-          fuelLogs: seed.fuelLogs,
-          components: seed.components,
-          maintenanceRecords: seed.maintenanceRecords,
-          selectedVehicle: null,
-          vehicleHealth: null,
-          loading: false,
-          error: null,
-        })
-      },
 
       userName: "Nanas Gunung",
 
       fetchVehicles: async () => {
-        if (get().isDemo) return
         set({ loading: true })
         try {
           const vehicles = await api.getVehicles()
@@ -116,11 +77,6 @@ export const useVehicleStore = create<VehicleStore>()(
       },
 
       fetchVehicle: async (id: string) => {
-        if (get().isDemo) {
-          const v = get().vehicles.find((v) => v.id === id)
-          if (v) set({ selectedVehicle: v })
-          return
-        }
         set({ loading: true })
         try {
           const selectedVehicle = await api.getVehicle(id)
@@ -132,27 +88,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       createVehicle: async (data) => {
         const state = get()
-        if (state.isDemo) {
-          const vehicle: Vehicle = {
-            id: crypto.randomUUID(),
-            name: data.name,
-            type: data.type,
-            image: data.image || "",
-            engine: data.engine || "",
-            fuelCapacity: data.fuelCapacity ?? 0,
-            isPrimary: data.isPrimary ?? false,
-            taxDueDate: data.taxDueDate ?? null,
-            taxReminderDays: data.taxReminderDays ?? 30,
-            taxIntervalYears: data.taxIntervalYears ?? 1,
-            taxAmount: data.taxAmount ?? 0,
-            lastTaxPaidDate: data.lastTaxPaidDate ?? null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          }
-          set({ vehicles: [...state.vehicles, vehicle] })
-          return vehicle
-        }
-
         const previousVehicles = state.vehicles
         const tempId = `temp-${crypto.randomUUID()}`
         const optimisticVehicle: Vehicle = {
@@ -184,16 +119,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       deleteVehicle: async (id: string) => {
         const state = get()
-        if (state.isDemo) {
-          set({
-            vehicles: state.vehicles.filter((v) => v.id !== id),
-            odometerReadings: state.odometerReadings.filter((r) => r.vehicleId !== id),
-            fuelLogs: state.fuelLogs.filter((l) => l.vehicleId !== id),
-            components: state.components.filter((c) => c.vehicleId !== id),
-            maintenanceRecords: state.maintenanceRecords.filter((r) => r.vehicleId !== id),
-          })
-          return
-        }
         const previousVehicles = state.vehicles
         set({ vehicles: previousVehicles.filter((v) => v.id !== id) })
         try {
@@ -206,10 +131,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       setPrimaryVehicle: async (id: string) => {
         const state = get()
-        if (state.isDemo) {
-          set({ vehicles: state.vehicles.map((v) => ({ ...v, isPrimary: v.id === id })) })
-          return
-        }
         const previousVehicles = state.vehicles
         set({ vehicles: previousVehicles.map((v) => ({ ...v, isPrimary: v.id === id })) })
         try {
@@ -223,14 +144,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       updateVehicle: async (id: string, data: Partial<Vehicle>) => {
         const state = get()
-        if (state.isDemo) {
-          const update = (v: Vehicle) => (v.id === id ? { ...v, ...data } : v)
-          set({
-            vehicles: state.vehicles.map(update),
-            selectedVehicle: state.selectedVehicle?.id === id ? { ...state.selectedVehicle, ...data } : state.selectedVehicle,
-          })
-          return
-        }
         const previousVehicles = state.vehicles
         const previousSelected = state.selectedVehicle
         set({
@@ -250,10 +163,6 @@ export const useVehicleStore = create<VehicleStore>()(
       },
 
       fetchOdometerReadings: async (vehicleId: string) => {
-        if (get().isDemo) {
-          set({ odometerReadings: get().odometerReadings.filter((r) => r.vehicleId === vehicleId) })
-          return
-        }
         try {
           const odometerReadings = await api.getOdometerReadings(vehicleId)
           set({ odometerReadings })
@@ -264,18 +173,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       createOdometerReading: async (data) => {
         const state = get()
-        if (state.isDemo) {
-          const reading: OdometerReading = {
-            id: crypto.randomUUID(),
-            vehicleId: data.vehicleId,
-            reading: data.reading,
-            date: data.date,
-            notes: data.notes || "",
-            createdAt: new Date().toISOString(),
-          }
-          set({ odometerReadings: [reading, ...state.odometerReadings] })
-          return
-        }
         const previousReadings = state.odometerReadings
         const previousHealth = state.vehicleHealth
         const tempId = `temp-${crypto.randomUUID()}`
@@ -315,10 +212,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       deleteOdometerReading: async (id: string, vehicleId: string) => {
         const state = get()
-        if (state.isDemo) {
-          set({ odometerReadings: state.odometerReadings.filter((r) => r.id !== id) })
-          return
-        }
         const previousReadings = state.odometerReadings
         const previousHealth = state.vehicleHealth
         set({ odometerReadings: previousReadings.filter((r) => r.id !== id) })
@@ -332,11 +225,6 @@ export const useVehicleStore = create<VehicleStore>()(
       },
 
       fetchFuelLogs: async (vehicleId?: string) => {
-        if (get().isDemo) {
-          const all = get().fuelLogs
-          set({ fuelLogs: vehicleId ? all.filter((l) => l.vehicleId === vehicleId) : all })
-          return
-        }
         try {
           const fuelLogs = await api.getFuelLogs(vehicleId)
           set({ fuelLogs })
@@ -347,23 +235,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       createFuelLog: async (data) => {
         const state = get()
-        if (state.isDemo) {
-          const log: FuelLog = {
-            id: crypto.randomUUID(),
-            vehicleId: data.vehicleId,
-            date: data.date,
-            liters: data.liters,
-            amount: data.amount,
-            fuelType: data.fuelType,
-            odoReading: data.odoReading ?? 0,
-            isFull: data.isFull ?? false,
-            kmPerLiter: data.kmPerLiter ?? null,
-            notes: data.notes || "",
-            createdAt: new Date().toISOString(),
-          }
-          set({ fuelLogs: [log, ...state.fuelLogs] })
-          return
-        }
         const previousLogs = state.fuelLogs
         const previousHealth = state.vehicleHealth
         const tempId = `temp-${crypto.randomUUID()}`
@@ -407,10 +278,6 @@ export const useVehicleStore = create<VehicleStore>()(
       },
 
       fetchComponents: async (vehicleId: string) => {
-        if (get().isDemo) {
-          set({ components: get().components.filter((c) => c.vehicleId === vehicleId) })
-          return
-        }
         try {
           const components = await api.getComponents(vehicleId)
           set({ components })
@@ -421,20 +288,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       createComponent: async (data) => {
         const state = get()
-        if (state.isDemo) {
-          const component: Component = {
-            id: crypto.randomUUID(),
-            vehicleId: data.vehicleId,
-            name: data.name,
-            intervalKm: data.intervalKm,
-            lastReplacedOdo: data.lastReplacedOdo ?? 0,
-            notes: data.notes || "",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          }
-          set({ components: [...state.components, component] })
-          return component
-        }
         const previousComponents = state.components
         const tempId = `temp-${crypto.randomUUID()}`
         const optimisticComponent: Component = {
@@ -465,22 +318,6 @@ export const useVehicleStore = create<VehicleStore>()(
         if (newTemplates.length === 0) return
 
         const now = new Date().toISOString()
-        if (state.isDemo) {
-          const latestOdo = state.vehicleHealth?.latestOdo ?? 0
-          const newComponents: Component[] = newTemplates.map((t) => ({
-            id: crypto.randomUUID(),
-            vehicleId,
-            name: t.name,
-            intervalKm: t.intervalKm,
-            lastReplacedOdo: latestOdo,
-            notes: "",
-            createdAt: now,
-            updatedAt: now,
-          }))
-          set({ components: [...state.components, ...newComponents] })
-          return
-        }
-
         const previousComponents = state.components
         const latestOdo = state.vehicleHealth?.latestOdo ?? 0
         const tempComponents: Component[] = newTemplates.map((t) => ({
@@ -511,10 +348,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       deleteComponent: async (id, vehicleId) => {
         const state = get()
-        if (state.isDemo) {
-          set({ components: state.components.filter((c) => c.id !== id) })
-          return
-        }
         const previousComponents = state.components
         set({ components: previousComponents.filter((c) => c.id !== id) })
         try {
@@ -527,11 +360,6 @@ export const useVehicleStore = create<VehicleStore>()(
       },
 
       fetchMaintenanceRecords: async (vehicleId?: string) => {
-        if (get().isDemo) {
-          const all = get().maintenanceRecords
-          set({ maintenanceRecords: vehicleId ? all.filter((r) => r.vehicleId === vehicleId) : all })
-          return
-        }
         try {
           const maintenanceRecords = await api.getMaintenanceRecords(vehicleId)
           set({ maintenanceRecords })
@@ -542,29 +370,6 @@ export const useVehicleStore = create<VehicleStore>()(
 
       createMaintenanceRecord: async (data) => {
         const state = get()
-        if (state.isDemo) {
-          const record: MaintenanceRecord = {
-            id: crypto.randomUUID(),
-            vehicleId: data.vehicleId,
-            componentId: data.componentId ?? null,
-            date: data.date,
-            description: data.description,
-            cost: data.cost ?? 0,
-            odoReading: data.odoReading ?? 0,
-            notes: data.notes || "",
-            createdAt: new Date().toISOString(),
-          }
-          const newRecords = [record, ...state.maintenanceRecords]
-          set({ maintenanceRecords: newRecords })
-          if (data.componentId && state.vehicles.find((v) => v.id === data.vehicleId)) {
-            set({
-              components: state.components.map((c) =>
-                c.id === data.componentId ? { ...c, lastReplacedOdo: data.odoReading ?? 0, updatedAt: new Date().toISOString() } : c
-              ),
-            })
-          }
-          return
-        }
         const previousRecords = state.maintenanceRecords
         const previousHealth = state.vehicleHealth
         const tempId = `temp-${crypto.randomUUID()}`
@@ -605,14 +410,6 @@ export const useVehicleStore = create<VehicleStore>()(
       },
 
       fetchVehicleHealth: async (vehicleId: string) => {
-        const state = get()
-        if (state.isDemo) {
-          const vehicle = state.vehicles.find((v) => v.id === vehicleId)
-          if (!vehicle) return
-          const health = computeVehicleHealth(vehicle, state.odometerReadings, state.fuelLogs, state.maintenanceRecords, state.components)
-          set({ vehicleHealth: health })
-          return
-        }
         try {
           const vehicleHealth = await api.getVehicleHealth(vehicleId)
           set({ vehicleHealth })
@@ -622,10 +419,6 @@ export const useVehicleStore = create<VehicleStore>()(
       },
 
       fetchNotificationsSilent: async () => {
-        const state = get()
-        if (state.isDemo) {
-          return computeNotifications(state.vehicles, state.odometerReadings, state.components)
-        }
         try {
           return await api.getNotifications()
         } catch {
@@ -651,17 +444,10 @@ export const useVehicleStore = create<VehicleStore>()(
     }),
     {
       name: "otonotif-demo-storage",
-      partialize: (state) => ({
-        vehicles: state.vehicles,
-        odometerReadings: state.odometerReadings,
-        fuelLogs: state.fuelLogs,
-        components: state.components,
-        maintenanceRecords: state.maintenanceRecords,
-      }),
-      onRehydrateStorage: () => (state) => {
+      partialize: (state) => ({}),
+      onRehydrateStorage: () => () => {
         useVehicleStore.setState({
           _hydrated: true,
-          isDemo: state ? state.vehicles.length > 0 : false,
         })
       },
     }

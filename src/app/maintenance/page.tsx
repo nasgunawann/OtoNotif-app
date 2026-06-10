@@ -52,13 +52,9 @@ export default function MaintenancePage() {
     vehicleType: "motor" | "mobil"
   } | null>(null)
 
-  const isDemo = useVehicleStore((s) => s.isDemo)
+  const { _hydrated } = useVehicleStore()
 
   function loadData() {
-    if (isDemo) {
-      setLoading(false)
-      return
-    }
     setLoading(true)
     api.getVehicles().then((vehicles) =>
       Promise.all(vehicles.map((v) => api.getVehicleHealth(v.id)))
@@ -71,7 +67,10 @@ export default function MaintenancePage() {
     })
   }
 
-  useEffect(loadData, [])
+  useEffect(() => {
+    if (!_hydrated) return
+    loadData()
+  }, [_hydrated])
 
   const allComponents = useMemo(() =>
     healthData.flatMap((h) =>

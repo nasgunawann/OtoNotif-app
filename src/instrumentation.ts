@@ -1,5 +1,7 @@
-import { runMigrations } from "@/db/migrate"
-
 export async function register() {
-  await runMigrations()
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { runMigrations } = await import("@/db/migrate")
+    await runMigrations()
+  }
 }
+

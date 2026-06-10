@@ -23,12 +23,13 @@ const fadeUp = {
 export default function VehiclesPage() {
   const pathname = usePathname()
   const title = getPageTitle(pathname)
-  const { vehicles, fetchVehicles, loading } = useVehicleStore()
+  const { vehicles, fetchVehicles, loading, _hydrated } = useVehicleStore()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
+    if (!_hydrated) return
     fetchVehicles()
-  }, [fetchVehicles])
+  }, [_hydrated, fetchVehicles])
 
   return (
     <motion.div

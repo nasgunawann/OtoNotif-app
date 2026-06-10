@@ -77,7 +77,7 @@ export default function VehicleDetailPage() {
     deleteVehicle,
     updateVehicle,
     loading,
-    isDemo,
+    _hydrated,
   } = useVehicleStore()
 
   const [openOdometer, setOpenOdometer] = useState(false)
@@ -91,23 +91,13 @@ export default function VehicleDetailPage() {
   const [activities, setActivities] = useState<ActivityItem[]>([])
 
   async function loadActivities(vehicleId: string) {
-    if (isDemo) {
-      const s = useVehicleStore.getState()
-      const all: ActivityItem[] = [
-        ...s.odometerReadings.filter(r => r.vehicleId === vehicleId).map(o => ({ id: o.id, type: "odometer" as const, reading: o.reading, date: o.date, delta: 0 })),
-        ...s.fuelLogs.filter(f => f.vehicleId === vehicleId).map(f => ({ id: f.id, type: "fuel" as const, date: f.date, fuelType: f.fuelType, liters: f.liters, amount: f.amount, delta: 0 })),
-        ...s.maintenanceRecords.filter(m => m.vehicleId === vehicleId).map(m => ({ id: m.id, type: "maintenance" as const, date: m.date, description: m.description, cost: m.cost, delta: 0 })),
-      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8)
-      setActivities(all)
-      return
-    }
     try {
       const [fuel, maint, odos] = await Promise.all([
         api.getFuelLogs(vehicleId),
         api.getMaintenanceRecords(vehicleId),
         api.getOdometerReadings(vehicleId),
       ])
-      const odoSorted = [...odos].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      const odoSorted = [...odos].sort((a, b) => new Date(a.date).getTime() - new Date(a.date).getTime())
       const odoDeltas = new Map<string, number>()
       for (let i = 1; i < odoSorted.length; i++) {
         const d = odoSorted[i].reading - odoSorted[i - 1].reading
@@ -123,8 +113,14 @@ export default function VehicleDetailPage() {
   }
 
   useEffect(() => {
-    if (id) loadActivities(id)
-  }, [id])
+    if (!_hydrated) return
+    if (id) {
+      fetchVehicle(id)
+      fetchVehicleHealth(id)
+      fetchComponents(id)
+      loadActivities(id)
+    }
+  }, [_hydrated, id, fetchVehicle, fetchVehicleHealth, fetchComponents])
 
   function refresh() {
     if (id) {
