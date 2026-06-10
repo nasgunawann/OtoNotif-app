@@ -190,6 +190,7 @@ export function ComponentDetailSheet({
           <ServiceForm
             vehicleId={vehicleId}
             vehicleName={vehicleName}
+            vehicleType={vehicleType}
             defaultComponentId={component.id}
             onSuccess={() => {
               setOpenService(false)

@@ -49,6 +49,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
   const { createFuelLog, vehicleHealth } = useVehicleStore()
   const latestOdo = vehicleHealth?.latestOdo ?? 0
   const prevLog = vehicleHealth?.latestFuelLog
+  const prevFuelType = prevLog?.fuelType
   const estimatedKmL = prevLog?.odoReading && latestOdo > prevLog.odoReading && prevLog.liters > 0
     ? Math.round(((latestOdo - prevLog.odoReading) / prevLog.liters) * 10) / 10
     : null
@@ -62,7 +63,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
     defaultValues: {
       liters: undefined as unknown as number,
       amount: undefined as unknown as number,
-      fuelType: "",
+      fuelType: prevFuelType || "",
       date: new Date().toISOString().split("T")[0],
       isFull: false,
       kmPerLiter: estimatedKmL && prevFull ? estimatedKmL : undefined,

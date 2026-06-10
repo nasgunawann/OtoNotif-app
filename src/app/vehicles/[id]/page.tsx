@@ -252,7 +252,7 @@ export default function VehicleDetailPage() {
             </FormDialog>
             <FormDialog title="Tambah Servis" description={vehicle.name} open={openService} onOpenChange={setOpenService}
               trigger={<Button className="h-10 text-[10px] font-bold gap-1" variant="outline"><IconTool className="h-3.5 w-3.5" /> Servis</Button>}>
-              <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenService(false); refresh() }} />
+              <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} vehicleType={vehicle.type} onSuccess={() => { setOpenService(false); refresh() }} />
             </FormDialog>
           </div>
 
@@ -446,7 +446,7 @@ export default function VehicleDetailPage() {
                 </FormDialog>
                 <FormDialog title="Tambah Servis" description={vehicle.name} open={openService} onOpenChange={setOpenService}
                   trigger={<Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline"><IconTool className="h-4 w-4" /> Servis Baru</Button>}>
-                  <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenService(false); refresh() }} />
+                  <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} vehicleType={vehicle.type} onSuccess={() => { setOpenService(false); refresh() }} />
                 </FormDialog>
                 <Button className="w-full h-10 text-xs font-bold gap-2 justify-start" variant="outline" onClick={() => setOpenPayTax(true)}>
                   <IconReceipt className="h-4 w-4" /> Bayar Pajak

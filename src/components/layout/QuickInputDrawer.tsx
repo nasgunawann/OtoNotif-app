@@ -56,6 +56,7 @@ function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
   const formProps = {
     vehicleId: primary?.id || "",
     vehicleName: primary?.name || "",
+    vehicleType: primary?.type || "motor",
     onSuccess,
   };
 

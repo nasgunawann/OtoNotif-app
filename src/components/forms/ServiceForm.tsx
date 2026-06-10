@@ -34,6 +34,7 @@ import { api } from "@/lib/services/api";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useState } from "react";
 import type { Component } from "@/lib/types";
+import { COMPONENT_TEMPLATES } from "@/lib/component-templates";
 
 const formSchema = z.object({
   componentId: z.string().optional(),
@@ -47,6 +48,7 @@ type FormValues = z.infer<typeof formSchema>;
 type Props = {
   vehicleId: string;
   vehicleName: string;
+  vehicleType?: "motor" | "mobil";
   defaultComponentId?: string;
   onSuccess?: () => void;
 };
@@ -54,6 +56,7 @@ type Props = {
 export function ServiceForm({
   vehicleId,
   vehicleName,
+  vehicleType,
   defaultComponentId,
   onSuccess,
 }: Props) {
@@ -77,6 +80,22 @@ export function ServiceForm({
       notes: "",
     },
   });
+
+  const watchedComponentId = form.watch("componentId")
+
+  // Auto-fill cost from template when component is selected
+  useEffect(() => {
+    if (!watchedComponentId) return
+    const comp = components.find(c => c.id === watchedComponentId)
+    if (!comp) return
+    const templates = vehicleType ? COMPONENT_TEMPLATES[vehicleType] : []
+    const allTemplates = [...COMPONENT_TEMPLATES.motor, ...COMPONENT_TEMPLATES.mobil]
+    const t = templates.find(tmpl => tmpl.name === comp.name)
+      || allTemplates.find(tmpl => tmpl.name === comp.name)
+    if (t?.estimatedCost) {
+      form.setValue("cost", t.estimatedCost)
+    }
+  }, [watchedComponentId, components, vehicleType, form])
 
   async function onSubmit(values: FormValues) {
     try {
