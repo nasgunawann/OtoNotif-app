@@ -1,18 +1,27 @@
 import db from "@/db";
 import { vehicles, odometerReadings, components } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { requireAuth, unauth } from "@/lib/api-validate";
 
 export async function GET() {
-  const allVehicles = await db.select().from(vehicles);
+  const { userId } = await requireAuth().catch(() => ({ userId: null }));
+  if (!userId) return unauth();
+
+  const userVehicles = await db
+    .select()
+    .from(vehicles)
+    .where(eq(vehicles.userId, userId));
+
   const notifications: Array<{
     id: string;
     title: string;
     description: string;
     time: string;
     type: "warning" | "danger" | "success";
+    icon: string;
   }> = [];
 
-  for (const v of allVehicles) {
+  for (const v of userVehicles) {
     const [latestOdo] = await db
       .select()
       .from(odometerReadings)
@@ -37,6 +46,7 @@ export async function GET() {
           description: `Sudah melebihi interval ${comp.intervalKm} km. Segera ganti!`,
           time: "Sekarang",
           type: "danger",
+          icon: "IconTool",
         });
       } else if (remainingKm <= comp.intervalKm * 0.15) {
         notifications.push({
@@ -45,6 +55,7 @@ export async function GET() {
           description: `Sisa ${remainingKm} km lagi. Segera jadwalkan penggantian.`,
           time: "Hari ini",
           type: "warning",
+          icon: "IconAlertCircle",
         });
       }
     }
@@ -56,6 +67,7 @@ export async function GET() {
         description: `Belum ada pembaruan odometer untuk ${v.name}.`,
         time: "Segera",
         type: "warning",
+        icon: "IconGauge",
       });
     }
 
@@ -71,7 +83,8 @@ export async function GET() {
           title: `Pajak ${v.name} Jatuh Tempo!`,
           description: `Pajak ${v.name} sudah lewat ${Math.abs(diff)} hari. Segera bayar!`,
           time: "Overdue",
-          type: "danger" as const,
+          type: "danger",
+          icon: "IconReceipt",
         });
       } else if (diff <= reminderDays) {
         notifications.push({
@@ -79,7 +92,8 @@ export async function GET() {
           title: `Pajak ${v.name} Akan Jatuh Tempo`,
           description: `Sisa ${diff} hari lagi. Segera siapkan pembayaran.`,
           time: `H-${diff}`,
-          type: "warning" as const,
+          type: "warning",
+          icon: "IconReceipt",
         });
       }
     }

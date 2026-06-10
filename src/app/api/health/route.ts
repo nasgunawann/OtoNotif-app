@@ -1,9 +1,13 @@
 import db from "@/db";
 import { vehicles, components } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getLatestOdometer, getWeeklyOdometerDelta, getFuelStats, getMonthlyOperatingCost } from "@/lib/odometer";
+import { requireAuth, unauth } from "@/lib/api-validate";
 
 export async function GET(request: Request) {
+  const { userId } = await requireAuth().catch(() => ({ userId: null }));
+  if (!userId) return unauth();
+
   const url = new URL(request.url);
   const vehicleId = url.searchParams.get("vehicleId");
 
@@ -14,7 +18,7 @@ export async function GET(request: Request) {
   const [vehicle] = await db
     .select()
     .from(vehicles)
-    .where(eq(vehicles.id, vehicleId))
+    .where(and(eq(vehicles.id, vehicleId), eq(vehicles.userId, userId)))
     .limit(1);
 
   if (!vehicle) {

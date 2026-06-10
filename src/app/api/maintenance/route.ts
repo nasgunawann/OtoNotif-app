@@ -1,19 +1,28 @@
 import db from "@/db";
-import { maintenanceRecords, components } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
-import { requireFields } from "@/lib/api-validate";
+import { vehicles, maintenanceRecords, components } from "@/db/schema";
+import { eq, and, desc } from "drizzle-orm";
+import { requireFields, requireAuth, unauth } from "@/lib/api-validate";
 
 export async function GET(request: Request) {
+  const { userId } = await requireAuth().catch(() => ({ userId: null }));
+  if (!userId) return unauth();
+
   const url = new URL(request.url);
   const vehicleId = url.searchParams.get("vehicleId");
 
+  const ownedVehicles = await db
+    .select({ id: vehicles.id })
+    .from(vehicles)
+    .where(eq(vehicles.userId, userId));
+  const ownedIds = new Set(ownedVehicles.map((v) => v.id));
+
   if (vehicleId) {
+    if (!ownedIds.has(vehicleId)) return unauth();
     const records = await db
       .select()
       .from(maintenanceRecords)
       .where(eq(maintenanceRecords.vehicleId, vehicleId))
-      .orderBy(desc(maintenanceRecords.date))
-      ;
+      .orderBy(desc(maintenanceRecords.date));
     return Response.json({ data: records });
   }
 
@@ -22,13 +31,24 @@ export async function GET(request: Request) {
     .from(maintenanceRecords)
     .orderBy(desc(maintenanceRecords.date));
 
-  return Response.json({ data: all });
+  const filtered = all.filter((r) => ownedIds.has(r.vehicleId));
+  return Response.json({ data: filtered });
 }
 
 export async function POST(request: Request) {
+  const { userId } = await requireAuth().catch(() => ({ userId: null }));
+  if (!userId) return unauth();
+
   const body = await request.json();
   const error = requireFields(body, ["vehicleId", "date"]);
   if (error) return Response.json({ error }, { status: 400 });
+
+  const [vehicle] = await db
+    .select({ id: vehicles.id })
+    .from(vehicles)
+    .where(and(eq(vehicles.id, body.vehicleId), eq(vehicles.userId, userId)))
+    .limit(1);
+  if (!vehicle) return unauth();
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -47,7 +67,6 @@ export async function POST(request: Request) {
 
   await db.insert(maintenanceRecords).values(record);
 
-  // Update component's last replaced odometer if maintenance is for a specific component
   if (body.componentId && body.odoReading > 0) {
     await db
       .update(components)

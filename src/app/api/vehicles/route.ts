@@ -1,9 +1,12 @@
 import db from "@/db";
 import { vehicles } from "@/db/schema";
-import { desc, sql, getTableColumns } from "drizzle-orm";
-import { requireFields } from "@/lib/api-validate";
+import { eq, desc, sql, getTableColumns } from "drizzle-orm";
+import { requireAuth, requireFields, unauth } from "@/lib/api-validate";
 
 export async function GET() {
+  const { userId } = await requireAuth().catch(() => ({ userId: null }));
+  if (!userId) return unauth();
+
   const data = await db
     .select({
       ...getTableColumns(vehicles),
@@ -25,12 +28,16 @@ export async function GET() {
       `,
     })
     .from(vehicles)
+    .where(eq(vehicles.userId, userId))
     .orderBy(desc(vehicles.createdAt));
 
   return Response.json({ data });
 }
 
 export async function POST(request: Request) {
+  const { userId } = await requireAuth().catch(() => ({ userId: null }));
+  if (!userId) return unauth();
+
   const body = await request.json();
   const error = requireFields(body, ["name", "type"]);
   if (error) return Response.json({ error }, { status: 400 });
@@ -38,10 +45,9 @@ export async function POST(request: Request) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  // TODO: get userId from session (Phase C)
   const vehicle = {
     id,
-    userId: body.userId || "",
+    userId,
     name: body.name,
     type: body.type,
     image: body.image || "",

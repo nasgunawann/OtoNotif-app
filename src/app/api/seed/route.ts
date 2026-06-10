@@ -1,28 +1,17 @@
 import db from "@/db";
-import { user, vehicles, odometerReadings, components, fuelLogs, maintenanceRecords } from "@/db/schema";
+import { vehicles, odometerReadings, components, fuelLogs, maintenanceRecords } from "@/db/schema";
+import { requireAuth, unauth } from "@/lib/api-validate";
 
 const now = new Date().toISOString();
-const nowPg = new Date();
 
-const demoUserId = crypto.randomUUID();
 const motorId = crypto.randomUUID();
 const mobilId = crypto.randomUUID();
 
-const seedData = async () => {
-  await db.insert(user).values({
-    id: demoUserId,
-    name: "Demo User",
-    email: "demo@otonotif.app",
-    emailVerified: false,
-    image: null,
-    createdAt: nowPg,
-    updatedAt: nowPg,
-  })
-
+const seedData = async (userId: string) => {
   await db.insert(vehicles).values([
     {
       id: motorId,
-      userId: demoUserId,
+      userId,
       name: "Supra Bapak",
       type: "motor",
       image: "/motorcycle_supra_mockup.png",
@@ -34,7 +23,7 @@ const seedData = async () => {
     },
     {
       id: mobilId,
-      userId: demoUserId,
+      userId,
       name: "Civic Turbo",
       type: "mobil",
       image: "/car_civic_mockup.png",
@@ -73,8 +62,11 @@ const seedData = async () => {
 };
 
 export async function POST() {
+  const { userId } = await requireAuth().catch(() => ({ userId: null }));
+  if (!userId) return unauth();
+
   try {
-    await seedData();
+    await seedData(userId);
     return Response.json({ data: { message: "Seed data created successfully" } });
   } catch {
     return Response.json({ error: "Seed failed" }, { status: 500 });
