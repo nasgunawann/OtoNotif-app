@@ -1,5 +1,5 @@
 import db from "@/db";
-import { maintenanceRecords } from "@/db/schema";
+import { maintenanceRecords, components } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 export async function GET(request: Request) {
@@ -43,5 +43,14 @@ export async function POST(request: Request) {
   };
 
   await db.insert(maintenanceRecords).values(record);
+
+  // Update component's last replaced odometer if maintenance is for a specific component
+  if (body.componentId && body.odoReading) {
+    await db
+      .update(components)
+      .set({ lastReplacedOdo: body.odoReading, updatedAt: now })
+      .where(eq(components.id, body.componentId));
+  }
+
   return Response.json({ data: record }, { status: 201 });
 }
