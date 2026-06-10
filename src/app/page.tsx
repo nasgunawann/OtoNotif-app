@@ -58,18 +58,15 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (_hydrated) {
-      fetchVehicles();
-    }
-  }, [_hydrated, fetchVehicles]);
+    if (!_hydrated || sessionLoading) return
 
-  useEffect(() => {
-    if (_hydrated && !sessionLoading) {
-      if (!session && !isDemo && vehicles.length === 0) {
-        router.replace("/login")
-      }
+    if (!session && !isDemo && vehicles.length === 0) {
+      router.replace("/login")
+      return
     }
-  }, [_hydrated, sessionLoading, session, isDemo, vehicles.length, router])
+
+    fetchVehicles()
+  }, [_hydrated, sessionLoading, session, isDemo, vehicles.length, router, fetchVehicles])
 
   const primaryVehicle = vehicles.find((v) => v.isPrimary) || vehicles[0];
   const isFetched = vehicles.length > 0;
