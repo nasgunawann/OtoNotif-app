@@ -169,23 +169,23 @@ Use it like:
 ## Log Komit Terbaru
 
 ```
-9866166 fix: isFull auto-fill liters NaN bug — always set value even if 0
+cfc3e1c fix: stale activities, empty vehicleId, API validation, redundant calls
+171ca62 fix: update component lastReplacedOdo when maintenance is logged
+867d308 feat: reduce input friction - auto-fill fuelType and service cost
+61a2fcf docs: update HANDOUT.md with session summary and design decisions
+4c6dfc0 feat: add isFull toggle for fuel fill-up
+9866166 fix: isFull auto-fill liters NaN bug
 4495058 feat: isFull auto-fills liters based on tank capacity minus estimated remaining
 8888206 feat: fuel gauge estimating state with calibration guidance
-4c6dfc0 feat: add isFull toggle for fuel fill-up
 e79d582 feat: fix km/L calculation, add kmPerLiter field, remove Rp/km
 7443c97 feat: history page UX improvements (month names, cost summary, date format)
-a795489 refactor: remove safe section from maintenance page
 375a202 feat: redesign maintenance page with urgency sections + cost summary
+a795489 refactor: remove safe section from maintenance page
 0be1876 feat: add estimated distance mode for broken speedometer
 c6c10a2 feat: PayTaxSheet, history odometer, activity feed
-2f0a50b feat: header icons, taxIntervalYears schema+types+store+api+form
-df64d7b refactor: remove odoReading from forms, rename Biaya to Pengeluaran
 d7fb467 fix: component lastReplacedOdo defaults to latestOdo, not 0
 ee51130 fix: component detail padding, back btn duplicate, info card image, estimated cost
 bab4220 feat: redesign vehicle detail layout & replace health% with componentSummary
-1c8faf4 feat: component management UX overhaul
-72c8e4e feat: add vehicle tax reminder feature
 ```
 
 ## Sesi Terbaru (Juni 2026)
@@ -216,6 +216,32 @@ bab4220 feat: redesign vehicle detail layout & replace health% with componentSum
 - `kmPerLiter` field di `fuel_logs` (manual input opsional)
 - `isFull` field di `fuel_logs`
 - `estimating` flag di getFuelStats response
+
+### Audit & Perbaikan
+- API input validation via `requireFields()` helper di semua POST routes
+- Aktivitas Terbaru refresh setelah submit (stale data fix)
+- QuickInputDrawer guard ketika tidak ada kendaraan
+- Hapus redundant API calls (odometer, vehicles)
+- Fix component `lastReplacedOdo` update saat maintenance logged
+
+## Rencana Sesi Mendatang
+
+### Sesi 1: Autentikasi (Prioritas)
+- Auth.js (NextAuth v5) — login Google/GitHub/credentials
+- Tabel `users` + relasi `userId` di semua tabel
+- Halaman login/register
+- Session check di layout + middleware
+- Ganti username localStorage dengan session real
+- Profil page pake data user asli
+- **Estimasi: ~15-20 file berubah**
+
+### Sesi 2: Database Migration (SQLite → PostgreSQL)
+- Ganti `sqliteTable` → `pgTable` di schema
+- Ganti driver `better-sqlite3` → `pg` / `@neondatabase/serverless`
+- Update `src/db/index.ts` untuk koneksi Postgres
+- Migration data: export SQLite → import Postgres
+- Docker: tambah service PostgreSQL
+- **Estimasi: ~10 file berubah**
 
 ## Known Issues / TODOs
 
