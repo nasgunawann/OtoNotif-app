@@ -20,7 +20,7 @@ export function Sidebar() {
     <div className="flex flex-col h-full bg-card/50">
       {/* Logo Area */}
       <div className="h-16 border-b flex items-center justify-center px-6">
-        <Link href="/" className="flex items-center">
+        <Link href="/dashboard" className="flex items-center">
           <Image
             src="/logo-light.svg"
             alt="OtoNotif Logo"

@@ -16,9 +16,9 @@ export function Topbar() {
 
   const getTitle = () => getPageTitle(pathname)
 
-  const isHome = pathname === "/"
+  const isHome = pathname === "/dashboard"
   const title = getTitle()
-  const navPaths = ["/", "/vehicles", "/maintenance", "/history"]
+  const navPaths = ["/dashboard", "/vehicles", "/maintenance", "/history"]
   const showBackButton = !navPaths.includes(pathname || "")
 
   return (
@@ -31,7 +31,7 @@ export function Topbar() {
         )}
         <div className="font-bold text-lg text-primary flex items-center gap-2">
           {isHome ? (
-            <Link href="/" className="flex items-center">
+            <Link href="/dashboard" className="flex items-center">
               <Image src="/logo-light.svg" alt="OtoNotif Logo" width={32} height={32} className="h-8 w-auto dark:hidden" />
               <Image src="/logo-dark.svg" alt="OtoNotif Logo" width={32} height={32} className="h-8 w-auto hidden dark:block" />
             </Link>

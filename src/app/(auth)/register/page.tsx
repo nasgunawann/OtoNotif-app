@@ -21,10 +21,19 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const setDemoCookie = () => {
+    document.cookie = "otonotif_demo=true; path=/; max-age=86400"
+  }
+
+  const clearDemoCookie = () => {
+    document.cookie = "otonotif_demo=; max-age=0; path=/"
+  }
+
   const handleDemo = () => {
     initDemoData()
     setIsDemo(true)
-    router.push("/")
+    setDemoCookie()
+    router.push("/dashboard")
     toast.success("Mode demo aktif. Data disimpan di browser.")
   }
 
@@ -38,11 +47,13 @@ export default function RegisterPage() {
       return
     }
     setIsDemo(false)
-    router.push("/")
+    clearDemoCookie()
+    router.push("/dashboard")
   }
 
   const handleGoogle = async () => {
-    await signIn.social({ provider: "google", callbackURL: "/" })
+    clearDemoCookie()
+    await signIn.social({ provider: "google", callbackURL: "/dashboard" })
   }
 
   return (

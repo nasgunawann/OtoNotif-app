@@ -8,7 +8,7 @@ import {
 
 export const NAV_ITEMS = [
   {
-    href: "/",
+    href: "/dashboard",
     label: "Beranda",
     icon: IconHome,
     mobile: true,

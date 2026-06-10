@@ -8,6 +8,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     method: options.method || "GET",
     headers: { "Content-Type": "application/json" },
     body: options.body ? JSON.stringify(options.body) : undefined,
+    credentials: "include",
   })
 
   const json = await res.json()
