@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   // 1. Defaults to standalone unless overridden by your environment flag
   output: disableStandalone ? undefined : "standalone",
 
-  allowedDevOrigins: ["192.168.1.8"],
+  allowedDevOrigins: ["192.168.1.10"],
 
   serverExternalPackages: ["better-sqlite3"],
 };

@@ -182,7 +182,7 @@ export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: P
               </FormControl>
               <p className="text-[10px] text-muted-foreground">
                 Odometer saat ini: {currentOdo.toLocaleString("id-ID")} km
-                {currentOdo > 0 && " — biarkan 0 jika baru pertama kali"}
+                {currentOdo > 0 && " — biarkan jika baru pertama kali tracking"}
               </p>
               <FormMessage />
             </FormItem>
