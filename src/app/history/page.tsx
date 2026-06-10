@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { IconDroplet, IconTool, IconTrash, IconGauge, IconCoin, IconCar } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
-import type { FuelLog, MaintenanceRecord, OdometerReading } from "@/lib/types"
-import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import type { FuelLog, MaintenanceRecord, OdometerReading, Vehicle } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -103,7 +102,8 @@ const typeFilters = [
 ]
 
 export default function HistoryPage() {
-  const { vehicles, fetchVehicles } = useVehicleStore()
+
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([])
   const [fuelLogs, setFuelLogs] = useState<FuelLog[]>([])
   const [maintenance, setMaintenance] = useState<MaintenanceRecord[]>([])
   const [odometerReadings, setOdometerReadings] = useState<OdometerReading[]>([])
@@ -115,15 +115,15 @@ export default function HistoryPage() {
     async function load() {
       setLoading(true)
       try {
-        await fetchVehicles()
-        const [fuel, maint] = await Promise.all([
+        const [v, fuel, maint] = await Promise.all([
+          api.getVehicles(),
           api.getFuelLogs(),
           api.getMaintenanceRecords(),
         ])
+        setAllVehicles(v)
         setFuelLogs(fuel)
         setMaintenance(maint)
 
-        const v = vehicles.length > 0 ? vehicles : await api.getVehicles()
         const odoPromises = v.map((v) => api.getOdometerReadings(v.id))
         const odoResults = await Promise.all(odoPromises)
         setOdometerReadings(odoResults.flat())
@@ -134,7 +134,7 @@ export default function HistoryPage() {
       }
     }
     load()
-  }, [fetchVehicles])
+  }, [])
 
   const odoDeltas = useMemo(() => computeOdoDeltas(odometerReadings), [odometerReadings])
 
@@ -179,7 +179,7 @@ export default function HistoryPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Semua Kendaraan</SelectItem>
-              {vehicles.map((v) => (
+              {allVehicles.map((v) => (
                 <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
               ))}
             </SelectContent>
@@ -241,7 +241,7 @@ export default function HistoryPage() {
                 <CardContent className="pt-2">
                   <div className="space-y-3">
                     {items.map((item) => {
-                      const vehicle = vehicles.find((v) => v.id === item.vehicleId)
+                      const vehicle = allVehicles.find((v) => v.id === item.vehicleId)
                       const vehicleName = vehicle ? vehicle.name : "Kendaraan"
                       const isOdo = item.type === "odometer"
                       const isFuel = item.type === "fuel"

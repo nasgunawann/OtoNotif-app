@@ -192,10 +192,12 @@ export default function MaintenancePage() {
           <p className="text-sm font-bold mb-1">Belum Ada Komponen yang Dipantau</p>
           <p className="text-xs text-muted-foreground mb-4">Tambahkan komponen untuk mulai memantau jadwal perawatannya.</p>
           <div className="flex justify-center gap-2">
-            <FormDialog title="Tambah Komponen"
-              trigger={<Button size="sm" className="text-xs font-bold gap-1 rounded-full"><IconPlus className="h-3.5 w-3.5" /> Tambah Komponen</Button>}>
-              <ComponentForm vehicleId="" onSuccess={() => { loadData() }} />
-            </FormDialog>
+            {healthData.length > 0 && (
+              <FormDialog title="Tambah Komponen"
+                trigger={<Button size="sm" className="text-xs font-bold gap-1 rounded-full"><IconPlus className="h-3.5 w-3.5" /> Tambah Komponen</Button>}>
+                <ComponentForm vehicleId={healthData[0].vehicle.id} vehicleType={healthData[0].vehicle.type} onSuccess={() => { loadData() }} />
+              </FormDialog>
+            )}
             <Button size="sm" variant="outline" className="text-xs font-bold gap-1 rounded-full"
               onClick={() => setOpenSelectComponents(true)}>
               <IconPlus className="h-3.5 w-3.5" /> Komponen Umum

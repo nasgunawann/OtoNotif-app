@@ -74,8 +74,6 @@ export default function VehicleDetailPage() {
     fetchVehicle,
     fetchVehicleHealth,
     fetchComponents,
-    fetchOdometerReadings,
-    deleteOdometerReading,
     deleteVehicle,
     updateVehicle,
     loading
@@ -91,46 +89,37 @@ export default function VehicleDetailPage() {
   const [detailComponent, setDetailComponent] = useState<ComponentHealth | null>(null)
   const [activities, setActivities] = useState<ActivityItem[]>([])
 
-  useEffect(() => {
-    if (id) {
-      fetchVehicle(id)
-      fetchVehicleHealth(id)
-      fetchComponents(id)
-      fetchOdometerReadings(id)
-    }
-  }, [id, fetchVehicle, fetchVehicleHealth, fetchComponents, fetchOdometerReadings])
+  async function loadActivities(vehicleId: string) {
+    try {
+      const [fuel, maint, odos] = await Promise.all([
+        api.getFuelLogs(vehicleId),
+        api.getMaintenanceRecords(vehicleId),
+        api.getOdometerReadings(vehicleId),
+      ])
+      const odoSorted = [...odos].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      const odoDeltas = new Map<string, number>()
+      for (let i = 1; i < odoSorted.length; i++) {
+        const d = odoSorted[i].reading - odoSorted[i - 1].reading
+        if (d > 0) odoDeltas.set(odoSorted[i].id, d)
+      }
+      const all: ActivityItem[] = [
+        ...odos.map(o => ({ id: o.id, type: "odometer" as const, reading: o.reading, date: o.date, delta: odoDeltas.get(o.id) || 0 })),
+        ...fuel.map(f => ({ id: f.id, type: "fuel" as const, date: f.date, fuelType: f.fuelType, liters: f.liters, amount: f.amount, delta: 0 })),
+        ...maint.map(m => ({ id: m.id, type: "maintenance" as const, date: m.date, description: m.description, cost: m.cost, delta: 0 })),
+      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8)
+      setActivities(all)
+    } catch {}
+  }
 
   useEffect(() => {
-    if (!id) return
-    async function load() {
-      try {
-        const [fuel, maint, odos] = await Promise.all([
-          api.getFuelLogs(id),
-          api.getMaintenanceRecords(id),
-          api.getOdometerReadings(id),
-        ])
-        const odoSorted = [...odos].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        const odoDeltas = new Map<string, number>()
-        for (let i = 1; i < odoSorted.length; i++) {
-          const d = odoSorted[i].reading - odoSorted[i - 1].reading
-          if (d > 0) odoDeltas.set(odoSorted[i].id, d)
-        }
-        const all: ActivityItem[] = [
-          ...odos.map(o => ({ id: o.id, type: "odometer" as const, reading: o.reading, date: o.date, delta: odoDeltas.get(o.id) || 0 })),
-          ...fuel.map(f => ({ id: f.id, type: "fuel" as const, date: f.date, fuelType: f.fuelType, liters: f.liters, amount: f.amount, delta: 0 })),
-          ...maint.map(m => ({ id: m.id, type: "maintenance" as const, date: m.date, description: m.description, cost: m.cost, delta: 0 })),
-        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8)
-        setActivities(all)
-      } catch {}
-    }
-    load()
+    if (id) loadActivities(id)
   }, [id])
 
   function refresh() {
     if (id) {
       fetchVehicleHealth(id)
       fetchComponents(id)
-      fetchOdometerReadings(id)
+      loadActivities(id)
     }
   }
 

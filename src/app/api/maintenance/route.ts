@@ -1,6 +1,7 @@
 import db from "@/db";
 import { maintenanceRecords, components } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { requireFields } from "@/lib/api-validate";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -27,6 +28,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const body = await request.json();
+  const error = requireFields(body, ["vehicleId", "date"]);
+  if (error) return Response.json({ error }, { status: 400 });
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
   await db.insert(maintenanceRecords).values(record);
 
   // Update component's last replaced odometer if maintenance is for a specific component
-  if (body.componentId && body.odoReading) {
+  if (body.componentId && body.odoReading > 0) {
     await db
       .update(components)
       .set({ lastReplacedOdo: body.odoReading, updatedAt: now })

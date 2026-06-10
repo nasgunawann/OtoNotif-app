@@ -8,6 +8,7 @@ import {
   IconDroplet,
   IconTool,
   IconCheck,
+  IconCar,
 } from "@tabler/icons-react";
 import {
   Dialog,
@@ -59,6 +60,16 @@ function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
     vehicleType: primary?.type || "motor",
     onSuccess,
   };
+
+  if (!primary) {
+    return (
+      <div className="py-8 text-center">
+        <IconCar className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+        <p className="text-sm font-bold mb-1">Belum Ada Kendaraan</p>
+        <p className="text-xs text-muted-foreground">Tambahkan kendaraan dulu untuk mulai mencatat.</p>
+      </div>
+    )
+  }
 
   if (step !== "menu") {
     const Form =
