@@ -37,6 +37,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { IconChevronLeft } from "@tabler/icons-react";
 import type { Vehicle } from "@/lib/types";
 import { SelectComponentsDialog } from "@/components/layout/SelectComponentsDialog";
+import { useVehicleStore } from "@/lib/store/use-vehicle-store";
 
 type Step = "menu" | "odometer" | "fuel" | "service";
 
@@ -44,13 +45,19 @@ function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
   const [step, setStep] = useState<Step>("menu");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectComponentsOpen, setSelectComponentsOpen] = useState(false);
+  const isDemo = useVehicleStore((s) => s.isDemo);
+  const storeVehicles = useVehicleStore((s) => s.vehicles);
 
   useEffect(() => {
+    if (isDemo) {
+      setVehicles(storeVehicles)
+      return
+    }
     api
       .getVehicles()
       .then(setVehicles)
       .catch(() => {});
-  }, []);
+  }, [isDemo, storeVehicles]);
 
   const primary = vehicles.find((v) => v.isPrimary) || vehicles[0];
 

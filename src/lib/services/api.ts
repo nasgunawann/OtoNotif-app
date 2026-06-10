@@ -14,6 +14,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const json = await res.json()
 
   if (!res.ok) {
+    if (res.status === 401 && typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("otonotif-demo-storage")
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (parsed?.state?.vehicles?.length > 0) {
+            return (Array.isArray(json) ? [] : {}) as T
+          }
+        }
+      } catch {}
+    }
     throw new Error(json.error || "Request failed")
   }
 
