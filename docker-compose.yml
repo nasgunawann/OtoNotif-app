@@ -18,18 +18,15 @@ services:
     build:
       context: .
       dockerfile: dockerfile
-    image: nasgunawan/otonotif-app:latest
+    image: ${DOCKER_IMAGE_NAME:-nasgunawan/otonotif-app:latest}
     container_name: otonotif-web
     expose:
       - "3000"
     environment:
-      - HOSTNAME=0.0.0.0
       - PORT=3000
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/otonotif
-    depends_on:
-      - db
+      - DATABASE_URL=${DATABASE_URL}
     restart: always
     networks:
       - default

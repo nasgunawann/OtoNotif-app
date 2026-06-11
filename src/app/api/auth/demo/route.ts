@@ -37,7 +37,6 @@ export async function POST() {
     });
 
     const demoUserId = signUpResult.response.user.id;
-    const setCookieHeader = signUpResult.headers.get("set-cookie");
 
     // 3. Salin Data Seed Template ke Database
     const seed = getDemoSeedData();
@@ -145,8 +144,19 @@ export async function POST() {
     // 4. Buat response dan teruskan header cookie autentikasi yang sah ke browser
     const response = NextResponse.json({ success: true });
     
-    if (setCookieHeader) {
-      response.headers.set("set-cookie", setCookieHeader);
+    if (signUpResult.headers.getSetCookie) {
+      const cookies = signUpResult.headers.getSetCookie();
+      for (const cookie of cookies) {
+        response.headers.append("set-cookie", cookie);
+      }
+    } else {
+      const setCookie = signUpResult.headers.get("set-cookie");
+      if (setCookie) {
+        const cookies = setCookie.split(/,\s*(?=[a-zA-Z0-9_.-]+=)/);
+        for (const cookie of cookies) {
+          response.headers.append("set-cookie", cookie);
+        }
+      }
     }
 
     return response;
