@@ -19,6 +19,7 @@ export function NumberInput({ value, onChange, ...props }: NumberInputProps) {
   useEffect(() => {
     const formatted = formatNumber(value)
     if (formatted !== displayValue) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayValue(formatted)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

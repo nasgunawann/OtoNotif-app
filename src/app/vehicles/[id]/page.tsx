@@ -116,6 +116,7 @@ export default function VehicleDetailPage() {
       fetchVehicle(id)
       fetchVehicleHealth(id)
       fetchComponents(id)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadActivities(id)
     }
   }, [id, fetchVehicle, fetchVehicleHealth, fetchComponents])

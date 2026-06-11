@@ -50,6 +50,7 @@ export function SelectComponentsDialog({ vehicle, open, onOpenChange, onSuccess 
 
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelected(new Set())
     }
   }, [open])

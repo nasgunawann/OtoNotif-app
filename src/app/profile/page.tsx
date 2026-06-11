@@ -33,6 +33,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (displayName) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNameInput(displayName)
     }
   }, [displayName])
