@@ -22,15 +22,20 @@ services:
     container_name: otonotif-web
     expose:
       - "3000"
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
     environment:
       - PORT=3000
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
-      - DATABASE_URL=${DATABASE_URL}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - DATABASE_URL
+      - BETTER_AUTH_SECRET
+      - BETTER_AUTH_URL
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
     restart: always
     networks:
       - default
