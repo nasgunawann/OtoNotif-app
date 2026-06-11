@@ -1,3 +1,4 @@
+import "./load-env";
 import { Client } from "pg";
 import { runMigrations } from "../src/db/migrate";
 import { execSync } from "child_process";
