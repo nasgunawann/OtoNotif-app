@@ -24,12 +24,17 @@ async function main() {
   await runMigrations();
   console.log("Migrations complete!");
 
-  console.log("Running seed...");
-  try {
-    execSync("pnpm run db:seed", { stdio: "inherit" });
-    console.log("Reset and seed complete!");
-  } catch (error) {
-    console.error("Failed to run seed script:", error);
+  const shouldSeed = process.argv.includes("--seed");
+  if (shouldSeed) {
+    console.log("Running seed...");
+    try {
+      execSync("pnpm run db:seed", { stdio: "inherit" });
+      console.log("Reset and seed complete!");
+    } catch (error) {
+      console.error("Failed to run seed script:", error);
+    }
+  } else {
+    console.log("Reset complete (no seed requested).");
   }
 }
 
