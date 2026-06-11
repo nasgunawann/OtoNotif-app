@@ -9,7 +9,7 @@ env:
   DOCKER_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/otonotif-app
 
 jobs:
-  build-and-push:
+  build-push-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -52,10 +52,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -68,22 +64,19 @@ jobs:
             DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}
             COMPOSE_DIR=~/otonotif-app
 
-            # Setup
+            # Setup directory
             mkdir -p "$COMPOSE_DIR"
             cd "$COMPOSE_DIR"
 
-            # Pull compose file langsung dari GitHub (gak perlu scp)
+            # Pull compose file langsung dari GitHub
             curl -sSO https://raw.githubusercontent.com/nasgunawann/OtoNotif-app/main/docker-compose.yml
-
-            # Inject image tag
-            echo "DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME" > .env
 
             # Login Docker Hub
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            # Pull image baru & deploy
-            sudo docker compose pull
-            sudo docker compose up -d --force-recreate --remove-orphans
+            # Pull image baru & deploy (gunakan inline env agar tidak menimpa .env VPS)
+            sudo DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME docker compose pull
+            sudo DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME docker compose up -d --force-recreate --remove-orphans
 
             # Bersihin image lama
             sudo docker image prune -af --filter "until=24h"
