@@ -54,9 +54,12 @@ export default function Dashboard() {
 
   const { data: session, isPending: sessionLoading } = useSession();
 
+  console.log("[Dashboard Render] state:", { vehicles, loading, _hydrated, session, sessionLoading });
+
   const router = useRouter();
 
   useEffect(() => {
+    console.log("[Dashboard useEffect] trigger check:", { _hydrated, sessionLoading, session });
     if (!_hydrated || sessionLoading) return
 
     if (!session) {

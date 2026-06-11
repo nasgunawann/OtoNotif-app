@@ -1,7 +1,6 @@
 "use client"
 
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
 import { api } from "@/lib/services/api"
 import type { Vehicle, OdometerReading, FuelLog, Component, MaintenanceRecord, VehicleHealth, CreateOdometerInput, CreateFuelLogInput, CreateComponentInput, CreateMaintenanceInput } from "@/lib/types"
 import type { ComponentTemplate } from "@/lib/component-templates"
@@ -18,6 +17,7 @@ interface VehicleStore {
   error: string | null
 
   _hydrated: boolean
+  setHydrated: () => void
 
   fetchVehicles: () => Promise<void>
   fetchVehicle: (id: string) => Promise<void>
@@ -49,20 +49,19 @@ interface VehicleStore {
   initializeUserName: () => void
 }
 
-export const useVehicleStore = create<VehicleStore>()(
-  persist(
-    (set, get) => ({
-      vehicles: [],
-      selectedVehicle: null,
-      vehicleHealth: null,
-      odometerReadings: [],
-      fuelLogs: [],
-      components: [],
-      maintenanceRecords: [],
-      loading: false,
-      error: null,
+export const useVehicleStore = create<VehicleStore>((set, get) => ({
+  vehicles: [],
+  selectedVehicle: null,
+  vehicleHealth: null,
+  odometerReadings: [],
+  fuelLogs: [],
+  components: [],
+  maintenanceRecords: [],
+  loading: false,
+  error: null,
 
-      _hydrated: false,
+  _hydrated: false,
+  setHydrated: () => set({ _hydrated: true }),
 
       userName: "Nanas Gunung",
 
@@ -70,8 +69,10 @@ export const useVehicleStore = create<VehicleStore>()(
         set({ loading: true })
         try {
           const vehicles = await api.getVehicles()
+          console.log("[useVehicleStore] fetchVehicles success:", vehicles)
           set({ vehicles, loading: false, error: null })
         } catch (e) {
+          console.error("[useVehicleStore] fetchVehicles error:", e)
           set({ error: (e as Error).message, loading: false })
         }
       },
@@ -441,15 +442,4 @@ export const useVehicleStore = create<VehicleStore>()(
           }
         }
       },
-    }),
-    {
-      name: "otonotif-demo-storage",
-      partialize: (state) => ({}),
-      onRehydrateStorage: () => () => {
-        useVehicleStore.setState({
-          _hydrated: true,
-        })
-      },
-    }
-  )
-)
+    }))

@@ -12,13 +12,14 @@ import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 const authPaths = ["/login", "/register"]
 
 export function ResponsiveLayout({ children }: { children: React.ReactNode }) {
-  const { initializeUserName } = useVehicleStore()
+  const { initializeUserName, setHydrated } = useVehicleStore()
   const pathname = usePathname()
   const isAuth = authPaths.includes(pathname)
 
   useEffect(() => {
     initializeUserName()
-  }, [initializeUserName])
+    setHydrated()
+  }, [initializeUserName, setHydrated])
 
   if (isAuth) {
     return <>{children}</>
