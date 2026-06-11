@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:seed": "pnpm dlx tsx scripts/seed.ts"
+    "db:seed": "pnpm dlx tsx scripts/seed.ts",
+    "db:reset": "pnpm dlx tsx scripts/reset.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
