@@ -1,9 +1,10 @@
-import "./load-env";
+import dotenv from "dotenv";
 import { Client } from "pg";
-import { runMigrations } from "../src/db/migrate";
 import { execSync } from "child_process";
 
-const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/otonotif";
+dotenv.config({ path: ".env.local" });
+
+const connectionString = process.env.DATABASE_URL!;
 
 async function main() {
   console.log("Resetting database schema (dropping and recreating public schema)...");
@@ -22,8 +23,7 @@ async function main() {
   }
 
   console.log("Running migrations...");
-  await runMigrations();
-  console.log("Migrations complete!");
+  execSync("pnpm drizzle-kit migrate", { stdio: "inherit" });
 
   const shouldSeed = process.argv.includes("--seed");
   if (shouldSeed) {
