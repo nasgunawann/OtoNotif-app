@@ -49,37 +49,33 @@ export default function Dashboard() {
     setPrimaryVehicle,
     loading,
     userName,
-    _hydrated,
   } = useVehicleStore();
 
   const { data: session, isPending: sessionLoading } = useSession();
 
-  console.log("[Dashboard Render] state:", { vehicles, loading, _hydrated, session, sessionLoading });
-
   const router = useRouter();
 
   useEffect(() => {
-    console.log("[Dashboard useEffect] trigger check:", { _hydrated, sessionLoading, session });
-    if (!_hydrated || sessionLoading) return
+    if (sessionLoading) return;
 
     if (!session) {
-      router.replace("/login")
-      return
+      router.replace("/login");
+      return;
     }
 
-    fetchVehicles()
-  }, [_hydrated, sessionLoading, session, router, fetchVehicles])
+    fetchVehicles();
+  }, [sessionLoading, session, router, fetchVehicles]);
 
   const primaryVehicle = vehicles.find((v) => v.isPrimary) || vehicles[0];
   const isFetched = vehicles.length > 0;
 
   useEffect(() => {
-    if (_hydrated && primaryVehicle) {
+    if (primaryVehicle) {
       fetchVehicleHealth(primaryVehicle.id);
     }
-  }, [_hydrated, primaryVehicle, fetchVehicleHealth]);
+  }, [primaryVehicle, fetchVehicleHealth]);
 
-  if (!_hydrated || sessionLoading || (loading && !isFetched)) {
+  if (sessionLoading || (loading && !isFetched)) {
     return (
       <div className="space-y-6 pb-20 md:pb-6 animate-pulse">
         <div className="h-8 bg-muted rounded w-48" />

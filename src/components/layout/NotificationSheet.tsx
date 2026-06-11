@@ -36,12 +36,11 @@ const colorMap = {
 
 export function NotificationSheet({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const { fetchNotificationsSilent, _hydrated } = useVehicleStore()
+  const { fetchNotificationsSilent } = useVehicleStore()
 
   useEffect(() => {
-    if (!_hydrated) return
     fetchNotificationsSilent().then(setNotifications).catch(() => {})
-  }, [_hydrated, fetchNotificationsSilent])
+  }, [fetchNotificationsSilent])
 
   return (
     <Sheet>

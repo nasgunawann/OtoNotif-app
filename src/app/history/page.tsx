@@ -103,8 +103,6 @@ const typeFilters = [
 ]
 
 export default function HistoryPage() {
-  const { _hydrated } = useVehicleStore()
-
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([])
   const [fuelLogs, setFuelLogs] = useState<FuelLog[]>([])
   const [maintenance, setMaintenance] = useState<MaintenanceRecord[]>([])
@@ -114,7 +112,6 @@ export default function HistoryPage() {
   const [selectedLogType, setSelectedLogType] = useState<string>("all")
 
   useEffect(() => {
-    if (!_hydrated) return
     async function load() {
       setLoading(true)
       try {
@@ -137,7 +134,7 @@ export default function HistoryPage() {
       }
     }
     load()
-  }, [_hydrated])
+  }, [])
 
   const odoDeltas = useMemo(() => computeOdoDeltas(odometerReadings), [odometerReadings])
 

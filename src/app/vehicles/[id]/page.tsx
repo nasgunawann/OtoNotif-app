@@ -77,7 +77,6 @@ export default function VehicleDetailPage() {
     deleteVehicle,
     updateVehicle,
     loading,
-    _hydrated,
   } = useVehicleStore()
 
   const [openOdometer, setOpenOdometer] = useState(false)
@@ -113,14 +112,13 @@ export default function VehicleDetailPage() {
   }
 
   useEffect(() => {
-    if (!_hydrated) return
     if (id) {
       fetchVehicle(id)
       fetchVehicleHealth(id)
       fetchComponents(id)
       loadActivities(id)
     }
-  }, [_hydrated, id, fetchVehicle, fetchVehicleHealth, fetchComponents])
+  }, [id, fetchVehicle, fetchVehicleHealth, fetchComponents])
 
   function refresh() {
     if (id) {

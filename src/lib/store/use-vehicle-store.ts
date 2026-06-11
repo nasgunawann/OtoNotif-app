@@ -16,8 +16,7 @@ interface VehicleStore {
   loading: boolean
   error: string | null
 
-  _hydrated: boolean
-  setHydrated: () => void
+
 
   fetchVehicles: () => Promise<void>
   fetchVehicle: (id: string) => Promise<void>
@@ -59,9 +58,6 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
   maintenanceRecords: [],
   loading: false,
   error: null,
-
-  _hydrated: false,
-  setHydrated: () => set({ _hydrated: true }),
 
       userName: "Nanas Gunung",
 
