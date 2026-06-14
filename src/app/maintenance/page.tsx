@@ -221,11 +221,15 @@ export default function MaintenancePage() {
                     <div className="flex items-center gap-2 min-w-0">
                       <IconAlertCircle className="h-4 w-4 text-red-500 shrink-0" />
                       <span className="text-sm font-bold truncate">{item.component.name}</span>
-                      <Badge variant="outline" className="text-[9px] py-0 px-1.5 h-4 rounded-full font-bold shrink-0">{item.vehicleName}</Badge>
+                      <Badge variant="outline" className="text-[11px] py-0.5 px-2 rounded-full font-bold shrink-0">{item.vehicleName}</Badge>
                     </div>
-                    <button type="button" className="shrink-0 p-1 rounded-full hover:bg-muted transition-colors"
-                      onClick={() => setDetailComponent({ data: item, vehicleId: item.vehicleId, vehicleName: item.vehicleName, vehicleType: item.vehicleType })}>
-                      <IconChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                    <button 
+                      type="button" 
+                      className="shrink-0 h-10 w-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      onClick={() => setDetailComponent({ data: item, vehicleId: item.vehicleId, vehicleName: item.vehicleName, vehicleType: item.vehicleType })}
+                      aria-label={`Lihat rincian detail ${item.component.name}`}
+                    >
+                      <IconChevronRight className="h-5 w-5 text-muted-foreground" />
                     </button>
                   </div>
                   <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-2">
@@ -241,11 +245,11 @@ export default function MaintenancePage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       {tmpl?.estimatedCost && (
-                        <span className="text-[10px] font-bold text-muted-foreground">{formatCompactCurrency(tmpl.estimatedCost)}</span>
+                        <span className="text-xs font-bold text-muted-foreground">{formatCompactCurrency(tmpl.estimatedCost)}</span>
                       )}
                     </div>
                     <FormDialog title="Tambah Servis" description={`Servis ${item.component.name} untuk ${item.vehicleName}`}
-                      trigger={<Button size="sm" className="h-7 text-[10px] font-bold gap-1 rounded-full"><IconTool className="h-3 w-3" /> Servis</Button>}>
+                      trigger={<Button size="sm" className="h-9 text-xs font-bold gap-1 rounded-full px-3.5"><IconTool className="h-3.5 w-3.5" /> Servis</Button>}>
                       <ServiceForm vehicleId={item.vehicleId} vehicleName={item.vehicleName}
                         defaultComponentId={item.component.id}
                         onSuccess={() => { loadData() }} />
@@ -277,14 +281,18 @@ export default function MaintenancePage() {
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="text-sm font-bold truncate">{item.component.name}</span>
-                        <Badge variant="outline" className="text-[9px] py-0 px-1.5 h-4 rounded-full font-bold shrink-0">{item.vehicleName}</Badge>
+                        <Badge variant="outline" className="text-[11px] py-0.5 px-2 rounded-full font-bold shrink-0">{item.vehicleName}</Badge>
                       </div>
-                      <button type="button" className="shrink-0 p-1 rounded-full hover:bg-muted transition-colors"
-                        onClick={() => setDetailComponent({ data: item, vehicleId: item.vehicleId, vehicleName: item.vehicleName, vehicleType: item.vehicleType })}>
-                        <IconInfoCircle className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <button 
+                        type="button" 
+                        className="shrink-0 h-10 w-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        onClick={() => setDetailComponent({ data: item, vehicleId: item.vehicleId, vehicleName: item.vehicleName, vehicleType: item.vehicleType })}
+                        aria-label={`Lihat rincian info ${item.component.name}`}
+                      >
+                        <IconInfoCircle className="h-5 w-5 text-muted-foreground" />
                       </button>
                     </div>
-                    <p className="text-[10px] text-muted-foreground mb-1.5">
+                    <p className="text-xs text-muted-foreground mb-1.5">
                       Sisa <span className="font-semibold text-orange-500">{item.remainingKm.toLocaleString()} km</span>
                       {weeks && <> ({weeks})</>}
                     </p>
@@ -292,11 +300,11 @@ export default function MaintenancePage() {
                       <div className="h-full rounded-full bg-orange-500" style={{ width: `${item.usagePercent}%` }} />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {tmpl?.estimatedCost ? formatCompactCurrency(tmpl.estimatedCost) : ""}
                       </span>
                       <FormDialog title="Tambah Servis" description={`Servis ${item.component.name}`}
-                        trigger={<Button size="sm" className="h-6 text-[9px] font-bold gap-1 rounded-full"><IconTool className="h-3 w-3" /> Servis</Button>}>
+                        trigger={<Button size="sm" className="h-9 text-xs font-bold gap-1 rounded-full px-3.5"><IconTool className="h-3.5 w-3.5" /> Servis</Button>}>
                         <ServiceForm vehicleId={item.vehicleId} vehicleName={item.vehicleName}
                           defaultComponentId={item.component.id}
                           onSuccess={() => { loadData() }} />

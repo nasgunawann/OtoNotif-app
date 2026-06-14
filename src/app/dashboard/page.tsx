@@ -188,7 +188,11 @@ export default function Dashboard() {
                   ? "bg-orange-500"
                   : "bg-green-500",
             )}
+            aria-hidden="true"
           />
+          <span className="sr-only">
+            Status: {healthStatus === "danger" ? "Kritis" : healthStatus === "warning" ? "Peringatan" : "Aman"}
+          </span>
         </div>
         <span
           className={cn(
@@ -226,7 +230,7 @@ export default function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 md:h-8 px-2 md:px-3 text-[10px] md:text-xs font-bold rounded-full"
+                  className="h-8 md:h-8 px-3 text-xs font-bold rounded-full"
                 >
                   Ganti
                 </Button>
@@ -251,15 +255,16 @@ export default function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Link href={`/vehicles/${primaryVehicle.id}`}>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-7 md:h-8 px-2 md:px-3 text-[10px] md:text-xs font-bold rounded-full gap-1"
-              >
-                Detail <IconChevronRight className="h-3 w-3" />
-              </Button>
-            </Link>
+            <Button
+              asChild
+              variant="secondary"
+              size="sm"
+              className="h-8 md:h-8 px-3 text-xs font-bold rounded-full gap-1"
+            >
+              <Link href={`/vehicles/${primaryVehicle.id}`}>
+                Detail <IconChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
           </div>
         </CardContent>
 
@@ -286,8 +291,8 @@ export default function Dashboard() {
         )}
       </Card>
 
-      {/* 3-Column Metrics Grid (Now 3 columns on both Mobile & Desktop) */}
-      <div className="grid grid-cols-3 gap-2 md:gap-4">
+      {/* 3-Column Metrics Grid (Now responsive stacked on Mobile, 3 columns on Desktop) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         {/* Odometer */}
         <Card className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 dark:border-amber-500/20 overflow-hidden relative group shadow-sm">
           <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">

@@ -184,13 +184,13 @@ export default function VehicleDetailPage() {
     >
       {/* === HEADER + COMPACT INFO BAR === */}
       <div className="flex items-center justify-between">
-        <div className="hidden md:flex items-center gap-2 min-w-0">
-          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => router.back()}>
+        <div className="flex items-center gap-2 min-w-0">
+          <Button variant="ghost" size="icon" className="shrink-0 hidden md:flex h-11 w-11" onClick={() => router.back()} aria-label="Kembali ke halaman sebelumnya">
             <IconChevronLeft className="h-5 w-5" />
           </Button>
           <div className="min-w-0">
             <h1 className="text-base md:text-lg font-bold truncate">{vehicle.name}</h1>
-            <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {vehicle.type === "motor" ? <IconMotorbike className="h-3 w-3 inline mr-0.5" /> : <IconCar className="h-3 w-3 inline mr-0.5" />}
               {vehicle.engine || vehicle.type} • {vehicle.fuelCapacity}L
             </p>
@@ -201,7 +201,7 @@ export default function VehicleDetailPage() {
             title="Update Odometer"
             description={vehicle.name}
             trigger={
-              <Button size="sm" className="h-8 text-xs font-bold gap-1 rounded-full hidden md:flex">
+              <Button size="sm" className="h-9 text-xs font-bold gap-1 rounded-full hidden md:flex px-4">
                 <IconGauge className="h-3.5 w-3.5" />
                 Update Odo
               </Button>
@@ -213,7 +213,7 @@ export default function VehicleDetailPage() {
           </FormDialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full" aria-label="Menu Pengaturan">
                 <IconSettings className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -234,15 +234,15 @@ export default function VehicleDetailPage() {
           {/* Mobile Quick Actions */}
           <div className="grid grid-cols-3 gap-2 lg:hidden">
             <FormDialog title="Update Odometer" description={vehicle.name} open={openOdometer} onOpenChange={setOpenOdometer}
-              trigger={<Button className="h-10 text-[10px] font-bold gap-1" variant="outline"><IconGauge className="h-3.5 w-3.5" /> Odometer</Button>}>
+              trigger={<Button className="h-11 text-xs font-bold gap-1 px-2.5" variant="outline"><IconGauge className="h-4 w-4" /> Odometer</Button>}>
               <OdometerForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenOdometer(false); refresh() }} />
             </FormDialog>
             <FormDialog title="Isi Bensin" description={vehicle.name} open={openFuel} onOpenChange={setOpenFuel}
-              trigger={<Button className="h-10 text-[10px] font-bold gap-1" variant="outline"><IconDroplet className="h-3.5 w-3.5 text-blue-500" /> Bensin</Button>}>
+              trigger={<Button className="h-11 text-xs font-bold gap-1 px-2.5" variant="outline"><IconDroplet className="h-4 w-4 text-blue-500" /> Bensin</Button>}>
               <FuelForm vehicleId={vehicle.id} vehicleName={vehicle.name} onSuccess={() => { setOpenFuel(false); refresh() }} />
             </FormDialog>
             <FormDialog title="Tambah Servis" description={vehicle.name} open={openService} onOpenChange={setOpenService}
-              trigger={<Button className="h-10 text-[10px] font-bold gap-1" variant="outline"><IconTool className="h-3.5 w-3.5" /> Servis</Button>}>
+              trigger={<Button className="h-11 text-xs font-bold gap-1 px-2.5" variant="outline"><IconTool className="h-4 w-4" /> Servis</Button>}>
               <ServiceForm vehicleId={vehicle.id} vehicleName={vehicle.name} vehicleType={vehicle.type} onSuccess={() => { setOpenService(false); refresh() }} />
             </FormDialog>
           </div>
@@ -254,19 +254,19 @@ export default function VehicleDetailPage() {
                 Komponen
                 <div className="flex gap-2 items-center">
                   <FormDialog title="Tambah Komponen" open={openComponent} onOpenChange={setOpenComponent}
-                    trigger={<Button variant="link" className="h-auto p-0 text-xs text-primary font-bold"><IconPlus className="h-3 w-3" /> Tambah</Button>}>
+                    trigger={<Button variant="link" className="h-auto px-2 py-1 text-xs text-primary font-bold"><IconPlus className="h-3.5 w-3.5" /> Tambah</Button>}>
                     <ComponentForm vehicleId={id} vehicleType={vehicle.type} onSuccess={() => { setOpenComponent(false); fetchComponents(id); fetchVehicleHealth(id) }} />
                   </FormDialog>
                   <span className="text-muted-foreground/30 text-xs">•</span>
-                  <Button variant="link" className="h-auto p-0 text-xs text-primary font-bold" onClick={async () => {
+                  <Button variant="link" className="h-auto px-2 py-1 text-xs text-primary font-bold" onClick={async () => {
                     await fetchVehicleHealth(id)
                     setOpenSelectComponents(true)
                   }}>
-                    <IconList className="h-3 w-3" /> Cepat
+                    <IconList className="h-3.5 w-3.5" /> Cepat
                   </Button>
                   <span className="text-muted-foreground/30 text-xs">•</span>
-                  <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
-                    <Link href="/maintenance"><IconArrowRight className="h-3 w-3" /> Lihat Semua</Link>
+                  <Button variant="link" className="h-auto px-2 py-1 text-xs font-normal" asChild>
+                    <Link href="/maintenance"><IconArrowRight className="h-3.5 w-3.5" /> Lihat Semua</Link>
                   </Button>
                 </div>
               </CardTitle>
@@ -275,22 +275,25 @@ export default function VehicleDetailPage() {
               {healthData?.components.map((item) => {
                 const { component, remainingKm, status } = item
                 return (
-                  <div key={component.id} className="flex items-center justify-between rounded-lg hover:bg-muted/30 transition-colors group">
-                    <button type="button" className="flex items-center gap-2.5 flex-1 min-w-0 py-2 px-2 text-left"
-                      onClick={() => setDetailComponent(item)}>
-                      <div className={`p-1.5 rounded-full shrink-0 ${status === 'danger' ? 'bg-red-500/10' : status === 'warning' ? 'bg-orange-500/10' : 'bg-green-500/10'}`}>
-                        <IconTool className={`h-3.5 w-3.5 ${status === 'danger' ? 'text-red-500' : status === 'warning' ? 'text-orange-500' : 'text-green-500'}`} />
+                  <div key={component.id} className="rounded-lg hover:bg-muted/30 transition-colors group flex">
+                    <button
+                      type="button"
+                      className="flex items-center justify-between flex-1 min-w-0 py-2.5 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+                      onClick={() => setDetailComponent(item)}
+                      aria-label={`Lihat rincian detail ${component.name}`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`p-1.5 rounded-full shrink-0 ${status === 'danger' ? 'bg-red-500/10' : status === 'warning' ? 'bg-orange-500/10' : 'bg-green-500/10'}`}>
+                          <IconTool className={`h-3.5 w-3.5 ${status === 'danger' ? 'text-red-500' : status === 'warning' ? 'text-orange-500' : 'text-green-500'}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs md:text-sm font-semibold truncate">{component.name}</p>
+                          <p className="text-[11px] md:text-xs text-muted-foreground mt-0.5">
+                            {status === "danger" ? `Perlu ganti (${remainingKm} km)` : status === "warning" ? `Sisa ${remainingKm} km` : "Kondisi Baik"}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs md:text-sm font-semibold truncate">{component.name}</p>
-                        <p className="text-[9px] md:text-[10px] text-muted-foreground">
-                          {status === "danger" ? `Perlu ganti (${remainingKm} km)` : status === "warning" ? `Sisa ${remainingKm} km` : "Kondisi Baik"}
-                        </p>
-                      </div>
-                    </button>
-                    <button type="button" className="p-1.5 shrink-0 text-muted-foreground/30 hover:text-foreground transition-colors"
-                      onClick={() => setDetailComponent(item)} aria-label="Detail komponen">
-                      <IconArrowRight className="h-3.5 w-3.5" />
+                      <IconArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/40 group-hover:text-foreground transition-colors ml-2" aria-hidden="true" />
                     </button>
                   </div>
                 )
@@ -324,13 +327,17 @@ export default function VehicleDetailPage() {
             <CardHeader className="pb-2 px-3 md:px-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xs md:text-sm font-bold">Aktivitas Terbaru</CardTitle>
-                <Button variant="link" className="h-auto p-0 text-xs font-normal" asChild>
+                <Button variant="link" className="h-auto px-2 py-1 text-xs font-normal" asChild>
                   <Link href={`/history`}>Lihat Semua</Link>
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="pt-0 px-3 md:px-4">
-              <div className="space-y-2 max-h-44 overflow-y-auto">
+              <div 
+                className="space-y-2 max-h-44 overflow-y-auto focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-md p-1" 
+                tabIndex={0} 
+                aria-label="Daftar aktivitas terbaru"
+              >
                 {activities.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-3">Belum ada aktivitas.</p>
                 ) : (
@@ -345,10 +352,10 @@ export default function VehicleDetailPage() {
                           <Icon className={`h-3 w-3 ${iconColor}`} />
                         </div>
                         <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                          <span className="text-[10px] font-semibold truncate">{title}</span>
-                          {act.delta > 0 && <span className="text-[8px] font-bold text-emerald-600">+{act.delta.toLocaleString("id-ID")}</span>}
+                          <span className="text-xs font-semibold truncate">{title}</span>
+                          {act.delta > 0 && <span className="text-[10px] font-bold text-emerald-600">+{act.delta.toLocaleString("id-ID")}</span>}
                         </div>
-                        <span className="text-[8px] text-muted-foreground shrink-0">{act.date}</span>
+                        <span className="text-[10px] text-muted-foreground shrink-0">{act.date}</span>
                       </div>
                     )
                   })

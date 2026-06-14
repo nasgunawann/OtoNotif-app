@@ -173,7 +173,7 @@ export default function HistoryPage() {
         </div>
         <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
           <Select value={selectedVehicleId} onValueChange={setSelectedVehicleId}>
-            <SelectTrigger className="flex-1 sm:w-[180px] h-10 rounded-full bg-card/50">
+            <SelectTrigger className="flex-1 sm:w-[180px] h-11 rounded-full bg-card/50" aria-label="Saring riwayat berdasarkan kendaraan">
               <SelectValue placeholder="Semua Kendaraan" />
             </SelectTrigger>
             <SelectContent>
@@ -184,7 +184,7 @@ export default function HistoryPage() {
             </SelectContent>
           </Select>
           <Select value={selectedLogType} onValueChange={setSelectedLogType}>
-            <SelectTrigger className="flex-1 sm:w-[150px] h-10 rounded-full bg-card/50">
+            <SelectTrigger className="flex-1 sm:w-[150px] h-11 rounded-full bg-card/50" aria-label="Saring riwayat berdasarkan tipe catatan">
               <SelectValue placeholder="Semua Tipe" />
             </SelectTrigger>
             <SelectContent>
@@ -269,19 +269,21 @@ export default function HistoryPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-medium text-xs truncate">{title}</span>
-                              {delta > 0 && <span className="text-[8px] font-bold text-emerald-600">+{delta.toLocaleString("id-ID")}</span>}
+                              {delta > 0 && <span className="text-[10px] font-bold text-emerald-600">+{delta.toLocaleString("id-ID")}</span>}
                             </div>
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <span>{subtitle}</span>
                                 {cost && <span className="font-medium">{cost}</span>}
-                                <Badge variant="outline" className="text-[7px] py-0 px-1 h-3 rounded-full font-bold">{vehicleName}</Badge>
+                                <Badge variant="outline" className="text-[9px] py-0 px-2 h-4 rounded-full font-bold">{vehicleName}</Badge>
                               </div>
                               <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] text-muted-foreground">{formatDate(item.date)}</span>
-                                <button type="button" className="text-muted-foreground/30 hover:text-red-500 transition-colors p-0.5"
+                                <span className="text-[11px] text-muted-foreground">{formatDate(item.date)}</span>
+                                <button
+                                  type="button"
+                                  className="text-muted-foreground/60 hover:text-red-500 hover:bg-red-500/10 transition-colors h-10 w-10 flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                   onClick={async () => {
-                                    if (confirm(`Hapus catatan ini?`)) {
+                                    if (confirm(`Hapus catatan ${title}?`)) {
                                       try {
                                         if (isFuel) { await api.deleteFuelLog(item.id); setFuelLogs(p => p.filter(x => x.id !== item.id)) }
                                         else if (isMaint) { await api.deleteMaintenanceRecord(item.id); setMaintenance(p => p.filter(x => x.id !== item.id)) }
@@ -289,8 +291,10 @@ export default function HistoryPage() {
                                         toast.success("Catatan berhasil dihapus")
                                       } catch { toast.error("Gagal menghapus") }
                                     }
-                                  }}>
-                                  <IconTrash className="h-3 w-3" />
+                                  }}
+                                  aria-label={`Hapus catatan ${title}`}
+                                >
+                                  <IconTrash className="h-4 w-4" />
                                 </button>
                               </div>
                             </div>
