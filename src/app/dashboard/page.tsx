@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import {
   IconActivity,
+  IconCashBanknoteMinus,
   IconCar,
   IconDroplet,
   IconGauge,
@@ -191,7 +192,12 @@ export default function Dashboard() {
             aria-hidden="true"
           />
           <span className="sr-only">
-            Status: {healthStatus === "danger" ? "Kritis" : healthStatus === "warning" ? "Peringatan" : "Aman"}
+            Status:{" "}
+            {healthStatus === "danger"
+              ? "Kritis"
+              : healthStatus === "warning"
+                ? "Peringatan"
+                : "Aman"}
           </span>
         </div>
         <span
@@ -291,26 +297,31 @@ export default function Dashboard() {
         )}
       </Card>
 
-      {/* 3-Column Metrics Grid (Now responsive bento grid on Mobile, 3 columns on Desktop) */}
+      {/* 3-Column Metrics Grid (Digital Cockpit Style) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-        {/* Odometer */}
-        <Card className="col-span-2 sm:col-span-1 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 dark:border-amber-500/20 overflow-hidden relative group shadow-sm">
-          <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
-            <div className="flex items-center gap-1 md:gap-2 text-amber-700 dark:text-amber-400">
-              <IconGauge className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] truncate">
+        {/* Odometer Card */}
+        <Card className="col-span-2 sm:col-span-1 bg-card/30 border border-border/50 overflow-hidden relative group shadow-xs backdrop-blur-xs border-t-2 border-t-amber-500/50">
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 select-none pointer-events-none"></div>
+          <CardHeader className="p-3 pb-1.5">
+            <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+              <IconGauge className="h-4 w-4 shrink-0" />
+              <span className="text-sm font-bold uppercase tracking-[0.15em]">
                 Odometer
               </span>
             </div>
           </CardHeader>
-          <CardContent className="p-2 md:p-4 pt-0">
-            <div className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight text-amber-950 dark:text-amber-200 truncate">
+          <CardContent className="p-3 pt-0">
+            <div className="inline-flex items-baseline gap-1 font-mono text-lg md:text-xl font-bold tracking-tight text-amber-600 dark:text-amber-400 bg-amber-500/5 dark:bg-amber-950/20 px-2 py-1 rounded border border-amber-500/10">
               {vehicleHealth?.latestOdo
-                ? `${vehicleHealth.latestOdo.toLocaleString()} km`
+                ? vehicleHealth.latestOdo.toLocaleString("id-ID")
                 : "—"}
+              <span className="text-[9px] text-amber-600/70 dark:text-amber-500/50 ml-1 font-sans uppercase font-bold tracking-wider">
+                km
+              </span>
             </div>
-            <div className="flex items-center gap-1 text-[9px] md:text-[10px] text-amber-800/70 dark:text-amber-400/70 font-semibold mt-0.5 md:mt-1.5">
-              <span className="font-extrabold">
+            <div className="flex items-center gap-1 text-[9px] text-muted-foreground/80 font-semibold mt-2">
+              <span>Trip Minggu Ini:</span>
+              <span className="font-mono text-amber-600 dark:text-amber-400 font-bold">
                 +
                 {vehicleHealth?.weeklyOdoDelta
                   ? vehicleHealth.weeklyOdoDelta.toLocaleString("id-ID")
@@ -321,90 +332,99 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Fuel Level */}
-        <Card className="col-span-1 bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/15 dark:border-blue-500/20 overflow-hidden relative group shadow-sm">
-          <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
-            <div className="flex items-center justify-between gap-1">
-              <div className="flex items-center gap-1 md:gap-2 text-blue-700 dark:text-blue-400 min-w-0">
-                <IconDroplet className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] truncate">
-                  BBM
-                </span>
-              </div>
-              <span className="text-[9px] md:text-[10px] font-bold text-blue-800/70 dark:text-blue-400/70 font-mono hidden md:inline">
-                {fuel?.avg ? `${fuel.avg}` : "—"}
+        {/* Fuel Level Card */}
+        <Card className="col-span-1 bg-card/30 border border-border/50 overflow-hidden relative group shadow-xs backdrop-blur-xs border-t-2 border-t-blue-500/50">
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 select-none pointer-events-none"></div>
+          <CardHeader className="p-3 pb-1.5">
+            <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+              <IconDroplet className="h-4 w-4 shrink-0" />
+              <span className="text-sm font-bold uppercase tracking-[0.15em]">
+                BBM
               </span>
             </div>
           </CardHeader>
-          <CardContent className="p-2 md:p-4 pt-0 space-y-1 md:space-y-2">
+          <CardContent className="p-4 pt-0">
             {!fuel ? (
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground py-1">
                 Belum ada data BBM
               </div>
-            ) : fuel.estimating ? (
-              <div>
-                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate mb-1">
-                  {fuel.current > 0 ? `${fuel.current}L` : "—"}{" "}
-                  <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
-                    /{fuel.max}L
-                  </span>
-                </div>
-                <div className="relative h-1 md:h-2 w-full bg-blue-500/20 dark:bg-blue-500/30 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${fuel.percent}%` }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="absolute inset-y-0 left-0 bg-linear-to-r from-blue-600 to-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.4)]"
-                  />
-                </div>
-                {fuel.current > 0 ? (
-                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1.5 hidden md:block">
-                    📊 Kalibrasi: catat isi BBM berikutnya untuk estimasi konsumsi akurat
-                  </p>
-                ) : (
-                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1.5 hidden md:block">
-                    ⛽ Catat pengisian BBM untuk mulai memantau
-                  </p>
-                )}
-              </div>
             ) : (
-              <div>
-                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate mb-1">
-                  {fuel.current}L{" "}
-                  <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-foreground flex items-baseline gap-1">
+                  <span className="text-lg font-mono tracking-tight">
+                    {fuel.current > 0 ? fuel.current : "—"}
+                  </span>
+                  <span className="text-sm text-muted-foreground font-normal">
                     /{fuel.max}L
                   </span>
+                  {fuel.avg && (
+                    <span className="text-[9px] text-blue-500 font-mono ml-auto bg-blue-500/10 px-1.5 py-0.5 rounded font-bold">
+                      {fuel.avg}
+                    </span>
+                  )}
                 </div>
-                <div className="relative h-1 md:h-2 w-full bg-blue-500/20 dark:bg-blue-500/30 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${fuel.percent}%` }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="absolute inset-y-0 left-0 bg-linear-to-r from-blue-600 to-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.4)]"
-                  />
+
+                {/* Segmented LCD-style fuel gauge indicator */}
+                <div className="flex gap-0.5 items-center bg-zinc-950/20 dark:bg-zinc-950/40 p-1 rounded border border-border/40 w-fit">
+                  <span className="text-[8px] font-mono text-muted-foreground mr-1 font-bold">
+                    E
+                  </span>
+                  {Array.from({ length: 10 }).map((_, idx) => {
+                    const activeSegments = Math.round((fuel.percent || 0) / 10);
+                    const isActive = idx < activeSegments;
+                    return (
+                      <div
+                        key={idx}
+                        className={cn(
+                          "h-3 w-1.5 rounded-xs transition-all duration-300",
+                          isActive
+                            ? "bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.6)]"
+                            : "bg-muted/30 dark:bg-zinc-800/30 border border-border/10",
+                        )}
+                      />
+                    );
+                  })}
+                  <span className="text-[8px] font-mono text-muted-foreground ml-1 font-bold">
+                    F
+                  </span>
                 </div>
+
+                {fuel.estimating && (
+                  <>
+                    {fuel.current > 0 ? (
+                      <p className="text-[8px] text-muted-foreground leading-tight mt-1.5 hidden md:block">
+                        📊 Kalibrasi aktif. Catat isi BBM berikutnya.
+                      </p>
+                    ) : (
+                      <p className="text-[8px] text-muted-foreground leading-tight mt-1.5 hidden md:block">
+                        ⛽ Catat pengisian untuk kalibrasi.
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Monthly Cost */}
-        <Card className="col-span-1 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/15 dark:border-emerald-500/20 overflow-hidden relative group shadow-sm">
-          <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
-            <div className="flex items-center gap-1 md:gap-2 text-emerald-700 dark:text-emerald-400">
-              <IconActivity className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] truncate">
+        {/* Monthly Cost Card */}
+        <Card className="col-span-1 bg-card/30 border border-border/50 overflow-hidden relative group shadow-xs backdrop-blur-xs border-t-2 border-t-emerald-500/50">
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 select-none pointer-events-none"></div>
+          <CardHeader className="p-4 pb-1">
+            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+              <IconCashBanknoteMinus className="h-4 w-4 shrink-0" />
+              <span className="text-sm font-bold uppercase tracking-[0.15em]">
                 Pengeluaran
               </span>
             </div>
           </CardHeader>
-          <CardContent className="p-2 md:p-4 pt-0">
-            <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-emerald-950 dark:text-emerald-200 truncate">
+          <CardContent className="p-4 pt-0">
+            <div className="inline-flex items-baseline gap-1 font-mono text-sm sm:text-base md:text-lg font-bold tracking-tight text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-950/20 px-2 py-1 rounded border border-emerald-500/10 truncate max-w-full">
               {vehicleHealth?.monthlyCost !== undefined
                 ? formatCompactCurrency(vehicleHealth.monthlyCost)
                 : "Rp 0"}
             </div>
-            <p className="text-[9px] md:text-[10px] text-emerald-700/80 dark:text-emerald-400/80 font-bold uppercase mt-0.5 md:mt-1.5">
+            <p className="text-[10px] text-muted-foreground/80 font-semibold mt-2">
               Bulan Ini
             </p>
           </CardContent>
@@ -415,29 +435,34 @@ export default function Dashboard() {
       <Card className="relative overflow-hidden border-none bg-card/50 shadow-sm">
         <CardContent className="p-3 md:p-4 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={cn(
-              "p-2 rounded-full shrink-0",
-              vehicleHealth?.taxStatus?.status === "danger"
-                ? "bg-red-500/10"
-                : vehicleHealth?.taxStatus?.status === "warning"
-                  ? "bg-orange-500/10"
-                  : "bg-green-500/10",
-            )}>
-              <IconReceipt className={cn(
-                "h-4 w-4 md:h-5 md:w-5",
+            <div
+              className={cn(
+                "p-2 rounded-full shrink-0",
                 vehicleHealth?.taxStatus?.status === "danger"
-                  ? "text-red-500"
+                  ? "bg-red-500/10"
                   : vehicleHealth?.taxStatus?.status === "warning"
-                    ? "text-orange-500"
-                    : "text-green-500",
-              )} />
+                    ? "bg-orange-500/10"
+                    : "bg-green-500/10",
+              )}
+            >
+              <IconReceipt
+                className={cn(
+                  "h-4 w-4 md:h-5 md:w-5",
+                  vehicleHealth?.taxStatus?.status === "danger"
+                    ? "text-red-500"
+                    : vehicleHealth?.taxStatus?.status === "warning"
+                      ? "text-orange-500"
+                      : "text-green-500",
+                )}
+              />
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
                 Pajak Kendaraan
               </p>
               <p className="text-xs md:text-sm font-extrabold truncate mt-0.5">
-                {vehicleHealth?.taxStatus?.status === "none" || !vehicleHealth?.taxStatus?.dueDate
+                {vehicleHealth?.taxStatus?.status === "none" ||
+                !vehicleHealth?.taxStatus?.dueDate
                   ? "Belum diatur"
                   : vehicleHealth.taxStatus.status === "danger"
                     ? `Overdue ${Math.abs(vehicleHealth.taxStatus.daysRemaining ?? 0)} hari`
@@ -448,15 +473,18 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="text-right shrink-0">
-            <p className={cn(
-              "text-[10px] md:text-xs font-extrabold",
-              vehicleHealth?.taxStatus?.status === "danger"
-                ? "text-red-500"
-                : vehicleHealth?.taxStatus?.status === "warning"
-                  ? "text-orange-500"
-                  : "text-green-500",
-            )}>
-              {vehicleHealth?.taxStatus?.status === "none" || !vehicleHealth?.taxStatus?.dueDate
+            <p
+              className={cn(
+                "text-[10px] md:text-xs font-extrabold",
+                vehicleHealth?.taxStatus?.status === "danger"
+                  ? "text-red-500"
+                  : vehicleHealth?.taxStatus?.status === "warning"
+                    ? "text-orange-500"
+                    : "text-green-500",
+              )}
+            >
+              {vehicleHealth?.taxStatus?.status === "none" ||
+              !vehicleHealth?.taxStatus?.dueDate
                 ? "—"
                 : vehicleHealth.taxStatus.status === "danger"
                   ? "SEGERA BAYAR"
@@ -464,11 +492,12 @@ export default function Dashboard() {
                     ? "SEGERA"
                     : "AMAN"}
             </p>
-            {vehicleHealth?.taxStatus != null && vehicleHealth.taxStatus.amount > 0 && (
-              <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium mt-0.5">
-                {formatCompactCurrency(vehicleHealth.taxStatus.amount)}
-              </p>
-            )}
+            {vehicleHealth?.taxStatus != null &&
+              vehicleHealth.taxStatus.amount > 0 && (
+                <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium mt-0.5">
+                  {formatCompactCurrency(vehicleHealth.taxStatus.amount)}
+                </p>
+              )}
           </div>
         </CardContent>
       </Card>
