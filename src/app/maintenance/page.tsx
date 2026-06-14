@@ -1,15 +1,13 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { IconAlertCircle, IconTool, IconInfoCircle, IconCoin, IconPlus, IconChevronRight } from "@tabler/icons-react"
 import { motion } from "motion/react"
 import { api } from "@/lib/services/api"
-import type { Vehicle, VehicleHealth, ComponentHealth } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import type { VehicleHealth, ComponentHealth } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { FormDialog } from "@/components/forms/FormDialog"
 import { ServiceForm } from "@/components/forms/ServiceForm"
 import { ComponentForm } from "@/components/forms/ComponentForm"
@@ -23,9 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { toast } from "sonner"
-import Link from "next/link"
-import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -92,8 +87,6 @@ export default function MaintenancePage() {
 
   const dangerItems = filtered.filter((c) => c.status === "danger")
   const warningItems = filtered.filter((c) => c.status === "warning")
-  const safeItems = filtered.filter((c) => c.status === "safe")
-
   const totalEstimate = useMemo(() => {
     let total = 0
     for (const item of [...dangerItems, ...warningItems]) {

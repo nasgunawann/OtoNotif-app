@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,7 @@ export function ServiceForm({
     },
   });
 
-  const watchedComponentId = form.watch("componentId")
+  const watchedComponentId = useWatch({ control: form.control, name: "componentId" })
 
   // Auto-fill cost from template when component is selected
   useEffect(() => {

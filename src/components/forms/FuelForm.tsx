@@ -1,6 +1,6 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
@@ -71,7 +71,7 @@ export function FuelForm({ vehicleId, vehicleName, onSuccess }: Props) {
     },
   })
 
-  const isFullWatcher = form.watch("isFull")
+  const isFullWatcher = useWatch({ control: form.control, name: "isFull" })
 
   async function onSubmit(values: FormValues) {
     try {

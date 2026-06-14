@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
@@ -66,7 +66,7 @@ export function ComponentForm({ vehicleId, vehicleType = "motor", onSuccess }: P
     }
   }, [vehicleHealth?.latestOdo, form])
 
-  const selectedInterval = form.watch("intervalKm")
+  const selectedInterval = useWatch({ control: form.control, name: "intervalKm" })
 
   function handleTemplateSelect(name: string) {
     if (name === "__custom__") {

@@ -18,10 +18,13 @@ export default function AuthLayout({
 
         {/* Top Logo */}
         <div className="relative z-10">
-          <img
+          <Image
             src="/logo-dark.svg"
             alt="OtoNotif Logo"
+            width={120}
+            height={40}
             className="h-10 w-auto"
+            priority
           />
         </div>
 
@@ -59,15 +62,21 @@ export default function AuthLayout({
         {/* Mobile Header Logo (Visible only on mobile) */}
         <div className="lg:hidden flex items-center justify-between mb-6 w-full shrink-0">
           <div>
-            <img
+            <Image
               src="/logo-dark.svg"
               alt="OtoNotif Logo"
+              width={96}
+              height={32}
               className="h-8 w-auto dark:block hidden"
+              priority
             />
-            <img
+            <Image
               src="/logo-light.svg"
               alt="OtoNotif Logo"
+              width={96}
+              height={32}
               className="h-8 w-auto dark:hidden block"
+              priority
             />
           </div>
           <ThemeToggle />

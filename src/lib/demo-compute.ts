@@ -1,4 +1,4 @@
-import type { Vehicle, OdometerReading, FuelLog, Component, MaintenanceRecord, VehicleHealth, ComponentHealth, TaxStatusValue, Notification } from "@/lib/types"
+import type { Vehicle, OdometerReading, FuelLog, Component, MaintenanceRecord, VehicleHealth, ComponentHealth, Notification } from "@/lib/types"
 
 export function computeLatestOdometer(
   vehicleId: string,

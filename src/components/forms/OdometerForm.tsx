@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,7 @@ export function OdometerForm({ vehicleId, vehicleName, onSuccess }: Props) {
     },
   });
 
-  const estimatedReading = form.watch("estimatedKm");
+  const estimatedReading = useWatch({ control: form.control, name: "estimatedKm" });
   const computedOdo = latestOdo > 0 && estimatedReading ? latestOdo + estimatedReading : null;
 
   async function onSubmit(values: FormValues) {

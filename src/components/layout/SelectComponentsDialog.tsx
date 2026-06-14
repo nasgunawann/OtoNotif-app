@@ -18,7 +18,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { IconPlus, IconCheck, IconInfoCircle } from "@tabler/icons-react"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"

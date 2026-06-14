@@ -13,12 +13,11 @@ import {
   IconTool,
   IconPlus,
   IconArrowRight,
-  IconTrash,
   IconReceipt,
   IconList,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
@@ -36,13 +35,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import Link from "next/link"
-import { COMPONENT_TEMPLATES, type ComponentTemplate } from "@/lib/component-templates"
+import { COMPONENT_TEMPLATES } from "@/lib/component-templates"
 import { api } from "@/lib/services/api"
 import { ComponentDetailSheet } from "@/components/layout/ComponentDetailSheet"
-import type { FuelLog, MaintenanceRecord } from "@/lib/types"
 import { SelectComponentsDialog } from "@/components/layout/SelectComponentsDialog"
 import { PayTaxSheet } from "@/components/layout/PayTaxSheet"
-import type { ComponentHealth, OdometerReading } from "@/lib/types"
+import type { ComponentHealth } from "@/lib/types"
 
 type ActivityItem = {
   id: string
@@ -70,12 +68,10 @@ export default function VehicleDetailPage() {
   const {
     selectedVehicle,
     vehicleHealth,
-    odometerReadings,
     fetchVehicle,
     fetchVehicleHealth,
     fetchComponents,
     deleteVehicle,
-    updateVehicle,
     loading,
   } = useVehicleStore()
 
@@ -96,7 +92,7 @@ export default function VehicleDetailPage() {
         api.getMaintenanceRecords(vehicleId),
         api.getOdometerReadings(vehicleId),
       ])
-      const odoSorted = [...odos].sort((a, b) => new Date(a.date).getTime() - new Date(a.date).getTime())
+      const odoSorted = [...odos].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       const odoDeltas = new Map<string, number>()
       for (let i = 1; i < odoSorted.length; i++) {
         const d = odoSorted[i].reading - odoSorted[i - 1].reading
@@ -343,8 +339,6 @@ export default function VehicleDetailPage() {
                     const iconBg = act.type === "fuel" ? "bg-blue-500/10" : act.type === "maintenance" ? "bg-orange-500/10" : "bg-amber-500/10"
                     const iconColor = act.type === "fuel" ? "text-blue-500" : act.type === "maintenance" ? "text-orange-500" : "text-amber-600"
                     const title = act.type === "fuel" ? `Isi Bensin (${act.fuelType ?? ""})` : act.type === "maintenance" ? (act.description ?? "") : `${(act.reading ?? 0).toLocaleString("id-ID")} km`
-                    const cost = act.type === "fuel" ? `Rp ${(act.amount ?? 0).toLocaleString("id-ID")}` : act.type === "maintenance" && act.cost ? `Rp ${act.cost.toLocaleString("id-ID")}` : ""
-                    const subtitle = act.type === "fuel" ? `${act.liters ?? ""} L` : ""
                     return (
                       <div key={act.id} className="flex items-center gap-2 py-1.5 group">
                         <div className={`p-1 rounded-full shrink-0 ${iconBg}`}>

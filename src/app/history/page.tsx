@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import Link from "next/link"
-import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 
 type HistoryItem = (
   | (FuelLog & { type: "fuel" })

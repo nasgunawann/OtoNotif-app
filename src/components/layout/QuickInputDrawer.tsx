@@ -37,7 +37,6 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { IconChevronLeft } from "@tabler/icons-react";
 import type { Vehicle } from "@/lib/types";
 import { SelectComponentsDialog } from "@/components/layout/SelectComponentsDialog";
-import { useVehicleStore } from "@/lib/store/use-vehicle-store";
 
 type Step = "menu" | "odometer" | "fuel" | "service";
 
