@@ -215,7 +215,7 @@ export default function Dashboard() {
       </div>
 
       {/* Top Active Vehicle Selector Card */}
-      <Card className="relative overflow-hidden border-none bg-linear-to-br from-primary/5 via-background to-background shadow-md ring-1 ring-primary/10">
+      <Card className="relative overflow-hidden border border-border/50 bg-linear-to-br from-primary/5 via-card to-card shadow-sm">
         <CardContent className="p-3.5 md:p-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3 relative z-10">
             <div className="min-w-0">
@@ -236,7 +236,7 @@ export default function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 md:h-8 px-3 text-xs font-bold rounded-full"
+                  className="h-8 md:h-8 px-3 text-xs font-bold"
                 >
                   Ganti
                 </Button>
@@ -265,7 +265,7 @@ export default function Dashboard() {
               asChild
               variant="secondary"
               size="sm"
-              className="h-8 md:h-8 px-3 text-xs font-bold rounded-full gap-1"
+              className="h-8 md:h-8 px-3 text-xs font-bold gap-1"
             >
               <Link href={`/vehicles/${primaryVehicle.id}`}>
                 Detail <IconChevronRight className="h-3.5 w-3.5" />
@@ -284,7 +284,7 @@ export default function Dashboard() {
               className="object-cover object-right opacity-12 dark:opacity-18 grayscale contrast-125 transition-all duration-500"
             />
             {/* Gradient mask to blend image into the card background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-card via-card/70 to-transparent" />
           </div>
         ) : (
           <div className="absolute right-4 bottom-[-20%] text-primary/5 dark:text-primary/10 pointer-events-none select-none z-0">
@@ -300,7 +300,7 @@ export default function Dashboard() {
       {/* 3-Column Metrics Grid (Digital Cockpit Style) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
         {/* Odometer Card */}
-        <Card className="col-span-2 sm:col-span-1 bg-card/30 border border-border/50 overflow-hidden relative group shadow-xs backdrop-blur-xs border-t-2 border-t-amber-500/50">
+        <Card className="col-span-2 sm:col-span-1 bg-card border border-border/50 overflow-hidden relative group shadow-sm border-t-2 border-t-amber-500/50">
           <div className="absolute top-2.5 right-2.5 flex items-center gap-1 select-none pointer-events-none"></div>
           <CardHeader className="p-3 pb-1.5">
             <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
@@ -333,7 +333,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Fuel Level Card */}
-        <Card className="col-span-1 bg-card/30 border border-border/50 overflow-hidden relative group shadow-xs backdrop-blur-xs border-t-2 border-t-blue-500/50">
+        <Card className="col-span-1 bg-card border border-border/50 overflow-hidden relative group shadow-sm border-t-2 border-t-blue-500/50">
           <div className="absolute top-2.5 right-2.5 flex items-center gap-1 select-none pointer-events-none"></div>
           <CardHeader className="p-3 pb-1.5">
             <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
@@ -408,7 +408,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Monthly Cost Card */}
-        <Card className="col-span-1 bg-card/30 border border-border/50 overflow-hidden relative group shadow-xs backdrop-blur-xs border-t-2 border-t-emerald-500/50">
+        <Card className="col-span-1 bg-card border border-border/50 overflow-hidden relative group shadow-sm border-t-2 border-t-emerald-500/50">
           <div className="absolute top-2.5 right-2.5 flex items-center gap-1 select-none pointer-events-none"></div>
           <CardHeader className="p-4 pb-1">
             <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
@@ -432,7 +432,7 @@ export default function Dashboard() {
       </div>
 
       {/* Tax Status Card */}
-      <Card className="relative overflow-hidden border-none bg-card/50 shadow-sm">
+      <Card className="relative overflow-hidden border border-border/50 bg-card shadow-sm">
         <CardContent className="p-3 md:p-4 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div
@@ -505,7 +505,7 @@ export default function Dashboard() {
       {/* Bottom Layout: Component Monitoring & Recent Activity (Side-by-side on Widescreen) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
         {/* Component Monitoring (Sorted dynamically by health status) */}
-        <Card className="border-none bg-card/50 shadow-md lg:col-span-2">
+        <Card className="border border-border/50 bg-card shadow-sm lg:col-span-2">
           <CardHeader className="pb-3 md:pb-4">
             <CardTitle className="text-sm md:text-base font-bold tracking-tight flex items-center gap-2">
               <IconActivity className="h-4 w-4 text-primary" /> Pemantauan
@@ -603,7 +603,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Recent Activity / Fuel Log */}
-        <Card className="bg-card/50 border-none ring-1 ring-border/50 overflow-hidden shadow-sm lg:col-span-1">
+        <Card className="bg-card border border-border/50 overflow-hidden shadow-sm lg:col-span-1">
           <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
             <CardTitle className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
               <IconDroplet className="h-3.5 w-3.5 text-blue-500 shrink-0" />{" "}
