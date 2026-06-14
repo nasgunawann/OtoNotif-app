@@ -6,6 +6,7 @@ const disableStandalone = process.env.DISABLE_STANDALONE === "true";
 const nextConfig: NextConfig = {
   // 1. Defaults to standalone unless overridden by your environment flag
   output: disableStandalone ? undefined : "standalone",
+  allowedDevOrigins: ["192.168.1.7"],
 };
 
 console.log(`> Build Output Mode: ${nextConfig.output ?? "standard"}`);

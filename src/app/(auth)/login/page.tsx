@@ -1,190 +1,203 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { signIn } from "@/lib/auth-client";
-import { IconBrandGoogle } from "@tabler/icons-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { toast } from "sonner"
+import { signIn } from "@/lib/auth-client"
+import { IconBrandGoogle, IconMail, IconLock, IconEye, IconEyeOff } from "@tabler/icons-react"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import { motion, type Variants } from "motion/react"
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      staggerChildren: 0.08,
+      ease: "easeOut",
+    },
+  },
+}
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+}
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
 
   const handleDemo = async () => {
-    setDemoLoading(true);
+    setDemoLoading(true)
     try {
-      const res = await fetch("/api/auth/demo", { method: "POST" });
-      const data = await res.json();
+      const res = await fetch("/api/auth/demo", { method: "POST" })
+      const data = await res.json()
       if (res.ok && data.success) {
-        toast.success("Mode demo aktif.");
-        router.push("/dashboard");
+        toast.success("Mode demo aktif.")
+        router.push("/dashboard")
       } else {
-        toast.error(data.error || "Gagal masuk ke mode demo");
+        toast.error(data.error || "Gagal masuk ke mode demo")
       }
     } catch {
-      toast.error("Terjadi kesalahan sistem");
+      toast.error("Terjadi kesalahan sistem")
     } finally {
-      setDemoLoading(false);
+      setDemoLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await signIn.email({ email, password });
+    e.preventDefault()
+    setLoading(true)
+    const { error } = await signIn.email({ email, password })
     if (error) {
-      toast.error(error.message || "Email atau password salah");
-      setLoading(false);
-      return;
+      toast.error(error.message || "Email atau password salah")
+      setLoading(false)
+      return
     }
-    router.push("/dashboard");
-  };
+    router.push("/dashboard")
+  }
 
   const handleGoogle = async () => {
-    await signIn.social({ provider: "google", callbackURL: "/dashboard" });
-  };
+    await signIn.social({ provider: "google", callbackURL: "/dashboard" })
+  }
 
   return (
-    <div className="flex-1 flex flex-col justify-between h-screen max-h-screen overflow-hidden p-6 sm:p-8 bg-background relative select-none">
-      {/* Theme Toggle - Top Right */}
-      <div className="absolute top-4 right-4 z-20">
-        <ThemeToggle />
-      </div>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-4 pt-1"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="text-center space-y-1.5 mb-2">
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground bg-clip-text">
+          Masuk ke OtoNotif
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Pantau kesehatan kendaraan Anda secara real-time
+        </p>
+      </motion.div>
 
-      {/* Centered Content Container */}
-      <div className="w-full max-w-sm mx-auto my-auto flex flex-col justify-center space-y-4">
-        {/* Mobile Centered Logo (Hidden on Desktop) */}
-        <div className="flex items-center justify-center lg:hidden w-full pb-2">
-          <Image
-            src="/logo-light.svg"
-            alt="OtoNotif Logo"
-            width={180}
-            height={48}
-            className="h-12 w-auto dark:hidden"
-            priority
-          />
-          <Image
-            src="/logo-dark.svg"
-            alt="OtoNotif Logo"
-            width={180}
-            height={48}
-            className="h-12 w-auto hidden dark:block"
-            priority
-          />
-        </div>
-
-        {/* Desktop Centered Title (Hidden on Mobile) */}
-        <div className="hidden lg:block text-center space-y-1">
-          <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">
-            Masuk ke OtoNotif
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Pantau kesehatan kendaraan Anda secara real-time
-          </p>
-        </div>
-
-        {/* Google Sign In */}
+      {/* Google Sign In */}
+      <motion.div variants={itemVariants}>
         <Button
           variant="outline"
-          className="w-full h-11 gap-2 text-sm font-semibold rounded-xl"
+          className="w-full h-11 gap-2 text-sm font-semibold rounded-xl active:scale-[0.98] transition-transform duration-200"
           onClick={handleGoogle}
         >
-          <IconBrandGoogle className="h-4 w-4" />
+          <IconBrandGoogle className="h-4 w-4 text-rose-500" />
           Masuk dengan Google
         </Button>
+      </motion.div>
 
-        {/* Separator atau */}
-        <div className="flex items-center gap-3">
-          <Separator className="flex-1" />
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-            atau
-          </span>
-          <Separator className="flex-1" />
-        </div>
+      {/* Separator */}
+      <motion.div variants={itemVariants} className="flex items-center gap-3">
+        <Separator className="flex-1 bg-border/60" />
+        <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">atau</span>
+        <Separator className="flex-1 bg-border/60" />
+      </motion.div>
 
-        {/* Email/Password Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="email" className="text-xs font-medium">
-              Email
-            </Label>
-            <Input
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4.5">
+        <motion.div variants={itemVariants} className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-semibold text-foreground/80">Email</Label>
+          <InputGroup className="h-11 border-border/80 focus-within:border-amber-500/50 dark:focus-within:border-amber-500/50 focus-within:ring-amber-500/20 dark:focus-within:ring-amber-500/20 bg-background dark:bg-zinc-900/40 rounded-xl transition-all">
+            <InputGroupAddon align="inline-start" className="text-zinc-400 dark:text-zinc-500">
+              <IconMail className="h-4.5 w-4.5" />
+            </InputGroupAddon>
+            <InputGroupInput
               id="email"
               type="email"
               placeholder="nama@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-10 text-sm rounded-xl"
+              className="h-10 text-sm"
             />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="password" className="text-xs font-medium">
-              Password
-            </Label>
-            <Input
+          </InputGroup>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="space-y-1.5">
+          <Label htmlFor="password" className="text-xs font-semibold text-foreground/80">Password</Label>
+          <InputGroup className="h-11 border-border/80 focus-within:border-amber-500/50 dark:focus-within:border-amber-500/50 focus-within:ring-amber-500/20 dark:focus-within:ring-amber-500/20 bg-background dark:bg-zinc-900/40 rounded-xl transition-all">
+            <InputGroupAddon align="inline-start" className="text-zinc-400 dark:text-zinc-500">
+              <IconLock className="h-4.5 w-4.5" />
+            </InputGroupAddon>
+            <InputGroupInput
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="h-10 text-sm rounded-xl"
+              className="h-10 text-sm"
             />
-          </div>
+            <InputGroupAddon align="inline-end" className="text-zinc-400 dark:text-zinc-500 pr-1">
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="hover:text-foreground transition-colors p-1"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <IconEyeOff className="h-4 w-4" />
+                ) : (
+                  <IconEye className="h-4 w-4" />
+                )}
+              </button>
+            </InputGroupAddon>
+          </InputGroup>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
           <Button
             type="submit"
-            className="w-full h-11 text-sm font-semibold rounded-xl mt-1.5"
+            className="w-full h-11 text-sm font-semibold rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 active:scale-[0.98] transition-all duration-200 mt-2 shadow-lg shadow-amber-500/10"
             disabled={loading}
           >
             {loading ? "Memproses..." : "Masuk"}
           </Button>
-        </form>
+        </motion.div>
+      </form>
 
-        {/* Separator Belum punya akun */}
-        <div className="flex items-center gap-3 py-0.5">
-          <Separator className="flex-1" />
-          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-            Belum punya akun?
-          </span>
-          <Separator className="flex-1" />
+      {/* Switch Flow Link & Demo */}
+      <motion.div variants={itemVariants} className="space-y-4 pt-1">
+        <p className="text-xs text-center text-muted-foreground">
+          Belum punya akun?{" "}
+          <Link
+            href="/register"
+            className="font-bold text-amber-600 dark:text-amber-400 hover:underline transition-colors"
+          >
+            Daftar Sekarang
+          </Link>
+        </p>
+
+        <div className="flex items-center gap-3">
+          <Separator className="flex-1 bg-border/60" />
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">atau</span>
+          <Separator className="flex-1 bg-border/60" />
         </div>
 
-        {/* Switch flow to Register & Demo */}
-        <div className="space-y-2">
-          <Button
-            variant="secondary"
-            className="w-full h-11 text-sm font-semibold rounded-xl"
-            asChild
-          >
-            <Link href="/register">Daftar Akun Baru</Link>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="w-full h-11 gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800/80 hover:bg-amber-50 dark:hover:bg-amber-950/20 rounded-xl"
-            onClick={handleDemo}
-            disabled={demoLoading}
-          >
-            {demoLoading ? "Menyiapkan Demo..." : "Jelajahi Demo"}
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile Footer */}
-      <div className="w-full text-center text-[10px] text-muted-foreground py-2 block lg:hidden">
-        &copy; {new Date().getFullYear()} OtoNotif.
-      </div>
-    </div>
-  );
+        <Button
+          variant="outline"
+          className="w-full h-11 gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 rounded-xl active:scale-[0.98] transition-all duration-200"
+          onClick={handleDemo}
+          disabled={demoLoading}
+        >
+          {demoLoading ? "Menyiapkan Demo..." : "Jelajahi Demo"}
+        </Button>
+      </motion.div>
+    </motion.div>
+  )
 }
