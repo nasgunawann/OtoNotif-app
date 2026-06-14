@@ -291,10 +291,10 @@ export default function Dashboard() {
         )}
       </Card>
 
-      {/* 3-Column Metrics Grid (Now responsive stacked on Mobile, 3 columns on Desktop) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+      {/* 3-Column Metrics Grid (Now responsive bento grid on Mobile, 3 columns on Desktop) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
         {/* Odometer */}
-        <Card className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 dark:border-amber-500/20 overflow-hidden relative group shadow-sm">
+        <Card className="col-span-2 sm:col-span-1 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 dark:border-amber-500/20 overflow-hidden relative group shadow-sm">
           <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
             <div className="flex items-center gap-1 md:gap-2 text-amber-700 dark:text-amber-400">
               <IconGauge className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
@@ -304,7 +304,7 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent className="p-2 md:p-4 pt-0">
-            <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-amber-950 dark:text-amber-200 truncate">
+            <div className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight text-amber-950 dark:text-amber-200 truncate">
               {vehicleHealth?.latestOdo
                 ? `${vehicleHealth.latestOdo.toLocaleString()} km`
                 : "—"}
@@ -322,7 +322,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Fuel Level */}
-        <Card className="bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/15 dark:border-blue-500/20 overflow-hidden relative group shadow-sm">
+        <Card className="col-span-1 bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/15 dark:border-blue-500/20 overflow-hidden relative group shadow-sm">
           <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
             <div className="flex items-center justify-between gap-1">
               <div className="flex items-center gap-1 md:gap-2 text-blue-700 dark:text-blue-400 min-w-0">
@@ -343,7 +343,7 @@ export default function Dashboard() {
               </div>
             ) : fuel.estimating ? (
               <div>
-                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate">
+                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate mb-1">
                   {fuel.current > 0 ? `${fuel.current}L` : "—"}{" "}
                   <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
                     /{fuel.max}L
@@ -358,18 +358,18 @@ export default function Dashboard() {
                   />
                 </div>
                 {fuel.current > 0 ? (
-                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1">
+                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1.5 hidden md:block">
                     📊 Kalibrasi: catat isi BBM berikutnya untuk estimasi konsumsi akurat
                   </p>
                 ) : (
-                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1">
+                  <p className="text-[9px] text-blue-600/70 dark:text-blue-300/70 mt-1.5 hidden md:block">
                     ⛽ Catat pengisian BBM untuk mulai memantau
                   </p>
                 )}
               </div>
             ) : (
               <div>
-                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate">
+                <div className="text-[13px] sm:text-sm md:text-2xl font-extrabold tracking-tight text-blue-950 dark:text-blue-200 truncate mb-1">
                   {fuel.current}L{" "}
                   <span className="text-[9px] md:text-xs font-medium text-blue-700/60 dark:text-blue-300/60 tracking-normal">
                     /{fuel.max}L
@@ -389,7 +389,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Monthly Cost */}
-        <Card className="bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/15 dark:border-emerald-500/20 overflow-hidden relative group shadow-sm">
+        <Card className="col-span-1 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/15 dark:border-emerald-500/20 overflow-hidden relative group shadow-sm">
           <CardHeader className="p-2 md:p-4 pb-1 md:pb-2">
             <div className="flex items-center gap-1 md:gap-2 text-emerald-700 dark:text-emerald-400">
               <IconActivity className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
@@ -407,7 +407,6 @@ export default function Dashboard() {
             <p className="text-[9px] md:text-[10px] text-emerald-700/80 dark:text-emerald-400/80 font-bold uppercase mt-0.5 md:mt-1.5">
               Bulan Ini
             </p>
-
           </CardContent>
         </Card>
       </div>
