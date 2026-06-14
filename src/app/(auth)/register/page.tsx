@@ -1,110 +1,206 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { toast } from "sonner"
-import { signUp, signIn } from "@/lib/auth-client"
-import { IconBrandGoogle } from "@tabler/icons-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { signUp, signIn } from "@/lib/auth-client";
+import { IconBrandGoogle } from "@tabler/icons-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [demoLoading, setDemoLoading] = useState(false)
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
 
   const handleDemo = async () => {
-    setDemoLoading(true)
+    setDemoLoading(true);
     try {
-      const res = await fetch("/api/auth/demo", { method: "POST" })
-      const data = await res.json()
+      const res = await fetch("/api/auth/demo", { method: "POST" });
+      const data = await res.json();
       if (res.ok && data.success) {
-        toast.success("Mode demo aktif.")
-        router.push("/dashboard")
+        toast.success("Mode demo aktif.");
+        router.push("/dashboard");
       } else {
-        toast.error(data.error || "Gagal masuk ke mode demo")
+        toast.error(data.error || "Gagal masuk ke mode demo");
       }
     } catch {
-      toast.error("Terjadi kesalahan sistem")
+      toast.error("Terjadi kesalahan sistem");
     } finally {
-      setDemoLoading(false)
+      setDemoLoading(false);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    const { error } = await signUp.email({ name, email, password })
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await signUp.email({ name, email, password });
     if (error) {
-      toast.error(error.message || "Gagal mendaftar")
-      setLoading(false)
-      return
+      toast.error(error.message || "Gagal mendaftar");
+      setLoading(false);
+      return;
     }
-    router.push("/dashboard")
-  }
+    router.push("/dashboard");
+  };
 
   const handleGoogle = async () => {
-    await signIn.social({ provider: "google", callbackURL: "/dashboard" })
-  }
+    await signIn.social({ provider: "google", callbackURL: "/dashboard" });
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Buat Akun Baru</CardTitle>
-          <CardDescription>Daftar untuk menyimpan data kendaraan Anda</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button variant="outline" className="w-full h-11 gap-2" onClick={handleGoogle}>
-            <IconBrandGoogle className="h-5 w-5" />
-            Daftar dengan Google
-          </Button>
+    <div className="flex-1 flex flex-col justify-between h-screen max-h-screen overflow-hidden p-6 sm:p-8 bg-background relative select-none">
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
 
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground">atau</span>
-            <Separator className="flex-1" />
-          </div>
+      {/* Centered Content Container */}
+      <div className="w-full max-w-sm mx-auto my-auto flex flex-col justify-center space-y-4">
+        {/* Mobile Centered Logo (Hidden on Desktop) */}
+        <div className="flex items-center justify-center lg:hidden w-full pb-2">
+          <Image
+            src="/logo-light.svg"
+            alt="OtoNotif Logo"
+            width={180}
+            height={48}
+            className="h-12 w-auto dark:hidden"
+            priority
+          />
+          <Image
+            src="/logo-dark.svg"
+            alt="OtoNotif Logo"
+            width={180}
+            height={48}
+            className="h-12 w-auto hidden dark:block"
+            priority
+          />
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nama Lengkap</Label>
-              <Input id="name" type="text" placeholder="Nama Anda" value={name} onChange={(e) => setName(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="nama@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="Minimal 8 karakter" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
-            </div>
-            <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? "Memproses..." : "Daftar"}
-            </Button>
-          </form>
-
-          <Separator />
-
-          <Button variant="outline" className="w-full h-11 gap-2 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/50" onClick={handleDemo} disabled={demoLoading}>
-            {demoLoading ? "Menyiapkan Demo..." : "Jelajahi Demo ☕"}
-          </Button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Sudah punya akun?{" "}
-            <Link href="/login" className="font-semibold underline underline-offset-2 hover:text-foreground">
-              Masuk
-            </Link>
+        {/* Desktop Centered Title (Hidden on Mobile) */}
+        <div className="hidden lg:block text-center space-y-1">
+          <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">
+            Buat Akun Baru
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Daftar untuk menyimpan data kendaraan Anda
           </p>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Google Sign In */}
+        <Button
+          variant="outline"
+          className="w-full h-11 gap-2 text-sm font-semibold rounded-xl"
+          onClick={handleGoogle}
+        >
+          <IconBrandGoogle className="h-4 w-4" />
+          Daftar dengan Google
+        </Button>
+
+        {/* Separator atau */}
+        <div className="flex items-center gap-3">
+          <Separator className="flex-1" />
+          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            atau
+          </span>
+          <Separator className="flex-1" />
+        </div>
+
+        {/* Form Fields */}
+        <form onSubmit={handleSubmit} className="space-y-2.5">
+          <div className="space-y-1">
+            <Label htmlFor="name" className="text-xs font-medium">
+              Nama Lengkap
+            </Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Nama Anda"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="h-10 text-sm rounded-xl"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="email" className="text-xs font-medium">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="nama@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="h-10 text-sm rounded-xl"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="password" className="text-xs font-medium">
+              Password
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Minimal 8 karakter"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="h-10 text-sm rounded-xl"
+            />
+          </div>
+          <Button
+            type="submit"
+            className="w-full h-11 text-sm font-semibold rounded-xl mt-1.5"
+            disabled={loading}
+          >
+            {loading ? "Memproses..." : "Daftar"}
+          </Button>
+        </form>
+
+        {/* Separator Sudah punya akun */}
+        <div className="flex items-center gap-3 py-0.5">
+          <Separator className="flex-1" />
+          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+            Sudah punya akun?
+          </span>
+          <Separator className="flex-1" />
+        </div>
+
+        {/* Alternatives / Switch Action & Demo */}
+        <div className="space-y-2">
+          <Button
+            variant="secondary"
+            className="w-full h-11 text-sm font-semibold rounded-xl"
+            asChild
+          >
+            <Link href="/login">Masuk ke Akun Terdaftar</Link>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full h-11 gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800/80 hover:bg-amber-50 dark:hover:bg-amber-950/20 rounded-xl"
+            onClick={handleDemo}
+            disabled={demoLoading}
+          >
+            {demoLoading ? "Menyiapkan Demo..." : "Jelajahi Demo"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Footer */}
+      <div className="w-full text-center text-[10px] text-muted-foreground py-2 block lg:hidden">
+        &copy; {new Date().getFullYear()} OtoNotif.
+      </div>
     </div>
-  )
+  );
 }
