@@ -15,34 +15,41 @@ import {
   IconLock,
   IconEye,
   IconEyeOff,
+  IconLoader2,
 } from "@tabler/icons-react";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { motion, type Variants } from "motion/react";
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      staggerChildren: 0.08,
-      ease: "easeOut",
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
+import { motion, useReducedMotion, type Variants } from "motion/react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: shouldReduceMotion ? 0.05 : 0.4,
+        staggerChildren: shouldReduceMotion ? 0 : 0.08,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: shouldReduceMotion ? 0.05 : 0.3 } 
+    },
+  };
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -71,9 +78,15 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signUp.email({ name, email, password });
+
+    const { error } = await signUp.email({
+      email,
+      password,
+      name,
+    });
+
     if (error) {
-      toast.error(error.message || "Gagal mendaftar");
+      toast.error(error.message || "Gagal mendaftarkan akun baru");
       setLoading(false);
       return;
     }
@@ -97,14 +110,14 @@ export default function RegisterPage() {
         className="text-center space-y-1.5 mb-2"
       >
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground bg-clip-text">
-          Buat Akun Baru
+          Daftar Akun Baru
         </h2>
         <p className="text-xs text-muted-foreground">
-          Daftar untuk menyimpan data kendaraan Anda
+          Mulai pantau kesehatan kendaraan Anda hari ini
         </p>
       </motion.div>
 
-      {/* Google Sign Up */}
+      {/* Google Sign In */}
       <motion.div variants={itemVariants}>
         <Button
           variant="outline"
@@ -125,7 +138,7 @@ export default function RegisterPage() {
         <Separator className="flex-1 bg-border/60" />
       </motion.div>
 
-      {/* Form Fields */}
+      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <motion.div variants={itemVariants} className="space-y-1.5">
           <Label
@@ -196,11 +209,10 @@ export default function RegisterPage() {
             <InputGroupInput
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Minimal 8 karakter"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={8}
               className="h-10 text-sm"
             />
             <InputGroupAddon
@@ -226,10 +238,17 @@ export default function RegisterPage() {
         <motion.div variants={itemVariants}>
           <Button
             type="submit"
-            className="w-full h-11 text-sm font-semibold rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 active:scale-[0.98] transition-all duration-200 mt-2 shadow-lg shadow-amber-500/10"
+            className="w-full h-11 text-sm font-semibold rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 active:scale-[0.98] transition-all duration-200 mt-2 shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2"
             disabled={loading}
           >
-            {loading ? "Memproses..." : "Daftar"}
+            {loading ? (
+              <>
+                <IconLoader2 className="h-4 w-4 animate-spin" />
+                <span>Memproses...</span>
+              </>
+            ) : (
+              <span>Daftar</span>
+            )}
           </Button>
         </motion.div>
       </form>
@@ -256,11 +275,18 @@ export default function RegisterPage() {
 
         <Button
           variant="outline"
-          className="w-full h-11 gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 rounded-xl active:scale-[0.98] transition-all duration-200"
+          className="w-full h-11 gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 rounded-xl active:scale-[0.98] transition-all duration-200 flex items-center justify-center"
           onClick={handleDemo}
           disabled={demoLoading}
         >
-          {demoLoading ? "Menyiapkan Demo..." : "Jelajahi Demo"}
+          {demoLoading ? (
+            <>
+              <IconLoader2 className="h-4 w-4 animate-spin" />
+              <span>Menyiapkan Demo...</span>
+            </>
+          ) : (
+            <span>Jelajahi Demo</span>
+          )}
         </Button>
       </motion.div>
     </motion.div>

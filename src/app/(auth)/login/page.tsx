@@ -8,30 +8,36 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { signIn } from "@/lib/auth-client"
-import { IconBrandGoogle, IconMail, IconLock, IconEye, IconEyeOff } from "@tabler/icons-react"
+import { IconBrandGoogle, IconMail, IconLock, IconEye, IconEyeOff, IconLoader2 } from "@tabler/icons-react"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import { motion, type Variants } from "motion/react"
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      staggerChildren: 0.08,
-      ease: "easeOut",
-    },
-  },
-}
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-}
+import { motion, useReducedMotion, type Variants } from "motion/react"
 
 export default function LoginPage() {
   const router = useRouter()
+  const shouldReduceMotion = useReducedMotion()
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: shouldReduceMotion ? 0.05 : 0.4,
+        staggerChildren: shouldReduceMotion ? 0 : 0.08,
+        ease: "easeOut",
+      },
+    },
+  }
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: shouldReduceMotion ? 0.05 : 0.3 } 
+    },
+  }
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -163,10 +169,17 @@ export default function LoginPage() {
         <motion.div variants={itemVariants}>
           <Button
             type="submit"
-            className="w-full h-11 text-sm font-semibold rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 active:scale-[0.98] transition-all duration-200 mt-2 shadow-lg shadow-amber-500/10"
+            className="w-full h-11 text-sm font-semibold rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 active:scale-[0.98] transition-all duration-200 mt-2 shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2"
             disabled={loading}
           >
-            {loading ? "Memproses..." : "Masuk"}
+            {loading ? (
+              <>
+                <IconLoader2 className="h-4 w-4 animate-spin" />
+                <span>Memproses...</span>
+              </>
+            ) : (
+              <span>Masuk</span>
+            )}
           </Button>
         </motion.div>
       </form>
@@ -191,13 +204,21 @@ export default function LoginPage() {
 
         <Button
           variant="outline"
-          className="w-full h-11 gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 rounded-xl active:scale-[0.98] transition-all duration-200"
+          className="w-full h-11 gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 rounded-xl active:scale-[0.98] transition-all duration-200 flex items-center justify-center"
           onClick={handleDemo}
           disabled={demoLoading}
         >
-          {demoLoading ? "Menyiapkan Demo..." : "Jelajahi Demo"}
+          {demoLoading ? (
+            <>
+              <IconLoader2 className="h-4 w-4 animate-spin" />
+              <span>Menyiapkan Demo...</span>
+            </>
+          ) : (
+            <span>Jelajahi Demo</span>
+          )}
         </Button>
       </motion.div>
+
     </motion.div>
   )
 }
