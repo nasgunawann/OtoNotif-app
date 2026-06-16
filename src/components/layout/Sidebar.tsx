@@ -12,10 +12,12 @@ import { QuickInputDrawer } from "@/components/layout/QuickInputDrawer";
 import { motion } from "motion/react";
 import { NotificationSheet } from "@/components/layout/NotificationSheet";
 import { useSession } from "@/lib/auth-client";
+import { useVehicleStore } from "@/lib/store/use-vehicle-store";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { hasUnreadNotifications } = useVehicleStore();
   const desktopItems = NAV_ITEMS.filter((item) => item.desktop);
 
   return (
@@ -88,10 +90,12 @@ export function Sidebar() {
           >
             <div className="relative">
               <IconBell className="h-5 w-5" />
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-2 w-2 rounded-full p-0"
-              />
+              {hasUnreadNotifications && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-1 -right-1 h-2 w-2 rounded-full p-0 animate-pulse"
+                />
+              )}
             </div>
             <span>Notifikasi</span>
           </Button>

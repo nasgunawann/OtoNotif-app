@@ -10,11 +10,13 @@ import { getPageTitle } from "@/lib/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useSession } from "@/lib/auth-client"
+import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 
 export function Topbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
+  const { hasUnreadNotifications } = useVehicleStore()
 
   const getTitle = () => getPageTitle(pathname)
 
@@ -47,7 +49,9 @@ export function Topbar() {
         <NotificationSheet>
           <Button variant="ghost" size="icon" className="relative">
             <IconBell className="h-5 w-5" />
-            <Badge variant="destructive" className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full p-0" />
+            {hasUnreadNotifications && (
+              <Badge variant="destructive" className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full p-0 animate-pulse" />
+            )}
           </Button>
         </NotificationSheet>
 

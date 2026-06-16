@@ -13,6 +13,7 @@ import type {
   CreateFuelLogInput,
   CreateComponentInput,
   CreateMaintenanceInput,
+  Notification,
 } from "@/lib/types";
 import type { ComponentTemplate } from "@/lib/component-templates";
 
@@ -57,6 +58,11 @@ interface VehicleStore {
   fetchVehicleHealth: (vehicleId: string) => Promise<void>;
   fetchNotificationsSilent: () => Promise<import("@/lib/types").Notification[]>;
 
+  notifications: Notification[];
+  hasUnreadNotifications: boolean;
+  fetchNotifications: () => Promise<void>;
+  markNotificationsAsRead: () => void;
+
   userName: string;
   setUserName: (name: string) => void;
   initializeUserName: () => void;
@@ -72,6 +78,8 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
   maintenanceRecords: [],
   loading: false,
   error: null,
+  notifications: [],
+  hasUnreadNotifications: false,
 
   userName: "Pengguna",
 
@@ -544,5 +552,33 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
         set({ userName: stored });
       }
     }
+  },
+
+  fetchNotifications: async () => {
+    try {
+      const notifications = await api.getNotifications();
+      let hasUnread = false;
+      if (typeof window !== "undefined") {
+        const readIdsRaw = localStorage.getItem("otonotif_read_notification_ids");
+        const readIds: string[] = readIdsRaw ? JSON.parse(readIdsRaw) : [];
+        const readIdsSet = new Set(readIds);
+        hasUnread = notifications.some((n) => !readIdsSet.has(n.id));
+      }
+      set({ notifications, hasUnreadNotifications: hasUnread });
+    } catch (e) {
+      set({ error: (e as Error).message });
+    }
+  },
+
+  markNotificationsAsRead: () => {
+    const { notifications } = get();
+    if (typeof window !== "undefined") {
+      const notificationIds = notifications.map((n) => n.id);
+      localStorage.setItem(
+        "otonotif_read_notification_ids",
+        JSON.stringify(notificationIds)
+      );
+    }
+    set({ hasUnreadNotifications: false });
   },
 }));

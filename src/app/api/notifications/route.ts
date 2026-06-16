@@ -41,7 +41,7 @@ export async function GET() {
 
       if (remainingKm <= 0) {
         notifications.push({
-          id: crypto.randomUUID(),
+          id: `comp-danger-${comp.id}`,
           title: `Ganti ${comp.name} - ${v.name}`,
           description: `Sudah melebihi interval ${comp.intervalKm} km. Segera ganti!`,
           time: "Sekarang",
@@ -50,7 +50,7 @@ export async function GET() {
         });
       } else if (remainingKm <= comp.intervalKm * 0.15) {
         notifications.push({
-          id: crypto.randomUUID(),
+          id: `comp-warning-${comp.id}`,
           title: `${comp.name} - ${v.name} hampir habis`,
           description: `Sisa ${remainingKm} km lagi. Segera jadwalkan penggantian.`,
           time: "Hari ini",
@@ -62,13 +62,27 @@ export async function GET() {
 
     if (!latestOdo) {
       notifications.push({
-        id: crypto.randomUUID(),
+        id: `odo-empty-${v.id}`,
         title: `Odometer ${v.name} Belum Dicatat`,
         description: `Belum ada pembaruan odometer untuk ${v.name}.`,
         time: "Segera",
         type: "warning",
         icon: "IconGauge",
       });
+    } else {
+      const today = new Date();
+      const lastUpdate = new Date(latestOdo.date);
+      const diffDays = Math.ceil((today.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 14) {
+        notifications.push({
+          id: `odo-update-${v.id}`,
+          title: `Update Odometer ${v.name}`,
+          description: `Sudah ${diffDays} hari sejak pembaruan odometer terakhir. Perbarui agar estimasi komponen tetap akurat.`,
+          time: `${diffDays} hari lalu`,
+          type: "warning",
+          icon: "IconGauge",
+        });
+      }
     }
 
     if (v.taxDueDate) {
@@ -79,7 +93,7 @@ export async function GET() {
 
       if (diff <= 0) {
         notifications.push({
-          id: crypto.randomUUID(),
+          id: `tax-danger-${v.id}`,
           title: `Pajak ${v.name} Jatuh Tempo!`,
           description: `Pajak ${v.name} sudah lewat ${Math.abs(diff)} hari. Segera bayar!`,
           time: "Overdue",
@@ -88,7 +102,7 @@ export async function GET() {
         });
       } else if (diff <= reminderDays) {
         notifications.push({
-          id: crypto.randomUUID(),
+          id: `tax-warning-${v.id}`,
           title: `Pajak ${v.name} Akan Jatuh Tempo`,
           description: `Sisa ${diff} hari lagi. Segera siapkan pembayaran.`,
           time: `H-${diff}`,
