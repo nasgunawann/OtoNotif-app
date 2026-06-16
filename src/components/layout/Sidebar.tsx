@@ -115,6 +115,7 @@ export function Sidebar() {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             {session?.user?.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={session.user.image}
                 alt=""

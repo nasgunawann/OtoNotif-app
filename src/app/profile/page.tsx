@@ -39,18 +39,18 @@ export default function ProfilePage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (session?.user?.name) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNameInput(session.user.name)
     } else if (userName) {
       setNameInput(userName)
     }
     if (session?.user?.image) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setImageInput(session.user.image)
     }
   }, [session, userName])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
 
   const handleLogout = async () => {
@@ -71,7 +71,11 @@ export default function ProfilePage() {
     }
     setSaving(true)
     try {
-      const { error } = await (authClient as any).user.update({
+      const { error } = await (authClient as unknown as {
+        user: {
+          update: (data: { name: string; image?: string }) => Promise<{ error?: { message?: string } }>;
+        };
+      }).user.update({
         name: nameInput.trim(),
         image: imageInput.trim() || undefined,
       })
@@ -101,7 +105,9 @@ export default function ProfilePage() {
     }
     setPasswordSaving(true)
     try {
-      const { error } = await (authClient as any).changePassword({
+      const { error } = await (authClient as unknown as {
+        changePassword: (data: Record<string, unknown>) => Promise<{ error?: { message?: string } }>;
+      }).changePassword({
         newPassword,
         currentPassword,
         revokeOtherSessions: true,
@@ -162,6 +168,7 @@ export default function ProfilePage() {
           <CardContent className="p-6 flex flex-row md:flex-col items-center justify-between md:justify-center gap-4 text-left md:text-center">
             <div className="flex flex-row md:flex-col items-center gap-4">
               {session?.user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={session.user.image}
                   alt="Profile"

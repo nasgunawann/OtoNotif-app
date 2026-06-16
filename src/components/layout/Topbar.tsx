@@ -57,6 +57,7 @@ export function Topbar() {
 
         <Link href="/profile" className="text-muted-foreground hover:text-foreground p-1 flex items-center justify-center shrink-0">
           {session?.user?.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={session.user.image}
               alt=""
