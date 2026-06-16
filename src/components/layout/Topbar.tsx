@@ -9,10 +9,12 @@ import { useRouter } from "next/navigation"
 import { getPageTitle } from "@/lib/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useSession } from "@/lib/auth-client"
 
 export function Topbar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { data: session } = useSession()
 
   const getTitle = () => getPageTitle(pathname)
 
@@ -49,8 +51,16 @@ export function Topbar() {
           </Button>
         </NotificationSheet>
 
-        <Link href="/profile" className="text-muted-foreground hover:text-foreground p-2">
-          <IconUserCircle className="h-6 w-6" />
+        <Link href="/profile" className="text-muted-foreground hover:text-foreground p-1 flex items-center justify-center shrink-0">
+          {session?.user?.image ? (
+            <img
+              src={session.user.image}
+              alt=""
+              className="h-6 w-6 rounded-full object-cover border border-border/80"
+            />
+          ) : (
+            <IconUserCircle className="h-6 w-6" />
+          )}
         </Link>
       </div>
     </header>

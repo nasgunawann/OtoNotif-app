@@ -11,9 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { QuickInputDrawer } from "@/components/layout/QuickInputDrawer";
 import { motion } from "motion/react";
 import { NotificationSheet } from "@/components/layout/NotificationSheet";
+import { useSession } from "@/lib/auth-client";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const desktopItems = NAV_ITEMS.filter((item) => item.desktop);
 
   return (
@@ -104,10 +106,19 @@ export function Sidebar() {
           )}
         >
           <motion.div
+            className="flex items-center justify-center shrink-0"
             animate={{ scale: pathname === "/profile" ? 1.2 : 1 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <IconUserCircle className="h-5 w-5" />
+            {session?.user?.image ? (
+              <img
+                src={session.user.image}
+                alt=""
+                className="h-5 w-5 rounded-full object-cover border border-border/80"
+              />
+            ) : (
+              <IconUserCircle className="h-5 w-5" />
+            )}
           </motion.div>
           <span>Profil</span>
         </Link>

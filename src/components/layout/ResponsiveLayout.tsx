@@ -8,17 +8,23 @@ import { Topbar } from "@/components/layout/Topbar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DemoBanner } from "@/components/layout/DemoBanner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
+import { useSession } from "@/lib/auth-client"
 
 const authPaths = ["/login", "/register"]
 
 export function ResponsiveLayout({ children }: { children: React.ReactNode }) {
-  const { initializeUserName } = useVehicleStore()
+  const { initializeUserName, setUserName } = useVehicleStore()
+  const { data: session } = useSession()
   const pathname = usePathname()
   const isAuth = authPaths.includes(pathname)
 
   useEffect(() => {
-    initializeUserName()
-  }, [initializeUserName])
+    if (session?.user?.name) {
+      setUserName(session.user.name)
+    } else {
+      initializeUserName()
+    }
+  }, [session, setUserName, initializeUserName])
 
   if (isAuth) {
     return <>{children}</>
