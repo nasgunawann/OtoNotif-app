@@ -66,7 +66,7 @@ export function SelectComponentsDialog({ vehicle, open, onOpenChange, onSuccess 
   }
 
   async function handleAdd() {
-    if (selected.size === 0) return
+    if (!vehicle || selected.size === 0) return
     setAdding(true)
     const selectedTemplates = available.filter((t) => selected.has(t.name))
     try {
