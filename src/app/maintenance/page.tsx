@@ -321,15 +321,17 @@ export default function MaintenancePage() {
 
 
       {/* Dialogs */}
-      <SelectComponentsDialog vehicle={
-        selectedVehicleId !== "all"
-          ? healthData.find(h => h.vehicle.id === selectedVehicleId)?.vehicle ?? healthData[0]?.vehicle
-          : healthData[0]?.vehicle
-        }
-        open={openSelectComponents}
-        onOpenChange={setOpenSelectComponents}
-        onSuccess={loadData}
-      />
+      {healthData.length > 0 && (
+        <SelectComponentsDialog vehicle={
+          selectedVehicleId !== "all"
+            ? healthData.find(h => h.vehicle.id === selectedVehicleId)?.vehicle ?? healthData[0]?.vehicle
+            : healthData[0]?.vehicle
+          }
+          open={openSelectComponents}
+          onOpenChange={setOpenSelectComponents}
+          onSuccess={loadData}
+        />
+      )}
 
       {detailComponent && (
         <ComponentDetailSheet

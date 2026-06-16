@@ -27,7 +27,7 @@ import { toast } from "sonner"
 import type { Vehicle } from "@/lib/types"
 
 type Props = {
-  vehicle: Vehicle
+  vehicle: Vehicle | undefined
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
@@ -43,16 +43,18 @@ export function SelectComponentsDialog({ vehicle, open, onOpenChange, onSuccess 
     vehicleHealth?.components.map((c) => c.component.name) ?? []
   )
 
-  const available = COMPONENT_TEMPLATES[vehicle.type].filter(
-    (t) => !existingNames.has(t.name)
-  )
-
   useEffect(() => {
     if (!open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelected(new Set())
     }
   }, [open])
+
+  if (!vehicle) return null
+
+  const available = COMPONENT_TEMPLATES[vehicle.type].filter(
+    (t) => !existingNames.has(t.name)
+  )
 
   function toggle(name: string) {
     setSelected((prev) => {

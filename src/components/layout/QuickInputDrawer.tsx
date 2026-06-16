@@ -188,9 +188,26 @@ function QuickInputContent({ onSuccess }: { onSuccess: () => void }) {
 export function QuickInputDrawer({ children }: { children?: React.ReactNode }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   function handleSuccess() {
     setOpen(false);
+  }
+
+  if (!mounted) {
+    return (
+      <Button
+        size="icon"
+        className="h-14 w-14 rounded-full shadow-xl shadow-primary/30 opacity-0 pointer-events-none"
+      >
+        <IconPlus className="size-6" />
+      </Button>
+    );
   }
 
   if (isDesktop) {
