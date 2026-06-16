@@ -67,13 +67,14 @@ export function SelectComponentsDialog({ vehicle, open, onOpenChange, onSuccess 
 
   async function handleAdd() {
     if (!vehicle || selected.size === 0) return
+    const vehicleId = vehicle.id
     setAdding(true)
     const selectedTemplates = available.filter((t) => selected.has(t.name))
     try {
       const latestOdo = vehicleHealth?.latestOdo ?? 0
       for (const t of selectedTemplates) {
         await createComponent({
-          vehicleId: vehicle.id,
+          vehicleId,
           name: t.name,
           intervalKm: t.intervalKm,
           lastReplacedOdo: latestOdo,
