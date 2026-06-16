@@ -10,7 +10,7 @@ import { DemoBanner } from "@/components/layout/DemoBanner"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
 import { useSession } from "@/lib/auth-client"
 
-const authPaths = ["/login", "/register"]
+const authPaths = ["/", "/login", "/register"]
 
 export function ResponsiveLayout({ children }: { children: React.ReactNode }) {
   const { initializeUserName, setUserName } = useVehicleStore()

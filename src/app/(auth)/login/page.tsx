@@ -51,7 +51,7 @@ export default function LoginPage() {
       const data = await res.json()
       if (res.ok && data.success) {
         toast.success("Mode demo aktif.")
-        router.push("/dashboard")
+        window.location.href = "/dashboard"
       } else {
         toast.error(data.error || "Gagal masuk ke mode demo")
       }
