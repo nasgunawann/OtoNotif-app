@@ -1,6 +1,6 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,7 @@ const formSchema = z.object({
   type: z.enum(["motor", "mobil"]),
   engine: z.coerce.number().optional(),
   fuelCapacity: z.coerce.number().optional(),
+  image: z.string().optional(),
   taxDueDate: z.string().optional(),
   taxReminderDays: z.coerce.number().optional(),
   taxIntervalYears: z.coerce.number().optional(),
@@ -56,11 +57,17 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
       type: vehicle?.type || "motor",
       engine: vehicle?.engine || undefined as unknown as number,
       fuelCapacity: vehicle?.fuelCapacity || undefined as unknown as number,
+      image: vehicle?.image || "",
       taxDueDate: vehicle?.taxDueDate || "",
       taxReminderDays: vehicle?.taxReminderDays ?? 30,
       taxIntervalYears: vehicle?.taxIntervalYears ?? 1,
       taxAmount: vehicle?.taxAmount || undefined as unknown as number,
     },
+  })
+
+  const imageVal = useWatch({
+    control: form.control,
+    name: "image",
   })
 
   async function onSubmit(values: FormValues) {
@@ -71,6 +78,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           type: values.type,
           engine: values.engine || 0,
           fuelCapacity: values.fuelCapacity || 0,
+          image: values.image || vehicle.image,
           taxDueDate: values.taxDueDate || null,
           taxReminderDays: values.taxReminderDays ?? 30,
           taxIntervalYears: values.taxIntervalYears ?? 1,
@@ -83,11 +91,11 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           type: values.type,
           engine: values.engine || 0,
           fuelCapacity: values.fuelCapacity || 0,
+          image: values.image || (values.type === "motor" ? "/motorcycle_supra_mockup.png" : "/car_civic_mockup.png"),
           taxDueDate: values.taxDueDate || undefined,
           taxReminderDays: values.taxReminderDays ?? 30,
           taxIntervalYears: values.taxIntervalYears ?? 1,
           taxAmount: values.taxAmount ?? 0,
-          image: values.type === "motor" ? "/motorcycle_supra_mockup.png" : "/car_civic_mockup.png",
         })
         toast.success(`${values.name} ditambahkan`)
       }
@@ -130,6 +138,68 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
                   <SelectItem value="mobil">Mobil</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="image"
+          render={() => (
+            <FormItem className="flex flex-col items-center gap-2 py-2">
+              <FormLabel className="self-start">Foto Kendaraan (opsional)</FormLabel>
+              <div 
+                className="relative h-28 w-28 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 cursor-pointer overflow-hidden flex items-center justify-center bg-muted/30 group transition-colors shadow-inner"
+                onClick={() => document.getElementById("vehicle-image-upload")?.click()}
+              >
+                {imageVal ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imageVal}
+                    alt="Preview Kendaraan"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-2 text-muted-foreground group-hover:text-primary transition-colors">
+                    <span className="text-[10px] font-bold block">Pilih Foto</span>
+                    <span className="text-[8px] text-muted-foreground/60 block mt-0.5">Rasio 1:1</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <span className="text-[10px] text-white font-bold">Ubah Foto</span>
+                </div>
+              </div>
+              <input
+                id="vehicle-image-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  if (file.size > 2 * 1024 * 1024) {
+                    toast.error("Ukuran file maksimal 2MB")
+                    return
+                  }
+                  const reader = new FileReader()
+                  reader.onloadend = () => {
+                    if (typeof reader.result === "string") {
+                      form.setValue("image", reader.result)
+                    }
+                  }
+                  reader.readAsDataURL(file)
+                }}
+              />
+              {imageVal && (
+                <Button
+                  type="button"
+                  variant="link"
+                  className="text-xs text-red-500 h-auto p-0"
+                  onClick={() => form.setValue("image", "")}
+                >
+                  Hapus Foto
+                </Button>
+              )}
               <FormMessage />
             </FormItem>
           )}

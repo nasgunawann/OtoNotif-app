@@ -85,7 +85,7 @@ export default function VehiclesPage() {
           {vehicles.map((v) => (
             <Link key={v.id} href={`/vehicles/${v.id}`} className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl block">
               <Card className="overflow-hidden group-hover:shadow-lg transition-shadow border border-border/60 bg-card flex flex-row md:flex-col h-full rounded-xl">
-                <div className="h-24 w-24 md:w-full md:aspect-video relative bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                <div className="h-24 w-24 md:w-full md:aspect-square relative bg-muted flex items-center justify-center overflow-hidden shrink-0">
                   {v.image ? (
                     <Image
                       src={v.image}

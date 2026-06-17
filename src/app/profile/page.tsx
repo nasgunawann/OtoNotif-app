@@ -63,6 +63,24 @@ export default function ProfilePage() {
     }
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Ukuran file maksimal 2MB")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        setImageInput(reader.result)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nameInput.trim()) {
@@ -77,7 +95,7 @@ export default function ProfilePage() {
         };
       }).user.update({
         name: nameInput.trim(),
-        image: imageInput.trim() || undefined,
+        image: imageInput.trim() || "",
       })
       if (error) {
         toast.error(error.message || "Gagal memperbarui profil")
@@ -207,6 +225,40 @@ export default function ProfilePage() {
               }
             >
               <form onSubmit={handleSave} className="space-y-4">
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <div className="relative group cursor-pointer" onClick={() => document.getElementById("profile-upload")?.click()}>
+                    {imageInput ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={imageInput}
+                        alt="Preview"
+                        className="h-20 w-20 rounded-full object-cover border-2 border-primary group-hover:opacity-85 transition-opacity"
+                      />
+                    ) : (
+                      <IconUserCircle className="h-20 w-20 text-muted-foreground group-hover:text-primary transition-colors" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[10px] text-white font-bold">Pilih Foto</span>
+                    </div>
+                  </div>
+                  <input
+                    id="profile-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  {imageInput && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-xs text-red-500 h-auto p-0"
+                      onClick={() => setImageInput("")}
+                    >
+                      Hapus Foto
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="name">Nama Lengkap</Label>
                   <Input
@@ -214,16 +266,6 @@ export default function ProfilePage() {
                     value={nameInput}
                     onChange={(e) => setNameInput(e.target.value)}
                     placeholder="Masukkan nama lengkap"
-                    className="w-full"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="image">Foto Profil URL</Label>
-                  <Input
-                    id="image"
-                    value={imageInput}
-                    onChange={(e) => setImageInput(e.target.value)}
-                    placeholder="Masukkan URL foto profil"
                     className="w-full"
                   />
                 </div>
