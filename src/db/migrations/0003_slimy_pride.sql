@@ -1,1 +1,1 @@
-ALTER TABLE "vehicles" ALTER COLUMN "engine" SET DATA TYPE integer;
+ALTER TABLE "vehicles" ALTER COLUMN "engine" SET DATA TYPE integer USING engine::integer;
