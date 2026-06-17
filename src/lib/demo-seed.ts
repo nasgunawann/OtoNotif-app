@@ -41,8 +41,8 @@ export function getDemoSeedData(): {
   }
 
   const vehicles: Vehicle[] = [
-    { id: motorId, name: "Supra Bapak", type: "motor", image: "/motorcycle_supra_mockup.png", engine: "125cc", fuelCapacity: 4, isPrimary: true, taxDueDate: taxDueWarning(), taxReminderDays: 30, taxIntervalYears: 1, taxAmount: 150000, lastTaxPaidDate: twoMonthsAgo(), createdAt: now, updatedAt: now },
-    { id: mobilId, name: "Civic Turbo", type: "mobil", image: "/car_civic_mockup.png", engine: "1500cc Turbo", fuelCapacity: 47, isPrimary: false, taxDueDate: taxDueSafe(), taxReminderDays: 30, taxIntervalYears: 1, taxAmount: 1500000, lastTaxPaidDate: null, createdAt: now, updatedAt: now },
+    { id: motorId, name: "Supra Bapak", type: "motor", image: "/motorcycle_supra_mockup.png", engine: 125, fuelCapacity: 4, isPrimary: true, taxDueDate: taxDueWarning(), taxReminderDays: 30, taxIntervalYears: 1, taxAmount: 150000, lastTaxPaidDate: twoMonthsAgo(), createdAt: now, updatedAt: now },
+    { id: mobilId, name: "Civic Turbo", type: "mobil", image: "/car_civic_mockup.png", engine: 1500, fuelCapacity: 47, isPrimary: false, taxDueDate: taxDueSafe(), taxReminderDays: 30, taxIntervalYears: 1, taxAmount: 1500000, lastTaxPaidDate: null, createdAt: now, updatedAt: now },
   ]
 
   const odometerReadings: OdometerReading[] = [

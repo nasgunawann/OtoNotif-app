@@ -53,7 +53,7 @@ export async function POST() {
         name: v.name,
         type: v.type,
         image: v.image || "",
-        engine: v.engine || "",
+        engine: v.engine ?? 0,
         fuelCapacity: v.fuelCapacity ?? 0,
         isPrimary: v.isPrimary ?? false,
         taxDueDate: v.taxDueDate ?? null,

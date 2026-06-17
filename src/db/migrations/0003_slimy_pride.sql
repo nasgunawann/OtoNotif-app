@@ -1,0 +1,1 @@
+ALTER TABLE "vehicles" ALTER COLUMN "engine" SET DATA TYPE integer;

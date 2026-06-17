@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     name: body.name,
     type: body.type,
     image: body.image || "",
-    engine: body.engine || "",
+    engine: body.engine ?? 0,
     fuelCapacity: body.fuelCapacity ?? 0,
     isPrimary: body.isPrimary ?? false,
     taxDueDate: body.taxDueDate ?? null,

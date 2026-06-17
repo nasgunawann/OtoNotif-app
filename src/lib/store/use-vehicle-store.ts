@@ -114,7 +114,7 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
       name: data.name,
       type: data.type,
       image: data.image || "",
-      engine: data.engine || "",
+      engine: data.engine ?? 0,
       fuelCapacity: data.fuelCapacity ?? 0,
       isPrimary: data.isPrimary ?? false,
       taxDueDate: data.taxDueDate ?? null,

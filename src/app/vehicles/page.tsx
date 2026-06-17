@@ -107,7 +107,7 @@ export default function VehiclesPage() {
                   <div className="flex justify-between items-start mb-1">
                     <div>
                       <h3 className="text-sm font-bold leading-tight truncate">{v.name}</h3>
-                      <p className="text-xs text-muted-foreground font-medium">{v.engine} • {v.fuelCapacity}L</p>
+                      <p className="text-xs text-muted-foreground font-medium">{v.engine ? `${v.engine} cc • ` : ""}{v.fuelCapacity}L</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 mt-2 md:mt-0">

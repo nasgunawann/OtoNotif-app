@@ -52,7 +52,7 @@ export const vehicles = pgTable("vehicles", {
   name: text("name").notNull(),
   type: text("type").notNull(),
   image: text("image").notNull().default(""),
-  engine: text("engine").notNull().default(""),
+  engine: integer("engine").notNull().default(0),
   fuelCapacity: doublePrecision("fuel_capacity").notNull().default(0),
   isPrimary: boolean("is_primary").notNull().default(false),
   taxDueDate: text("tax_due_date"),

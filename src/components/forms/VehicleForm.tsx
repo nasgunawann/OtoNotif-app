@@ -31,7 +31,7 @@ import type { Vehicle } from "@/lib/types"
 const formSchema = z.object({
   name: z.string().min(1, "Nama kendaraan harus diisi"),
   type: z.enum(["motor", "mobil"]),
-  engine: z.string().optional(),
+  engine: z.coerce.number().optional(),
   fuelCapacity: z.coerce.number().optional(),
   taxDueDate: z.string().optional(),
   taxReminderDays: z.coerce.number().optional(),
@@ -54,7 +54,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
     defaultValues: {
       name: vehicle?.name || "",
       type: vehicle?.type || "motor",
-      engine: vehicle?.engine || "",
+      engine: vehicle?.engine || undefined as unknown as number,
       fuelCapacity: vehicle?.fuelCapacity || undefined as unknown as number,
       taxDueDate: vehicle?.taxDueDate || "",
       taxReminderDays: vehicle?.taxReminderDays ?? 30,
@@ -69,7 +69,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
         await updateVehicle(vehicle.id, {
           name: values.name,
           type: values.type,
-          engine: values.engine || "",
+          engine: values.engine || 0,
           fuelCapacity: values.fuelCapacity || 0,
           taxDueDate: values.taxDueDate || null,
           taxReminderDays: values.taxReminderDays ?? 30,
@@ -81,7 +81,7 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
         await createVehicle({
           name: values.name,
           type: values.type,
-          engine: values.engine || "",
+          engine: values.engine || 0,
           fuelCapacity: values.fuelCapacity || 0,
           taxDueDate: values.taxDueDate || undefined,
           taxReminderDays: values.taxReminderDays ?? 30,
@@ -139,9 +139,14 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
           name="engine"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mesin (opsional)</FormLabel>
+              <FormLabel>Kapasitas Mesin (opsional)</FormLabel>
               <FormControl>
-                <Input placeholder="125cc" {...field} />
+                <InputGroup>
+                  <NumberInput placeholder="125" value={field.value} onChange={field.onChange} />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>cc</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <FormMessage />
             </FormItem>

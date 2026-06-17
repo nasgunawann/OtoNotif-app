@@ -192,7 +192,7 @@ export default function VehicleDetailPage() {
             <h1 className="text-base md:text-lg font-bold truncate">{vehicle.name}</h1>
             <p className="text-xs text-muted-foreground truncate">
               {vehicle.type === "motor" ? <IconMotorbike className="h-3 w-3 inline mr-0.5" /> : <IconCar className="h-3 w-3 inline mr-0.5" />}
-              {vehicle.engine || vehicle.type} • {vehicle.fuelCapacity}L
+              {vehicle.engine ? `${vehicle.engine} cc` : vehicle.type} • {vehicle.fuelCapacity}L
             </p>
           </div>
         </div>
@@ -416,7 +416,7 @@ export default function VehicleDetailPage() {
               )}
               <div className="border-t border-border/40 pt-2 space-y-1.5">
                 <div className="flex justify-between"><span className="text-muted-foreground">Tipe</span><span className="font-semibold capitalize">{vehicle.type}</span></div>
-                {vehicle.engine && <div className="flex justify-between"><span className="text-muted-foreground">Mesin</span><span className="font-semibold">{vehicle.engine}</span></div>}
+                {vehicle.engine > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Mesin</span><span className="font-semibold">{vehicle.engine} cc</span></div>}
                 <div className="flex justify-between"><span className="text-muted-foreground">Kapasitas BBM</span><span className="font-semibold">{vehicle.fuelCapacity}L</span></div>
                 {vehicle.taxDueDate && <div className="flex justify-between"><span className="text-muted-foreground">Pajak</span>
                   <span className={cn("font-semibold", healthData?.taxStatus?.status === "danger" ? "text-red-500" : healthData?.taxStatus?.status === "warning" ? "text-orange-500" : "text-green-500")}>

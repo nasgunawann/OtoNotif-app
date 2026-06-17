@@ -5,7 +5,7 @@ export interface Vehicle {
   name: string
   type: VehicleType
   image: string
-  engine: string
+  engine: number
   fuelCapacity: number
   isPrimary: boolean
   taxDueDate: string | null
@@ -129,7 +129,7 @@ export interface CreateVehicleInput {
   name: string
   type: VehicleType
   image?: string
-  engine?: string
+  engine?: number
   fuelCapacity?: number
   isPrimary?: boolean
   taxDueDate?: string | null

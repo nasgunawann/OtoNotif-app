@@ -30,8 +30,8 @@ async function seed() {
   })
 
   await db.insert(schema.vehicles).values([
-    { id: motorId, userId: demoUserId, name: "Supra Bapak", type: "motor", image: "/motorcycle_supra_mockup.png", engine: "125cc", fuelCapacity: 4, isPrimary: true, createdAt: now, updatedAt: now },
-    { id: mobilId, userId: demoUserId, name: "Civic Turbo", type: "mobil", image: "/car_civic_mockup.png", engine: "1500cc Turbo", fuelCapacity: 47, isPrimary: false, createdAt: now, updatedAt: now },
+    { id: motorId, userId: demoUserId, name: "Supra Bapak", type: "motor", image: "/motorcycle_supra_mockup.png", engine: 125, fuelCapacity: 4, isPrimary: true, createdAt: now, updatedAt: now },
+    { id: mobilId, userId: demoUserId, name: "Civic Turbo", type: "mobil", image: "/car_civic_mockup.png", engine: 1500, fuelCapacity: 47, isPrimary: false, createdAt: now, updatedAt: now },
   ]);
 
   await db.insert(schema.odometerReadings).values([
