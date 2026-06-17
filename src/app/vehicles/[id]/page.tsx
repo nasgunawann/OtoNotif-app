@@ -497,7 +497,7 @@ export default function VehicleDetailPage() {
       </div>
 
       {/* === DIALOGS (shared) === */}
-      <FormDialog title="Edit Kendaraan" description={vehicle.name} open={openEdit} onOpenChange={setOpenEdit}>
+      <FormDialog title="Edit Kendaraan" description={vehicle.name} className="md:max-w-2xl" open={openEdit} onOpenChange={setOpenEdit}>
         <VehicleForm vehicle={vehicle} onSuccess={() => { setOpenEdit(false); refresh() }} />
       </FormDialog>
 

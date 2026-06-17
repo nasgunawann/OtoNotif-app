@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { cn } from "@/lib/utils"
 
 type FormDialogProps = {
   trigger?: React.ReactNode
@@ -29,16 +30,17 @@ type FormDialogProps = {
   children: React.ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  className?: string
 }
 
-export function FormDialog({ trigger, title, description, children, open, onOpenChange }: FormDialogProps) {
+export function FormDialog({ trigger, title, description, children, open, onOpenChange, className }: FormDialogProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className={cn("sm:max-w-[425px]", className)}>
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && <DialogDescription>{description}</DialogDescription>}
@@ -57,7 +59,7 @@ export function FormDialog({ trigger, title, description, children, open, onOpen
           <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
         </DrawerHeader>
-        <div className="px-4">{children}</div>
+        <div className="px-4 max-h-[65vh] overflow-y-auto">{children}</div>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="ghost">Batal</Button>

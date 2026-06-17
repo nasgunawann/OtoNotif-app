@@ -107,208 +107,222 @@ export function VehicleForm({ vehicle, onSuccess }: Props) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Kendaraan</FormLabel>
-              <FormControl>
-                <Input placeholder="Supra Bapak" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipe</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih tipe" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="motor">Motor</SelectItem>
-                  <SelectItem value="mobil">Mobil</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="image"
-          render={() => (
-            <FormItem className="flex flex-col items-center gap-2 py-2">
-              <FormLabel className="self-start">Foto Kendaraan (opsional)</FormLabel>
-              <div 
-                className="relative h-28 w-28 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 cursor-pointer overflow-hidden flex items-center justify-center bg-muted/30 group transition-colors shadow-inner"
-                onClick={() => document.getElementById("vehicle-image-upload")?.click()}
-              >
-                {imageVal ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={imageVal}
-                    alt="Preview Kendaraan"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="text-center p-2 text-muted-foreground group-hover:text-primary transition-colors">
-                    <span className="text-[10px] font-bold block">Pilih Foto</span>
-                    <span className="text-[8px] text-muted-foreground/60 block mt-0.5">Rasio 1:1</span>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <span className="text-[10px] text-white font-bold">Ubah Foto</span>
-                </div>
-              </div>
-              <input
-                id="vehicle-image-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (!file) return
-                  if (file.size > 2 * 1024 * 1024) {
-                    toast.error("Ukuran file maksimal 2MB")
-                    return
-                  }
-                  const reader = new FileReader()
-                  reader.onloadend = () => {
-                    if (typeof reader.result === "string") {
-                      form.setValue("image", reader.result)
-                    }
-                  }
-                  reader.readAsDataURL(file)
-                }}
-              />
-              {imageVal && (
-                <Button
-                  type="button"
-                  variant="link"
-                  className="text-xs text-red-500 h-auto p-0"
-                  onClick={() => form.setValue("image", "")}
-                >
-                  Hapus Foto
-                </Button>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          {/* Kolom Kiri: Informasi Umum & Foto */}
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Kendaraan</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Supra Bapak" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="engine"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kapasitas Mesin (opsional)</FormLabel>
-              <FormControl>
-                <InputGroup>
-                  <NumberInput placeholder="125" value={field.value} onChange={field.onChange} />
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupText>cc</InputGroupText>
-                  </InputGroupAddon>
-                </InputGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="fuelCapacity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kapasitas BBM (opsional)</FormLabel>
-              <FormControl>
-                <InputGroup>
-                  <NumberInput placeholder="4" value={field.value} onChange={field.onChange} />
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupText>L</InputGroupText>
-                  </InputGroupAddon>
-                </InputGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Separator className="my-2" />
-        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-          Pajak Kendaraan
-        </p>
-        <FormField
-          control={form.control}
-          name="taxDueDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tanggal Jatuh Tempo Pajak</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-3 gap-3">
-          <FormField
-            control={form.control}
-            name="taxReminderDays"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Pengingat (H-)</FormLabel>
-                <FormControl>
-                  <InputGroup>
-                    <NumberInput placeholder="30" value={field.value} onChange={field.onChange} />
-                  </InputGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="taxIntervalYears"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Interval</FormLabel>
-                <FormControl>
-                  <InputGroup>
-                    <NumberInput placeholder="1" value={field.value} onChange={field.onChange} />
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupText>thn</InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="taxAmount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nominal</FormLabel>
-                <FormControl>
-                  <InputGroup>
-                    <InputGroupAddon align="inline-start">
-                      <InputGroupText>Rp</InputGroupText>
-                    </InputGroupAddon>
-                    <NumberInput placeholder="500.000" value={field.value} onChange={field.onChange} />
-                  </InputGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipe</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih tipe" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="motor">Motor</SelectItem>
+                      <SelectItem value="mobil">Mobil</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="image"
+              render={() => (
+                <FormItem className="flex flex-col items-center gap-2 py-1">
+                  <FormLabel className="self-start">Foto Kendaraan (opsional)</FormLabel>
+                  <div 
+                    className="relative h-28 w-28 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 cursor-pointer overflow-hidden flex items-center justify-center bg-muted/30 group transition-colors shadow-inner"
+                    onClick={() => document.getElementById("vehicle-image-upload")?.click()}
+                  >
+                    {imageVal ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={imageVal}
+                        alt="Preview Kendaraan"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-2 text-muted-foreground group-hover:text-primary transition-colors">
+                        <span className="text-[10px] font-bold block">Pilih Foto</span>
+                        <span className="text-[8px] text-muted-foreground/60 block mt-0.5">Rasio 1:1</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <span className="text-[10px] text-white font-bold">Ubah Foto</span>
+                    </div>
+                  </div>
+                  <input
+                    id="vehicle-image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      if (file.size > 2 * 1024 * 1024) {
+                        toast.error("Ukuran file maksimal 2MB")
+                        return
+                      }
+                      const reader = new FileReader()
+                      reader.onloadend = () => {
+                        if (typeof reader.result === "string") {
+                          form.setValue("image", reader.result)
+                        }
+                      }
+                      reader.readAsDataURL(file)
+                    }}
+                  />
+                  {imageVal && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-xs text-red-500 h-auto p-0"
+                      onClick={() => form.setValue("image", "")}
+                    >
+                      Hapus Foto
+                    </Button>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="engine"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kapasitas Mesin</FormLabel>
+                    <FormControl>
+                      <InputGroup>
+                        <NumberInput placeholder="125" value={field.value} onChange={field.onChange} />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupText>cc</InputGroupText>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fuelCapacity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kapasitas BBM</FormLabel>
+                    <FormControl>
+                      <InputGroup>
+                        <NumberInput placeholder="4" value={field.value} onChange={field.onChange} />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupText>L</InputGroupText>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Kolom Kanan: Pajak Kendaraan */}
+          <div className="space-y-4">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Pajak Kendaraan
+            </p>
+            <Separator className="my-1" />
+            <FormField
+              control={form.control}
+              name="taxDueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tanggal Jatuh Tempo Pajak</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 gap-4">
+              <FormField
+                control={form.control}
+                name="taxReminderDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pengingat (H-)</FormLabel>
+                    <FormControl>
+                      <InputGroup>
+                        <NumberInput placeholder="30" value={field.value} onChange={field.onChange} />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupText>hari</InputGroupText>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="taxIntervalYears"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Interval Pajak</FormLabel>
+                    <FormControl>
+                      <InputGroup>
+                        <NumberInput placeholder="1" value={field.value} onChange={field.onChange} />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupText>tahun</InputGroupText>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="taxAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nominal Pajak</FormLabel>
+                    <FormControl>
+                      <InputGroup>
+                        <InputGroupAddon align="inline-start">
+                          <InputGroupText>Rp</InputGroupText>
+                        </InputGroupAddon>
+                        <NumberInput placeholder="500.000" value={field.value} onChange={field.onChange} />
+                      </InputGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
         </div>
 
         <Button type="submit" size="lg" className="w-full h-12 text-base gap-2" disabled={form.formState.isSubmitting}>

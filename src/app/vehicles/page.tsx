@@ -44,6 +44,7 @@ export default function VehiclesPage() {
         </div>
         <FormDialog
           title="Tambah Kendaraan"
+          className="md:max-w-2xl"
           trigger={
             <Button size="sm" className="hidden md:flex gap-2">
               <IconPlus className="h-4 w-4" /> Tambah
@@ -69,6 +70,7 @@ export default function VehiclesPage() {
           <p className="text-sm text-muted-foreground mb-4">Tambahkan kendaraan pertama Anda.</p>
           <FormDialog
             title="Tambah Kendaraan"
+            className="md:max-w-2xl"
             trigger={
               <Button className="gap-2">
                 <IconPlus className="h-4 w-4" /> Tambah Kendaraan
@@ -131,6 +133,7 @@ export default function VehiclesPage() {
 
           <FormDialog
             title="Tambah Kendaraan"
+            className="md:max-w-2xl"
             trigger={
               <Button variant="outline" className="border-2 border-dashed border-muted-foreground/30 flex flex-row md:flex-col items-center justify-center p-6 bg-muted/5 hover:bg-muted/10 h-24 md:h-auto w-full md:aspect-video rounded-xl gap-2">
                 <div className="bg-muted p-2 rounded-full">
