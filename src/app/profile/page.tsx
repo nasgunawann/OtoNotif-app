@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { IconUserCircle, IconSettings, IconLogout, IconSun, IconEdit, IconChevronRight, IconLock, IconTrash, IconAlertTriangle } from "@tabler/icons-react"
+import { IconUserCircle, IconSettings, IconLogout, IconSun, IconEdit, IconChevronRight, IconLock, IconTrash, IconAlertTriangle, IconCrown } from "@tabler/icons-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { motion } from "motion/react"
 import { useVehicleStore } from "@/lib/store/use-vehicle-store"
@@ -182,100 +182,119 @@ export default function ProfilePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="h-fit md:col-span-1">
-          <CardContent className="p-6 flex flex-row md:flex-col items-center justify-between md:justify-center gap-4 text-left md:text-center">
-            <div className="flex flex-row md:flex-col items-center gap-4">
-              {session?.user?.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={session.user.image}
-                  alt="Profile"
-                  className="h-16 w-16 md:h-24 md:w-24 rounded-full object-cover border"
-                />
-              ) : (
-                <IconUserCircle className="h-16 w-16 md:h-24 md:w-24 text-muted-foreground" />
-              )}
-              <div>
-                <h2 className="text-lg md:text-xl font-bold leading-tight">
-                  {userName || session?.user?.name || "Pengguna"}
-                </h2>
-                <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
-                  {session?.user?.email || "—"}
-                </p>
-                {session?.user && (
-                  <span className={cn(
-                    "inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1.5 border",
-                    session.user.emailVerified
-                      ? "bg-green-500/10 text-green-500 border-green-500/20"
-                      : "bg-amber-500/10 text-amber-500 border-amber-500/20"
-                  )}>
-                    {session.user.emailVerified ? "Terverifikasi" : "Belum Terverifikasi"}
-                  </span>
-                )}
-              </div>
-            </div>
-            <FormDialog
-              title="Edit Profil"
-              open={open}
-              onOpenChange={setOpen}
-              trigger={
-                <Button variant="outline" size="sm" className="gap-2 md:w-full">
-                  <IconEdit className="h-4 w-4" /> Edit
-                </Button>
-              }
-            >
-              <form onSubmit={handleSave} className="space-y-4">
-                <div className="flex flex-col items-center gap-2 py-2">
-                  <div className="relative group cursor-pointer" onClick={() => document.getElementById("profile-upload")?.click()}>
-                    {imageInput ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={imageInput}
-                        alt="Preview"
-                        className="h-20 w-20 rounded-full object-cover border-2 border-primary group-hover:opacity-85 transition-opacity"
-                      />
-                    ) : (
-                      <IconUserCircle className="h-20 w-20 text-muted-foreground group-hover:text-primary transition-colors" />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-[10px] text-white font-bold">Pilih Foto</span>
-                    </div>
-                  </div>
-                  <input
-                    id="profile-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
+        <div className="md:col-span-1 space-y-6">
+          <Card className="h-fit">
+            <CardContent className="p-6 flex flex-row md:flex-col items-center justify-between md:justify-center gap-4 text-left md:text-center">
+              <div className="flex flex-row md:flex-col items-center gap-4">
+                {session?.user?.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={session.user.image}
+                    alt="Profile"
+                    className="h-16 w-16 md:h-24 md:w-24 rounded-full object-cover border"
                   />
-                  {imageInput && (
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-xs text-red-500 h-auto p-0"
-                      onClick={() => setImageInput("")}
-                    >
-                      Hapus Foto
-                    </Button>
+                ) : (
+                  <IconUserCircle className="h-16 w-16 md:h-24 md:w-24 text-muted-foreground" />
+                )}
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold leading-tight">
+                    {userName || session?.user?.name || "Pengguna"}
+                  </h2>
+                  <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                    {session?.user?.email || "—"}
+                  </p>
+                  {session?.user && (
+                    <span className={cn(
+                      "inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1.5 border",
+                      session.user.emailVerified
+                        ? "bg-green-500/10 text-green-500 border-green-500/20"
+                        : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                    )}>
+                      {session.user.emailVerified ? "Terverifikasi" : "Belum Terverifikasi"}
+                    </span>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nama Lengkap</Label>
-                  <Input
-                    id="name"
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    placeholder="Masukkan nama lengkap"
-                    className="w-full"
-                  />
+              </div>
+              <FormDialog
+                title="Edit Profil"
+                open={open}
+                onOpenChange={setOpen}
+                trigger={
+                  <Button variant="outline" size="sm" className="gap-2 md:w-full">
+                    <IconEdit className="h-4 w-4" /> Edit
+                  </Button>
+                }
+              >
+                <form onSubmit={handleSave} className="space-y-4">
+                  <div className="flex flex-col items-center gap-2 py-2">
+                    <div className="relative group cursor-pointer" onClick={() => document.getElementById("profile-upload")?.click()}>
+                      {imageInput ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={imageInput}
+                          alt="Preview"
+                          className="h-20 w-20 rounded-full object-cover border-2 border-primary group-hover:opacity-85 transition-opacity"
+                        />
+                      ) : (
+                        <IconUserCircle className="h-20 w-20 text-muted-foreground group-hover:text-primary transition-colors" />
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[10px] text-white font-bold">Pilih Foto</span>
+                      </div>
+                    </div>
+                    <input
+                      id="profile-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    {imageInput && (
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="text-xs text-red-500 h-auto p-0"
+                        onClick={() => setImageInput("")}
+                      >
+                        Hapus Foto
+                      </Button>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nama Lengkap</Label>
+                    <Input
+                      id="name"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      placeholder="Masukkan nama lengkap"
+                      className="w-full"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={saving}>
+                    {saving ? "Menyimpan..." : "Simpan Perubahan"}
+                  </Button>
+                </form>
+              </FormDialog>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/20 bg-primary/[0.01]">
+            <CardContent className="p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <IconCrown className="h-5 w-5 fill-primary text-primary" />
                 </div>
-                <Button type="submit" className="w-full" disabled={saving}>
-                  {saving ? "Menyimpan..." : "Simpan Perubahan"}
-                </Button>
-              </form>
-            </FormDialog>
-          </CardContent>
-        </Card>
+                <div>
+                  <p className="text-sm font-semibold">OtoNotif Plus</p>
+                  <p className="text-xs text-muted-foreground">Aktifkan fitur pengingat tanpa batas.</p>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => router.push("/subscription")} className="text-xs font-semibold gap-1 bg-primary text-primary-foreground hover:bg-primary/90">
+                Upgrade <IconChevronRight className="h-3 w-3" />
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="md:col-span-2 space-y-6">
           <div className="space-y-2">
