@@ -13,6 +13,11 @@ services:
     restart: always
     networks:
       - default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d otonotif"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build:
@@ -22,6 +27,9 @@ services:
     container_name: otonotif-web
     expose:
       - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
     env_file:
       - path: .env
         required: false
