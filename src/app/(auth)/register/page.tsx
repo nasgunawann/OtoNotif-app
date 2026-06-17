@@ -9,7 +9,6 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { signUp, signIn } from "@/lib/auth-client";
 import {
-  IconBrandGoogle,
   IconUser,
   IconMail,
   IconLock,
@@ -17,6 +16,7 @@ import {
   IconEyeOff,
   IconLoader2,
 } from "@tabler/icons-react";
+import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import {
   InputGroup,
   InputGroupAddon,
@@ -124,7 +124,7 @@ export default function RegisterPage() {
           className="w-full h-11 gap-2 text-sm font-semibold rounded-xl active:scale-[0.98] transition-transform duration-200"
           onClick={handleGoogle}
         >
-          <IconBrandGoogle className="h-4 w-4 text-rose-500" />
+          <GoogleIcon className="h-4.5 w-4.5" />
           Daftar dengan Google
         </Button>
       </motion.div>
